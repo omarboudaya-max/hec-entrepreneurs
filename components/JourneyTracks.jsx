@@ -43,7 +43,7 @@ export default function JourneyTracks() {
     return (
         <section className="py-24 relative">
             <div className="container mx-auto px-4">
-                <h2 className="text-4xl md:text-6xl font-black text-center mb-16 text-zinc-900 tracking-tighter uppercase italic">THE JOURNEY</h2>
+                <h2 className="text-4xl md:text-6xl font-bold text-center mb-16 text-glow">THE JOURNEY</h2>
 
                 <div className="flex flex-col items-center">
                     {/* Tabs */}
@@ -54,10 +54,10 @@ export default function JourneyTracks() {
                                     key={track.id}
                                     onClick={() => setActiveTrack(track.id)}
                                     className={clsx(
-                                        "px-6 md:px-8 py-2 md:py-3 rounded-full text-sm md:text-base font-black transition-all duration-300",
+                                        "px-6 md:px-8 py-2 md:py-3 rounded-full text-sm md:text-base font-bold transition-all duration-300",
                                         activeTrack === track.id
-                                            ? "bg-foreground text-background shadow-xl shadow-zinc-200"
-                                            : "text-zinc-500 hover:text-zinc-900"
+                                            ? "bg-primary text-white shadow-[0_0_20px_rgba(124,58,237,0.5)]"
+                                            : "text-gray-400 hover:text-white"
                                     )}
                                 >
                                     {track.title}
@@ -77,22 +77,22 @@ export default function JourneyTracks() {
                                         animate={{ opacity: 1, y: 0, scale: 1 }}
                                         exit={{ opacity: 0, y: -20, scale: 0.95 }}
                                         transition={{ duration: 0.3 }}
-                                        className="glass p-8 md:p-12 rounded-3xl border border-zinc-200/50 relative overflow-hidden bg-white/60"
+                                        className="glass p-8 md:p-12 rounded-3xl border border-primary/20 relative overflow-hidden"
                                     >
-                                        <div className="absolute top-0 right-0 p-12 opacity-[0.03] text-zinc-900">
+                                        <div className="absolute top-0 right-0 p-12 opacity-5">
                                             <track.icon className="w-64 h-64" />
                                         </div>
 
-                                        <h3 className="text-3xl font-black mb-4 text-zinc-900 uppercase italic">{track.description}</h3>
+                                        <h3 className="text-3xl font-bold mb-4 text-secondary">{track.description}</h3>
 
                                         <div className="grid md:grid-cols-2 gap-6 mt-8">
                                             {track.content.map((item, idx) => (
-                                                <div key={idx} className="bg-white/40 p-6 rounded-2xl hover:bg-white/80 transition-all border border-zinc-100 hover:border-zinc-300 group shadow-sm hover:shadow-md">
-                                                    <div className="w-12 h-12 rounded-xl bg-zinc-50 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform border border-zinc-100">
-                                                        <item.icon className="w-6 h-6 text-zinc-900" />
+                                                <div key={idx} className="bg-white/5 p-6 rounded-2xl hover:bg-white/10 transition-colors border border-white/5 hover:border-primary/30 group">
+                                                    <div className="w-12 h-12 rounded-xl bg-primary/20 flex items-center justify-center mb-4 group-hover:scale-110 transition-transform">
+                                                        <item.icon className="w-6 h-6 text-primary" />
                                                     </div>
-                                                    <h4 className="text-xl font-black mb-2 text-zinc-900 transition-colors uppercase tracking-tight">{item.title}</h4>
-                                                    <p className="text-zinc-500 font-medium">{item.desc}</p>
+                                                    <h4 className="text-xl font-bold mb-2 group-hover:text-primary transition-colors">{item.title}</h4>
+                                                    <p className="text-gray-400">{item.desc}</p>
                                                 </div>
                                             ))}
                                         </div>

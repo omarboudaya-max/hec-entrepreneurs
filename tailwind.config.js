@@ -17,14 +17,6 @@ module.exports = {
             animation: {
                 ticker: "ticker 20s linear infinite",
                 "pulse-slow": "pulse-slow 4s cubic-bezier(0.4, 0, 0.6, 1) infinite",
-                "silver-light": "silver-light 8s linear infinite",
-                "float-slow": "float 10s ease-in-out infinite",
-            },
-            keyframes: {
-                float: {
-                    "0%, 100%": { transform: "translateY(0)" },
-                    "50%": { transform: "translateY(-20px)" },
-                },
             },
         },
     },
