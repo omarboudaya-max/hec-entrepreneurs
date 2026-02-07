@@ -7,21 +7,33 @@ export default function Hero() {
     return (
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
 
-            {/* Background Gradients */}
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(124,58,237,0.1),transparent_50%)]" />
-            <div className="absolute top-0 left-0 w-full h-full bg-[url('/grid.svg')] opacity-10" />
+            {/* Tech Moving Background */}
+            <div className="absolute inset-0 overflow-hidden pointer-events-none">
+                <div className="tech-dynamic-bg opacity-40 mix-blend-overlay" />
+                <div className="tech-bg-overlay opacity-80" />
+            </div>
 
-            {/* Animated Orbs */}
+            {/* Animated Floating Glass Spheres */}
             <motion.div
-                animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-                transition={{ duration: 8, repeat: Infinity }}
-                className="absolute top-1/4 left-1/4 w-64 h-64 md:w-96 md:h-96 bg-primary/20 rounded-full blur-[80px] md:blur-[100px]"
+                animate={{
+                    y: [0, -40, 0],
+                    x: [0, 20, 0],
+                    rotate: [0, 180, 360]
+                }}
+                transition={{ duration: 15, repeat: Infinity, ease: "easeInOut" }}
+                className="absolute top-1/4 left-1/4 w-64 h-64 md:w-96 md:h-96 bg-white/40 rounded-full blur-[40px] md:blur-[60px] border border-white/20 shadow-2xl"
             />
             <motion.div
-                animate={{ scale: [1, 1.2, 1], opacity: [0.3, 0.5, 0.3] }}
-                transition={{ duration: 10, repeat: Infinity, delay: 2 }}
-                className="absolute bottom-1/4 right-1/4 w-64 h-64 md:w-96 md:h-96 bg-secondary/10 rounded-full blur-[80px] md:blur-[100px]"
+                animate={{
+                    y: [0, 40, 0],
+                    x: [0, -20, 0],
+                    rotate: [360, 180, 0]
+                }}
+                transition={{ duration: 18, repeat: Infinity, ease: "easeInOut", delay: 2 }}
+                className="absolute bottom-1/4 right-1/4 w-64 h-64 md:w-96 md:h-96 bg-zinc-200/40 rounded-full blur-[40px] md:blur-[60px] border border-white/20 shadow-2xl"
             />
+
+            <div className="absolute top-0 left-0 w-full h-full bg-[url('/grid.svg')] opacity-[0.03] contrast-200" />
 
             <div className="container mx-auto px-4 z-10 text-center">
                 <motion.div
@@ -46,12 +58,12 @@ export default function Hero() {
 
                     <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center items-center">
                         <Link href="/join" className="w-full sm:w-auto">
-                            <button className="w-full sm:w-auto px-8 py-4 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-lg transition-all hover:scale-105 shadow-[0_0_20px_rgba(124,58,237,0.5)]">
+                            <button className="w-full sm:w-auto px-10 py-5 rounded-2xl bg-foreground text-background hover:bg-zinc-800 font-black text-lg transition-all hover:scale-105 shadow-xl shadow-zinc-200">
                                 Join the Club
                             </button>
                         </Link>
                         <Link href="/team-up" className="w-full sm:w-auto">
-                            <button className="w-full sm:w-auto px-8 py-4 rounded-xl bg-transparent border border-primary/50 hover:bg-primary/10 text-white font-bold text-lg backdrop-blur-sm transition-all shadow-[0_0_15px_rgba(124,58,237,0.2)] hover:shadow-[0_0_25px_rgba(124,58,237,0.4)]">
+                            <button className="w-full sm:w-auto px-10 py-5 rounded-2xl bg-white border border-zinc-200 hover:border-zinc-300 text-zinc-900 font-black text-lg backdrop-blur-sm transition-all shadow-lg hover:shadow-xl shadow-zinc-100">
                                 I’m Building a Startup
                             </button>
                         </Link>

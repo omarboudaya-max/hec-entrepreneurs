@@ -31,14 +31,14 @@ export default function Navbar() {
                             key={link.href}
                             href={link.href}
                             className={clsx(
-                                "relative px-4 py-2 rounded-full text-sm font-medium transition-colors",
-                                pathname === link.href ? "text-white" : "text-gray-400 hover:text-white"
+                                "relative px-4 py-2 rounded-full text-sm font-bold transition-colors",
+                                pathname === link.href ? "text-zinc-900" : "text-zinc-500 hover:text-zinc-900"
                             )}
                         >
                             {pathname === link.href && (
                                 <motion.div
                                     layoutId="navbar-indicator"
-                                    className="absolute inset-0 bg-primary/20 rounded-full border border-primary/50"
+                                    className="absolute inset-0 bg-zinc-100 rounded-full border border-zinc-200 shadow-sm"
                                     transition={{ type: "spring", bounce: 0.2, duration: 0.6 }}
                                 />
                             )}
@@ -50,7 +50,7 @@ export default function Navbar() {
                 {/* Mobile Toggle */}
                 <button
                     onClick={() => setIsOpen(!isOpen)}
-                    className="md:hidden p-2 text-gray-400 hover:text-white transition-colors"
+                    className="md:hidden p-2 text-zinc-500 hover:text-zinc-900 transition-colors"
                 >
                     {isOpen ? <X className="w-6 h-6" /> : <Menu className="w-6 h-6" />}
                 </button>
@@ -72,8 +72,8 @@ export default function Navbar() {
                                     className={clsx(
                                         "px-6 py-4 rounded-2xl text-base font-bold transition-all",
                                         pathname === link.href
-                                            ? "bg-primary/20 text-primary border border-primary/30"
-                                            : "text-gray-400 hover:text-white hover:bg-white/5"
+                                            ? "bg-zinc-100 text-zinc-900 border border-zinc-200"
+                                            : "text-zinc-500 hover:text-zinc-900 hover:bg-zinc-50"
                                     )}
                                 >
                                     {link.label}

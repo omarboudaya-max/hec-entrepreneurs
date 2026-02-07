@@ -3,13 +3,13 @@
 @tailwind utilities;
 
 :root {
-  --background: #0f0f1a;
-  --foreground: #ededed;
-  --primary: #7c3aed;
-  --secondary: #06b6d4;
-  --accent: #db2777;
-  --glass: rgba(15, 15, 26, 0.7);
-  --glass-border: rgba(124, 58, 237, 0.3);
+  --background: #f8fafc;
+  --foreground: #020617;
+  --primary: #64748b;
+  --secondary: #94a3b8;
+  --accent: #ffffff;
+  --glass: rgba(255, 255, 255, 0.7);
+  --glass-border: rgba(0, 0, 0, 0.05);
 }
 
 body {
@@ -20,31 +20,95 @@ body {
 
 @layer utilities {
   .glass {
-    background-color: var(--glass);
+    background: var(--glass);
     backdrop-filter: blur(24px);
+    -webkit-backdrop-filter: blur(24px);
     border: 1px solid var(--glass-border);
-    box-shadow: 0 0 15px rgba(124, 58, 237, 0.1);
+    box-shadow: 0 8px 32px 0 rgba(0, 0, 0, 0.05);
   }
 
   .text-glow {
-    text-shadow: 0 0 10px rgba(124, 58, 237, 0.5), 0 0 20px rgba(124, 58, 237, 0.3);
+    text-shadow: 0 0 20px rgba(0, 0, 0, 0.05);
   }
 
   .text-wave {
     background: linear-gradient(90deg,
-        #7c3aed,
-        #db2777,
-        #06b6d4,
-        #7c3aed);
+        #020617,
+        #64748b,
+        #94a3b8,
+        #64748b,
+        #020617);
     background-size: 300% 300%;
     -webkit-background-clip: text;
     background-clip: text;
     color: transparent;
-    animation: title-wave 6s ease infinite;
+    animation: title-wave 8s ease infinite;
+  }
+
+  .silver-light {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .silver-light::after {
+    content: '';
+    position: absolute;
+    top: -50%;
+    left: -50%;
+    width: 200%;
+    height: 200%;
+    background: linear-gradient(45deg,
+        transparent 45%,
+        rgba(0, 0, 0, 0.02) 50%,
+        transparent 55%);
+    animation: silver-light 8s linear infinite;
+    pointer-events: none;
+  }
+
+  .mesh-gradient {
+    background-color: #f8fafc;
+    background-image:
+      radial-gradient(at 0% 0%, hsla(210, 40%, 96%, 1) 0px, transparent 50%),
+      radial-gradient(at 50% 0%, hsla(215, 25%, 90%, 1) 0px, transparent 50%),
+      radial-gradient(at 100% 0%, hsla(210, 40%, 96%, 1) 0px, transparent 50%),
+      radial-gradient(at 0% 50%, hsla(215, 25%, 90%, 1) 0px, transparent 50%),
+      radial-gradient(at 100% 50%, hsla(215, 25%, 90%, 1) 0px, transparent 50%),
+      radial-gradient(at 0% 100%, hsla(210, 40%, 96%, 1) 0px, transparent 50%),
+      radial-gradient(at 50% 100%, hsla(215, 25%, 90%, 1) 0px, transparent 50%),
+      radial-gradient(at 100% 100%, hsla(210, 40%, 96%, 1) 0px, transparent 50%);
+    background-size: 200% 200%;
+    animation: mesh-move 20s ease infinite;
+  }
+
+  .tech-dynamic-bg {
+    background-image: url('/tech-bg.jpg');
+    background-size: 150% 150%;
+    animation: bg-pan 30s linear infinite;
+    background-position: center;
+    position: absolute;
+    inset: 0;
+    opacity: 0.8;
+  }
+
+  .tech-bg-overlay {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 50% 50%, transparent 20%, var(--background) 100%);
+    pointer-events: none;
   }
 }
 
 /* Animations */
+@keyframes silver-light {
+  0% {
+    transform: translate(-30%, -30%) rotate(0deg);
+  }
+
+  100% {
+    transform: translate(30%, 30%) rotate(360deg);
+  }
+}
+
 @keyframes ticker {
   0% {
     transform: translateX(0);
@@ -84,5 +148,46 @@ body {
 
   50% {
     background-position: 100% 50%;
+  }
+}
+
+@keyframes mesh-move {
+  0% {
+    background-position: 0% 0%;
+  }
+
+  50% {
+    background-position: 100% 100%;
+  }
+
+  100% {
+    background-position: 0% 0%;
+  }
+}
+
+@keyframes bg-pan {
+  0% {
+    background-position: 0% 0%;
+    transform: scale(1);
+  }
+
+  25% {
+    background-position: 100% 0%;
+    transform: scale(1.1);
+  }
+
+  50% {
+    background-position: 100% 100%;
+    transform: scale(1.05);
+  }
+
+  75% {
+    background-position: 0% 100%;
+    transform: scale(1.15);
+  }
+
+  100% {
+    background-position: 0% 0%;
+    transform: scale(1);
   }
 }

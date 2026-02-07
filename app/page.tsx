@@ -16,12 +16,12 @@ export default function Home() {
       <Hero />
 
       {/* Visual Separator */}
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent my-10" />
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-10" />
 
       <JourneyTracks />
 
       {/* Visual Separator */}
-      <div className="w-full h-px bg-gradient-to-r from-transparent via-secondary/30 to-transparent my-10" />
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-zinc-500/20 to-transparent my-10" />
 
       <HallOfFame />
       <AiAssistant />
