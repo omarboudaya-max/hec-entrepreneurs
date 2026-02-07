@@ -90,7 +90,7 @@ export default function Hero() {
                         </Link>
                     </div>
                 </motion.div>
-            </div>
+            </motion.div>
         </section>
     );
 }

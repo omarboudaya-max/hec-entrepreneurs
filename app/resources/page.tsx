@@ -61,14 +61,20 @@ export default function Resources() {
 
                 {/* Perks Locker */}
                 <div className="mb-32">
-                    <div className="grid md:grid-cols-3 gap-8">
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ staggerChildren: 0.1 }}
+                        className="grid md:grid-cols-3 gap-8"
+                    >
                         {perks.map((perk, idx) => (
                             <motion.div
                                 key={idx}
-                                initial={{ opacity: 0, y: 30 }}
-                                whileInView={{ opacity: 1, y: 0 }}
+                                initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                                whileInView={{ opacity: 1, y: 0, scale: 1 }}
                                 viewport={{ once: true }}
-                                transition={{ delay: idx * 0.1 }}
+                                transition={{ type: "spring", stiffness: 80 }}
                                 className="relative group"
                             >
                                 <div className={`absolute inset-0 bg-gradient-to-br ${perk.bg} rounded-[2.5rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
@@ -99,7 +105,7 @@ export default function Resources() {
                                 </div>
                             </motion.div>
                         ))}
-                    </div>
+                    </motion.div>
                 </div>
 
                 {/* Mentor Directory */}
@@ -111,13 +117,20 @@ export default function Resources() {
                         <h2 className="text-4xl font-black uppercase tracking-widest italic text-wave">MENTORS</h2>
                     </div>
 
-                    <div className="grid grid-cols-1 gap-6">
+                    <motion.div
+                        initial={{ opacity: 0 }}
+                        whileInView={{ opacity: 1 }}
+                        viewport={{ once: true }}
+                        transition={{ staggerChildren: 0.2 }}
+                        className="grid grid-cols-1 gap-6"
+                    >
                         {mentors.map((mentor, idx) => (
                             <motion.div
                                 key={idx}
-                                initial={{ opacity: 0, x: -20 }}
+                                initial={{ opacity: 0, x: -30 }}
                                 whileInView={{ opacity: 1, x: 0 }}
                                 viewport={{ once: true }}
+                                whileHover={{ x: 10, scale: 1.01 }}
                                 className="glass rounded-[2rem] p-8 flex flex-col md:flex-row items-center gap-8 border border-white/5 hover:border-primary/30 transition-all group"
                             >
                                 <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-primary via-accent to-secondary flex items-center justify-center font-black text-white text-4xl shadow-2xl shadow-primary/30 group-hover:rotate-12 transition-transform">
@@ -135,7 +148,7 @@ export default function Resources() {
                                 </div>
                             </motion.div>
                         ))}
-                    </div>
+                    </motion.div>
                 </div>
             </div>
         </main>
