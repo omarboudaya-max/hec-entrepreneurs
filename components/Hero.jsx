@@ -6,13 +6,6 @@ import Image from "next/image";
 export default function Hero() {
     return (
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
-            {/* Corner Logos */}
-            <div className="absolute top-8 left-8 z-20 opacity-20 hover:opacity-50 transition-all duration-500">
-                <Image src="/logo-club.png" alt="Club Logo" width={120} height={120} className="md:w-32 md:h-32 filter brightness-100 invert" />
-            </div>
-            <div className="absolute top-8 right-8 z-20 opacity-20 hover:opacity-50 transition-all duration-500">
-                <Image src="/logo-univ.jpg" alt="University Logo" width={140} height={56} className="md:w-[180px] md:h-[72px] filter grayscale brightness-100 invert" />
-            </div>
 
             {/* Background Gradients */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(124,58,237,0.1),transparent_50%)]" />
