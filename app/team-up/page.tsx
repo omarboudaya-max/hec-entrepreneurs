@@ -141,57 +141,57 @@ export default function TeamUp() {
                             </button>
                         </motion.div>
                     ))}
-            </div>
-        </div>
-
-            {/* Modal */ }
-    <AnimatePresence>
-        {selectedFounder && (
-            <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
-                <motion.div
-                    initial={{ opacity: 0, scale: 0.9, y: 20 }}
-                    animate={{ opacity: 1, scale: 1, y: 0 }}
-                    exit={{ opacity: 0, scale: 0.9, y: 20 }}
-                    className="w-full max-w-xl bg-[#0f0f1a] border border-primary/30 rounded-3xl md:rounded-[2rem] p-6 md:p-10 relative overflow-hidden shadow-2xl shadow-primary/20"
-                >
-                    <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary via-accent to-secondary" />
-
-                    <button
-                        onClick={() => setSelectedFounder(null)}
-                        className="absolute top-6 right-6 p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors"
-                    >
-                        <X className="w-6 h-6" />
-                    </button>
-
-                    <div className="mb-8">
-                        <span className="text-xs font-black text-primary uppercase tracking-[0.3em]">{selectedFounder.type} Profile</span>
-                        <h3 className="text-3xl font-black mt-2 text-white">Connect with {selectedFounder.role}</h3>
-                        <div className="w-20 h-1 bg-primary/30 mt-4 rounded-full" />
-                    </div>
-
-                    <p className="text-gray-400 mb-8 italic leading-relaxed">"{selectedFounder.pitch}"</p>
-
-                    <div className="space-y-6">
-                        <div>
-                            <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 block">Your Message</label>
-                            <textarea
-                                autoFocus
-                                className="w-full h-40 bg-white/5 border border-white/10 rounded-2xl p-6 text-white placeholder-gray-600 focus:outline-none focus:border-primary/50 transition-all resize-none shadow-inner"
-                                placeholder="Hi! I'm interested in your vision because..."
-                            ></textarea>
-                        </div>
-
-                        <button
-                            onClick={() => setSelectedFounder(null)}
-                            className="w-full py-5 rounded-2xl bg-gradient-to-r from-primary to-accent hover:scale-[1.02] text-white font-black uppercase tracking-widest flex items-center justify-center gap-3 transition-all shadow-xl shadow-primary/20"
-                        >
-                            <Send className="w-5 h-5" /> Send Connection Request
-                        </button>
-                    </div>
                 </motion.div>
             </div>
-        )}
-    </AnimatePresence>
+
+            {/* Modal */}
+            <AnimatePresence>
+                {selectedFounder && (
+                    <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/90 backdrop-blur-md">
+                        <motion.div
+                            initial={{ opacity: 0, scale: 0.9, y: 20 }}
+                            animate={{ opacity: 1, scale: 1, y: 0 }}
+                            exit={{ opacity: 0, scale: 0.9, y: 20 }}
+                            className="w-full max-w-xl bg-[#0f0f1a] border border-primary/30 rounded-3xl md:rounded-[2rem] p-6 md:p-10 relative overflow-hidden shadow-2xl shadow-primary/20"
+                        >
+                            <div className="absolute top-0 left-0 w-full h-2 bg-gradient-to-r from-primary via-accent to-secondary" />
+
+                            <button
+                                onClick={() => setSelectedFounder(null)}
+                                className="absolute top-6 right-6 p-2 hover:bg-white/10 rounded-full text-gray-400 hover:text-white transition-colors"
+                            >
+                                <X className="w-6 h-6" />
+                            </button>
+
+                            <div className="mb-8">
+                                <span className="text-xs font-black text-primary uppercase tracking-[0.3em]">{selectedFounder.type} Profile</span>
+                                <h3 className="text-3xl font-black mt-2 text-white">Connect with {selectedFounder.role}</h3>
+                                <div className="w-20 h-1 bg-primary/30 mt-4 rounded-full" />
+                            </div>
+
+                            <p className="text-gray-400 mb-8 italic leading-relaxed">"{selectedFounder.pitch}"</p>
+
+                            <div className="space-y-6">
+                                <div>
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 block">Your Message</label>
+                                    <textarea
+                                        autoFocus
+                                        className="w-full h-40 bg-white/5 border border-white/10 rounded-2xl p-6 text-white placeholder-gray-600 focus:outline-none focus:border-primary/50 transition-all resize-none shadow-inner"
+                                        placeholder="Hi! I'm interested in your vision because..."
+                                    ></textarea>
+                                </div>
+
+                                <button
+                                    onClick={() => setSelectedFounder(null)}
+                                    className="w-full py-5 rounded-2xl bg-gradient-to-r from-primary to-accent hover:scale-[1.02] text-white font-black uppercase tracking-widest flex items-center justify-center gap-3 transition-all shadow-xl shadow-primary/20"
+                                >
+                                    <Send className="w-5 h-5" /> Send Connection Request
+                                </button>
+                            </div>
+                        </motion.div>
+                    </div>
+                )}
+            </AnimatePresence>
         </main >
     );
 }

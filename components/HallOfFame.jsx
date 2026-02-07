@@ -88,8 +88,8 @@ export default function HallOfFame() {
                             <div className="w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mt-6 group-hover:via-secondary/50 transition-colors" />
                         </motion.div>
                     ))}
+                </motion.div>
             </div>
-        </div>
-        </section >
+        </section>
     );
 }
