@@ -52,34 +52,10 @@ export default function TeamUp() {
     }, [searchTerm]);
 
     return (
-        <main className="min-h-screen bg-background text-foreground pb-20 relative overflow-hidden">
+        <main className="min-h-screen bg-background text-foreground pb-20 relative">
             <Navbar />
 
-            {/* Holographic Corner Logos */}
-            <div className="absolute top-8 left-8 z-20 animate-hologram hidden md:block">
-                <Image src="/logo-club.png" alt="Club Logo" width={80} height={80} className="filter brightness-200 contrast-125" />
-            </div>
-            <div className="absolute top-8 right-8 z-20 animate-hologram hidden md:block delay-700">
-                <Image src="/logo-univ.jpg" alt="University Logo" width={100} height={40} className="filter grayscale brightness-200 contrast-125" />
-            </div>
-
-            {/* Tech Grid Background */}
-            <div className="absolute inset-0 tech-grid opacity-10 animate-grid" />
-
-            {/* Background Ambience */}
-            <div className="absolute inset-0 pointer-events-none overflow-hidden">
-                <div className="absolute top-1/4 right-1/4 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] animate-pulse-slow" />
-                <div className="absolute bottom-1/4 left-1/4 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[120px] animate-pulse-slow delay-1000" />
-            </div>
-
-            {/* Drifting Background Particles */}
-            <div className="absolute inset-0 pointer-events-none">
-                <motion.div className="absolute top-1/4 right-1/3 w-4 h-4 bg-primary/30 rounded-full blur-sm animate-drift" />
-                <motion.div className="absolute bottom-1/3 left-1/2 w-3 h-3 bg-secondary/20 rounded-full blur-sm animate-drift [animation-delay:2s]" />
-                <motion.div className="absolute top-1/2 right-1/2 w-5 h-5 bg-accent/10 rounded-full blur-md animate-drift [animation-delay:5s]" />
-            </div>
-
-            <div className="container mx-auto px-4 pt-40 relative z-10">
+            <div className="container mx-auto px-4 pt-40">
                 <div className="text-center mb-20">
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}

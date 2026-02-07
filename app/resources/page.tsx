@@ -1,6 +1,6 @@
 "use client";
 import Navbar from "@/components/Navbar";
-import { Lock, Check, Gift, Users, BookOpen, Activity, CreditCard, ArrowRight } from "lucide-react";
+import { Lock, BookOpen, Activity, CreditCard, ArrowRight, Users } from "lucide-react";
 import { motion } from "framer-motion";
 
 const perks = [
@@ -39,28 +39,10 @@ export default function Resources() {
         <main className="min-h-screen bg-background text-foreground pb-20 relative overflow-hidden">
             <Navbar />
 
-            {/* Holographic Corner Logos */}
-            <div className="absolute top-8 left-8 z-20 animate-hologram hidden md:block">
-                <Image src="/logo-club.png" alt="Club Logo" width={80} height={80} className="filter brightness-200 contrast-125" />
-            </div>
-            <div className="absolute top-8 right-8 z-20 animate-hologram hidden md:block delay-700">
-                <Image src="/logo-univ.jpg" alt="University Logo" width={100} height={40} className="filter grayscale brightness-200 contrast-125" />
-            </div>
-
-            {/* Tech Grid Background */}
-            <div className="absolute inset-0 tech-grid opacity-10 animate-grid" />
-
             {/* Background Ambience */}
             <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
-                <div className="absolute top-10 right-10 w-[500px] h-[500px] bg-accent/10 rounded-full blur-[120px] animate-pulse-slow" />
-                <div className="absolute -bottom-20 -left-20 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[120px] animate-pulse-slow delay-700" />
-            </div>
-
-            {/* Drifting Background Particles */}
-            <div className="absolute inset-0 pointer-events-none">
-                <motion.div className="absolute top-1/4 left-1/4 w-3 h-3 bg-primary/30 rounded-full blur-sm animate-drift" />
-                <motion.div className="absolute bottom-1/4 right-1/2 w-4 h-4 bg-secondary/20 rounded-full blur-sm animate-drift [animation-delay:4s]" />
-                <motion.div className="absolute top-1/2 right-1/4 w-5 h-5 bg-accent/10 rounded-full blur-md animate-drift [animation-delay:2s]" />
+                <div className="absolute top-10 right-10 w-[400px] h-[400px] bg-accent/5 rounded-full blur-[100px] animate-pulse-slow" />
+                <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px] animate-pulse-slow delay-700" />
             </div>
 
             <div className="container mx-auto px-4 pt-44 relative z-10">

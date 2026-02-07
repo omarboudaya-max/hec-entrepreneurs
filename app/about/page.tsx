@@ -16,20 +16,10 @@ export default function About() {
         <main className="min-h-screen bg-background text-foreground pb-20 relative overflow-hidden">
             <Navbar />
 
-            {/* Tech Grid Background */}
-            <div className="absolute inset-0 tech-grid opacity-10 animate-grid" />
-
             {/* Background Ambience */}
             <div className="absolute top-0 left-0 w-full h-full pointer-events-none overflow-hidden">
-                <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/20 rounded-full blur-[120px] animate-pulse-slow" />
-                <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-secondary/10 rounded-full blur-[120px] animate-pulse-slow delay-1000" />
-            </div>
-
-            {/* Drifting Background Particles */}
-            <div className="absolute inset-0 pointer-events-none">
-                <motion.div className="absolute top-1/3 left-1/4 w-3 h-3 bg-primary/30 rounded-full blur-sm animate-drift" />
-                <motion.div className="absolute bottom-1/3 right-1/3 w-5 h-5 bg-secondary/20 rounded-full blur-md animate-drift [animation-delay:3s]" />
-                <motion.div className="absolute top-1/2 left-1/2 w-4 h-4 bg-accent/10 rounded-full blur-sm animate-drift [animation-delay:6s]" />
+                <div className="absolute top-1/4 left-1/4 w-[500px] h-[500px] bg-primary/10 rounded-full blur-[100px] animate-pulse-slow" />
+                <div className="absolute bottom-1/4 right-1/4 w-[500px] h-[500px] bg-secondary/5 rounded-full blur-[100px] animate-pulse-slow delay-1000" />
             </div>
 
             <div className="container mx-auto px-4 pt-40 relative z-10">
