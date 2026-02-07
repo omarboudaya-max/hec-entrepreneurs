@@ -7,32 +7,32 @@ import { Lightbulb, Code2, Rocket, Mic, Laptop, Building2, Users } from "lucide-
 const tracks = [
     {
         id: "discover",
-        title: "DISCOVER",
+        title: "DÉCOUVRIR",
         icon: Lightbulb,
-        description: "Ignite your entrepreneurial spirit.",
+        description: "Éveillez votre esprit entrepreneurial.",
         content: [
-            { title: "Speaker Series", desc: "Learn from successful founders.", icon: Mic },
-            { title: "Intro to Tech", desc: "Workshops on No-Code, AI, and Design.", icon: Laptop }
+            { title: "Série de Conférences", desc: "Apprenez des fondateurs à succès.", icon: Mic },
+            { title: "Intro à la Tech", desc: "Ateliers sur le No-Code, l'IA et le Design.", icon: Laptop }
         ]
     },
     {
         id: "build",
-        title: "BUILD",
+        title: "CONSTRUIRE",
         icon: Code2,
-        description: "Turn your idea into a MVP.",
+        description: "Transformez votre idée en MVP.",
         content: [
-            { title: "Hackathons", desc: "48-hour intensive building sprees.", icon: Code2 },
-            { title: "Co-founder Matching", desc: "Find your perfect business partner.", icon: Users }
+            { title: "Hackathons", desc: "48 heures de construction intensive.", icon: Code2 },
+            { title: "Co-founder Matching", desc: "Trouvez votre partenaire idéal.", icon: Users }
         ]
     },
     {
         id: "scale",
-        title: "SCALE",
+        title: "PROPULSER",
         icon: Rocket,
-        description: "Accelerate your growth.",
+        description: "Accélérez votre croissance.",
         content: [
-            { title: "Station F Fast-Track", desc: "Direct access to the world's biggest startup campus.", icon: Building2 },
-            { title: "VC Office Hours", desc: "Pitch to top investors.", icon: Rocket }
+            { title: "Fast-Track Station F", desc: "Accès direct au plus grand campus de startups au monde.", icon: Building2 },
+            { title: "VC Office Hours", desc: "Pitchez devant des investisseurs de haut niveau.", icon: Rocket }
         ]
     }
 ];
@@ -43,7 +43,7 @@ export default function JourneyTracks() {
     return (
         <section className="py-24 relative">
             <div className="container mx-auto px-4">
-                <h2 className="text-4xl md:text-6xl font-bold text-center mb-16 text-glow">THE JOURNEY</h2>
+                <h2 className="text-4xl md:text-6xl font-bold text-center mb-16 text-glow">LE PARCOURS</h2>
 
                 <div className="flex flex-col items-center">
                     {/* Tabs */}

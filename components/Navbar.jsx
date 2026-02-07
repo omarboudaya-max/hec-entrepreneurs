@@ -7,10 +7,11 @@ import { Menu, X } from "lucide-react";
 import clsx from "clsx";
 
 const links = [
-    { href: "/", label: "Home" },
-    { href: "/about", label: "About Us" },
+    { href: "/", label: "Accueil" },
+    { href: "/about", label: "À Propos" },
+    { href: "/entrepreuneuriat", label: "Entrepreuneuriat" },
+    { href: "/resources", label: "Ressources" },
     { href: "/team-up", label: "TeamUp" },
-    { href: "/resources", label: "Resources" },
 ];
 
 export default function Navbar() {

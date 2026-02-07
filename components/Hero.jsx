@@ -67,25 +67,25 @@ export default function Hero() {
                         style={{ y: ySubtitle }}
                         className="text-xl md:text-3xl font-bold mb-8 text-white uppercase tracking-widest"
                     >
-                        BUILD THE FUTURE.
+                        Des idées à l'impact
                     </motion.h2>
 
                     <motion.p
                         style={{ y: ySubtitle }}
                         className="text-lg md:text-2xl text-gray-400 max-w-3xl mx-auto mb-12 px-4"
                     >
-                        Join HEC Entrepreneurs and transform your ideas into reality.
+                        Nous ne parlons pas d’entrepreneuriat. Nous le construisons.
                     </motion.p>
 
                     <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center items-center">
-                        <Link href="/join" className="w-full sm:w-auto">
-                            <button className="w-full sm:w-auto px-8 py-4 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-lg transition-all hover:scale-105 shadow-[0_0_20px_rgba(124,58,237,0.5)]">
-                                Join the Club
+                        <Link href="/entrepreuneuriat" className="w-full sm:w-auto">
+                            <button className="w-full sm:w-auto px-8 py-4 rounded-xl bg-transparent border border-primary/50 hover:bg-primary/10 text-white font-bold text-lg backdrop-blur-sm transition-all shadow-[0_0_15px_rgba(124,58,237,0.2)] hover:shadow-[0_0_25px_rgba(124,58,237,0.4)]">
+                                Découvrir nos projets
                             </button>
                         </Link>
-                        <Link href="/team-up" className="w-full sm:w-auto">
-                            <button className="w-full sm:w-auto px-8 py-4 rounded-xl bg-transparent border border-primary/50 hover:bg-primary/10 text-white font-bold text-lg backdrop-blur-sm transition-all shadow-[0_0_15px_rgba(124,58,237,0.2)] hover:shadow-[0_0_25px_rgba(124,58,237,0.4)]">
-                                I’m Building a Startup
+                        <Link href="/join" className="w-full sm:w-auto">
+                            <button className="w-full sm:w-auto px-8 py-4 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-lg transition-all hover:scale-105 shadow-[0_0_20px_rgba(124,58,237,0.5)]">
+                                Rejoindre le Club
                             </button>
                         </Link>
                     </div>

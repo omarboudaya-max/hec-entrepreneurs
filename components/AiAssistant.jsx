@@ -7,7 +7,7 @@ import clsx from "clsx";
 export default function AiAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "Hello! I am PRO ENTREPREUNEUR, the AI Ambassador for HEC Entrepreneurs IHEC Carthage. I can guide you through our tracks, help you find a co-founder, or unlock resources. How can I help you today?" }
+    { role: "assistant", content: "Bonjour ! Je suis PRO ENTREPREUNEUR, l'ambassadeur IA de HEC Entrepreneurs IHEC Carthage. Je peux vous guider à travers nos parcours, vous aider à trouver un co-fondateur ou débloquer des ressources. Comment puis-je vous aider aujourd'hui ?" }
   ]);
   const [input, setInput] = useState("");
   const messagesEndRef = useRef(null);
@@ -29,17 +29,17 @@ export default function AiAssistant() {
 
     // Mock AI logic based on keywords
     setTimeout(() => {
-      let response = "That's an interesting question. I'd recommend exploring our Discover track to learn more.";
+      let response = "C'est une question intéressante. Je vous recommande d'explorer notre parcours Découvrir pour en savoir plus.";
       const lowerInput = input.toLowerCase();
 
-      if (lowerInput.includes("fund") || lowerInput.includes("money") || lowerInput.includes("invest")) {
-        response = "For funding and scaling, our **Scale Track** is perfect for you. We offer VC Office Hours and a fast-track to Station F.";
-      } else if (lowerInput.includes("learn") || lowerInput.includes("start") || lowerInput.includes("idea")) {
-        response = "Great! To get started, check out the **Discover Track**. We have Speaker Series and Intro to Tech workshops.";
-      } else if (lowerInput.includes("team") || lowerInput.includes("founder") || lowerInput.includes("partner")) {
-        response = "Looking for a team? Head over to our **TeamUp** section to find your perfect co-founder match.";
-      } else if (lowerInput.includes("aws") || lowerInput.includes("notion") || lowerInput.includes("perk")) {
-        response = "We offer great perks like AWS credits and Notion Enterprise! Check the **Resources** page (Members Only).";
+      if (lowerInput.includes("financement") || lowerInput.includes("argent") || lowerInput.includes("investir") || lowerInput.includes("funds")) {
+        response = "Pour le financement et le passage à l'échelle, notre **Parcours Propulser** est parfait pour vous. Nous proposons des VC Office Hours et un accès privilégié à Station F.";
+      } else if (lowerInput.includes("apprendre") || lowerInput.includes("commencer") || lowerInput.includes("idée") || lowerInput.includes("start")) {
+        response = "Excellent ! Pour commencer, consultez le **Parcours Découvrir**. Nous avons des séries de conférences et des ateliers d'initiation à la tech.";
+      } else if (lowerInput.includes("équipe") || lowerInput.includes("fondateur") || lowerInput.includes("partenaire") || lowerInput.includes("team")) {
+        response = "Vous cherchez une équipe ? Rendez-vous dans notre section **TeamUp** pour trouver le co-fondateur idéal.";
+      } else if (lowerInput.includes("aws") || lowerInput.includes("notion") || lowerInput.includes("avantage") || lowerInput.includes("perk")) {
+        response = "Nous offrons d'excellents avantages comme des crédits AWS et Notion Enterprise ! Consultez la page **Ressources** (réservée aux membres).";
       }
 
       setMessages((prev) => [
@@ -69,7 +69,7 @@ export default function AiAssistant() {
                   <h3 className="font-black text-sm tracking-wider text-white">
                     PRO ENTREPREUNEUR
                   </h3>
-                  <p className="text-[10px] text-secondary font-mono uppercase tracking-widest">AI Ambassador</p>
+                  <p className="text-[10px] text-secondary font-mono uppercase tracking-widest">Ambassadeur IA</p>
                 </div>
               </div>
               <button
@@ -105,7 +105,7 @@ export default function AiAssistant() {
                   type="text"
                   value={input}
                   onChange={(e) => setInput(e.target.value)}
-                  placeholder="Ask PRO ENTREPREUNEUR..."
+                  placeholder="Posez votre question à PRO ENTREPREUNEUR..."
                   className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 pr-12 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-primary/50 transition-all focus:bg-white/10 shadow-inner"
                 />
                 <button
@@ -146,7 +146,7 @@ export default function AiAssistant() {
             >
               <p className="text-sm font-bold text-white flex items-center gap-2">
                 <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                Chat with PRO ENTREPREUNEUR
+                Discutez avec PRO ENTREPREUNEUR
               </p>
             </motion.div>
           )}

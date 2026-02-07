@@ -1,37 +1,38 @@
 "use client";
 import Navbar from "@/components/Navbar";
+import Footer from "@/components/Footer";
 import { Lock, BookOpen, Activity, CreditCard, ArrowRight, Users } from "lucide-react";
 import { motion } from "framer-motion";
 
 const perks = [
     {
         name: "Formations",
-        value: "20+ Domains",
+        value: "20+ Domaines",
         bg: "from-primary/20 to-primary/5",
         text: "text-primary",
         icon: BookOpen,
-        desc: "Certified workshops in AI, No-Code, and Strategy."
+        desc: "Ateliers certifiés en IA, No-Code et Stratégie."
     },
     {
-        name: "Startup Simulation",
-        value: "Real-Time Visual",
+        name: "Simulation de Startup",
+        value: "Visuel Temps Réel",
         bg: "from-secondary/20 to-secondary/5",
         text: "text-secondary",
         icon: Activity,
-        desc: "Virtual playground to test your business models."
+        desc: "Espace virtuel pour tester vos modèles d'affaires."
     },
     {
         name: "Stripe",
-        value: "Founder Tier",
+        value: "Niveau Fondateur",
         bg: "from-accent/20 to-accent/5",
         text: "text-accent",
         icon: CreditCard,
-        desc: "Exclusive payment infrastructure for student startups."
+        desc: "Infrastructure de paiement exclusive pour les startups étudiantes."
     },
 ];
 
 const mentors = [
-    { name: "Youssef Drira", expertise: "Certified Trainer", company: "HEC Network", bio: "Ex-Google trainer specializing in high-performance leadership." },
+    { name: "Youssef Drira", expertise: "Formateur Certifié", company: "Réseau HEC", bio: "Ex-formateur Google spécialisé dans le leadership haute performance." },
 ];
 
 export default function Resources() {
@@ -52,10 +53,10 @@ export default function Resources() {
                         animate={{ opacity: 1, scale: 1 }}
                         className="text-6xl md:text-8xl font-black mb-6 text-wave tracking-tighter uppercase"
                     >
-                        RESOURCES
+                        RESSOURCES
                     </motion.h1>
                     <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
-                        The ultimate toolkit for the modern entrepreneur.
+                        La boîte à outils ultime pour l'entrepreneur moderne.
                     </p>
                 </div>
 
@@ -84,10 +85,10 @@ export default function Resources() {
                                         <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-6">
                                             <Lock className="w-8 h-8 text-primary" />
                                         </div>
-                                        <h4 className="text-xl font-black text-white uppercase tracking-widest mb-3">MEMBERS ONLY</h4>
-                                        <p className="text-sm text-gray-400 font-medium mb-8 leading-relaxed">Unlock access by joining the HEC Entrepreneurs ecosystem.</p>
+                                        <h4 className="text-xl font-black text-white uppercase tracking-widest mb-3">MEMBRES UNIQUEMENT</h4>
+                                        <p className="text-sm text-gray-400 font-medium mb-8 leading-relaxed">Débloquez l'accès en rejoignant l'écosystème HEC Entrepreneurs.</p>
                                         <button className="flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs hover:gap-4 transition-all">
-                                            Join Now <ArrowRight className="w-4 h-4" />
+                                            Rejoindre Maintenant <ArrowRight className="w-4 h-4" />
                                         </button>
                                     </div>
 
@@ -151,6 +152,7 @@ export default function Resources() {
                     </motion.div>
                 </div>
             </div>
+            <Footer />
         </main>
     );
 }

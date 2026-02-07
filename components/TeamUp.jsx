@@ -14,16 +14,16 @@ export default function TeamUp() {
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
                     >
-                        <h2 className="text-3xl md:text-5xl font-bold mb-6">Find Your Co-Founder</h2>
+                        <h2 className="text-3xl md:text-5xl font-bold mb-6">Trouvez Votre Co-Fondateur</h2>
                         <p className="text-xl text-gray-300 max-w-2xl mx-auto mb-10">
-                            Stop looking for ideas, start looking for people. Connect with complementary talents in the HEC network.
+                            Arrêtez de chercher des idées, cherchez des personnes. Connectez-vous avec des talents complémentaires dans le réseau HEC.
                         </p>
 
                         <div className="grid sm:grid-cols-3 gap-4 max-w-3xl mx-auto mb-10">
                             {[
-                                { label: "Tech Wizards", icon: Code },
-                                { label: "Business Minds", icon: Briefcase },
-                                { label: "Creative Souls", icon: Palette },
+                                { label: "Experts Tech", icon: Code },
+                                { label: "Esprits Business", icon: Briefcase },
+                                { label: "Âmes Créatives", icon: Palette },
                             ].map((role, idx) => (
                                 <div key={idx} className="bg-black/40 backdrop-blur-sm p-4 rounded-xl border border-white/10 flex flex-col items-center gap-2">
                                     <role.icon className="w-6 h-6 text-primary" />
@@ -34,7 +34,7 @@ export default function TeamUp() {
 
                         <button className="px-8 py-4 rounded-xl bg-white text-black font-bold hover:scale-105 transition-transform flex items-center gap-2 mx-auto">
                             <UserPlus className="w-5 h-5" />
-                            Join the Talent Pool
+                            Rejoindre le Talent Pool
                         </button>
                     </motion.div>
                 </div>

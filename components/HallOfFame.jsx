@@ -2,17 +2,17 @@
 import { motion } from "framer-motion";
 
 const startups = [
-    { name: "Youssef Jemmeli", domain: "Fashion Entrepreneur", description: "Founder of Mateha, 1K+ visitors.", photo: "/alumni/youssef.png" },
-    { name: "Aziz Ghorbel", domain: "Economic Policy Advisor", description: "Founder of SmartLeap, 10+ employees.", photo: "/alumni/aziz.jpg" },
-    { name: "Skander Chamgui", domain: "Marketing Consultant", description: "Founder of Cloop Solution, 40+ projects.", photo: "/alumni/skander.jpg" },
-    { name: "Amir Montacer", domain: "Professor & Researcher", description: "Founder of MAJ Jewels, International store.", photo: "/alumni/amir.jpg" },
+    { name: "Youssef Jemmeli", domain: "Entrepreneur Mode", description: "Fondateur de Mateha, 1K+ visiteurs.", photo: "/alumni/youssef.png" },
+    { name: "Aziz Ghorbel", domain: "Conseiller en Politique Économique", description: "Fondateur de SmartLeap, 10+ employés.", photo: "/alumni/aziz.jpg" },
+    { name: "Skander Chamgui", domain: "Consultant Marketing", description: "Fondateur de Cloop Solution, 40+ projets.", photo: "/alumni/skander.jpg" },
+    { name: "Amir Montacer", domain: "Professeur & Chercheur", description: "Fondateur de MAJ Jewels, Boutique internationale.", photo: "/alumni/amir.jpg" },
 ];
 
 const tickerItems = [
-    "STARTUPS INCUBATED: 0",
-    "FUNDS RAISED: 0DT",
-    "ACTIVE MENTORS: 1",
-    "PARTNERS: 5+"
+    "STARTUPS INCUBÉES : 0",
+    "FONDS LEVÉS : 0 DT",
+    "MENTORS ACTIFS : 1",
+    "PARTENAIRES : 5+"
 ];
 
 export default function HallOfFame() {
@@ -39,7 +39,7 @@ export default function HallOfFame() {
                         HALL OF FAME
                     </h2>
                     <p className="text-gray-400 max-w-2xl mx-auto">
-                        Celebrating the visionaries who started their journey at HEC Carthage.
+                        Célébrer les visionnaires qui ont commencé leur parcours à l'HEC Carthage.
                     </p>
                 </div>
 

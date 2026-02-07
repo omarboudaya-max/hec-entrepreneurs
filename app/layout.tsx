@@ -13,9 +13,9 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  title: "HEC Entrepreneurs",
-  description: "The premier entrepreneurship club at IHEC Carthage. Empowering students to build impactful startups.",
-  keywords: ["HEC Entrepreneurs", "IHEC Carthage", "Startup", "Entrepreneurship", "Innovation"],
+  title: "HEC Entrepreneurs | Bâtir le Possible",
+  description: "Le premier club d'entrepreneuriat à l'IHEC Carthage. Donner aux étudiants les moyens de bâtir des startups à impact. Idéaliser, Construire, Propulser.",
+  keywords: ["HEC Entrepreneurs", "IHEC Carthage", "Startup", "Entrepreneuriat", "Innovation"],
   authors: [{ name: "HEC Entrepreneurs" }],
   icons: {
     icon: "/icon.png",
@@ -23,7 +23,7 @@ export const metadata: Metadata = {
   },
   openGraph: {
     title: "HEC Entrepreneurs",
-    description: "Empowering the next generation of founders at IHEC Carthage.",
+    description: "Former la prochaine génération de fondateurs à l'IHEC Carthage.",
     url: "https://hec-entrepreneurs.vercel.app", // Placeholder URL
     siteName: "HEC Entrepreneurs",
     images: [
@@ -40,7 +40,7 @@ export const metadata: Metadata = {
   twitter: {
     card: "summary_large_image",
     title: "HEC Entrepreneurs",
-    description: "Empowering the next generation of founders at IHEC Carthage.",
+    description: "Former la prochaine génération de fondateurs à l'IHEC Carthage.",
     images: ["/preview.png"],
   },
 };
@@ -51,7 +51,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="en">
+    <html lang="fr">
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
