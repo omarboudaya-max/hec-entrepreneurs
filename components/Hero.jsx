@@ -7,11 +7,11 @@ export default function Hero() {
     return (
         <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
             {/* Corner Logos */}
-            <div className="absolute top-6 left-6 md:top-8 md:left-8 z-20 opacity-70 hover:opacity-100 transition-opacity">
-                <Image src="/logo-club.png" alt="Club Logo" width={60} height={60} className="md:w-20 md:h-20 filter brightness-200" />
+            <div className="absolute top-8 left-8 z-20 opacity-20 hover:opacity-50 transition-all duration-500">
+                <Image src="/logo-club.png" alt="Club Logo" width={120} height={120} className="md:w-32 md:h-32 filter brightness-100 invert" />
             </div>
-            <div className="absolute top-6 right-6 md:top-8 md:right-8 z-20 opacity-40 hover:opacity-80 transition-opacity">
-                <Image src="/logo-univ.jpg" alt="University Logo" width={80} height={32} className="md:w-[100px] md:h-[40px] filter grayscale brightness-200" />
+            <div className="absolute top-8 right-8 z-20 opacity-20 hover:opacity-50 transition-all duration-500">
+                <Image src="/logo-univ.jpg" alt="University Logo" width={140} height={56} className="md:w-[180px] md:h-[72px] filter grayscale brightness-100 invert" />
             </div>
 
             {/* Background Gradients */}
