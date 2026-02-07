@@ -1,11 +1,22 @@
 "use client";
-import { motion } from "framer-motion";
+import { motion, useScroll, useTransform } from "framer-motion";
 import Link from "next/link";
-import Image from "next/image";
+import { useRef } from "react";
 
 export default function Hero() {
+    const containerRef = useRef(null);
+    const { scrollYProgress } = useScroll({
+        target: containerRef,
+        offset: ["start start", "end start"]
+    });
+
+    const yTitle = useTransform(scrollYProgress, [0, 1], [0, 200]);
+    const ySubtitle = useTransform(scrollYProgress, [0, 1], [0, 150]);
+    const opacityHero = useTransform(scrollYProgress, [0, 0.8], [1, 0]);
+    const scaleOrb = useTransform(scrollYProgress, [0, 1], [1, 1.5]);
+
     return (
-        <section className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
+        <section ref={containerRef} className="relative min-h-screen flex items-center justify-center overflow-hidden pt-20">
 
             {/* Background Gradients */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(124,58,237,0.1),transparent_50%)]" />
@@ -13,6 +24,7 @@ export default function Hero() {
 
             {/* Animated Orbs */}
             <motion.div
+                style={{ scale: scaleOrb }}
                 animate={{
                     scale: [1, 1.2, 1],
                     opacity: [0.3, 0.5, 0.3],
@@ -22,6 +34,7 @@ export default function Hero() {
                 className="absolute top-1/4 left-1/4 w-64 h-64 md:w-96 md:h-96 rounded-full blur-[80px] md:blur-[100px]"
             />
             <motion.div
+                style={{ scale: scaleOrb }}
                 animate={{
                     scale: [1, 1.2, 1],
                     opacity: [0.3, 0.5, 0.3],
@@ -31,13 +44,17 @@ export default function Hero() {
                 className="absolute bottom-1/4 right-1/4 w-64 h-64 md:w-96 md:h-96 rounded-full blur-[80px] md:blur-[100px]"
             />
 
-            <div className="container mx-auto px-4 z-10 text-center">
+            <motion.div
+                style={{ opacity: opacityHero }}
+                className="container mx-auto px-4 z-10 text-center"
+            >
                 <motion.div
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ duration: 0.8 }}
                 >
                     <motion.h1
+                        style={{ y: yTitle }}
                         className="text-4xl sm:text-6xl md:text-8xl font-black mb-6 tracking-tighter text-wave leading-tight"
                         initial={{ filter: "blur(10px)", opacity: 0 }}
                         animate={{ filter: "blur(0px)", opacity: 1 }}
@@ -46,11 +63,19 @@ export default function Hero() {
                         HEC ENTREPRENEURS
                     </motion.h1>
 
-                    <h2 className="text-xl md:text-3xl font-bold mb-8 text-white uppercase tracking-widest">BUILD THE FUTURE.</h2>
+                    <motion.h2
+                        style={{ y: ySubtitle }}
+                        className="text-xl md:text-3xl font-bold mb-8 text-white uppercase tracking-widest"
+                    >
+                        BUILD THE FUTURE.
+                    </motion.h2>
 
-                    <p className="text-lg md:text-2xl text-gray-400 max-w-3xl mx-auto mb-12 px-4">
+                    <motion.p
+                        style={{ y: ySubtitle }}
+                        className="text-lg md:text-2xl text-gray-400 max-w-3xl mx-auto mb-12 px-4"
+                    >
                         Join HEC Entrepreneurs and transform your ideas into reality.
-                    </p>
+                    </motion.p>
 
                     <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center items-center">
                         <Link href="/join" className="w-full sm:w-auto">

@@ -38,9 +38,10 @@ export default function About() {
                     <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 items-stretch">
                         {/* Mission */}
                         <motion.div
-                            initial={{ opacity: 0, x: -50 }}
-                            whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true }}
+                            initial={{ opacity: 0, x: -50, filter: "blur(10px)" }}
+                            whileInView={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                            viewport={{ once: true, margin: "-100px" }}
+                            transition={{ duration: 0.8 }}
                             className="glass p-10 rounded-[2.5rem] border border-primary/20 flex flex-col justify-center relative group overflow-hidden"
                         >
                             <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
@@ -61,9 +62,10 @@ export default function About() {
                         <div className="flex flex-col gap-12">
                             {/* Vision */}
                             <motion.div
-                                initial={{ opacity: 0, x: 50 }}
-                                whileInView={{ opacity: 1, x: 0 }}
-                                viewport={{ once: true }}
+                                initial={{ opacity: 0, x: 50, filter: "blur(10px)" }}
+                                whileInView={{ opacity: 1, x: 0, filter: "blur(0px)" }}
+                                viewport={{ once: true, margin: "-100px" }}
+                                transition={{ duration: 0.8 }}
                                 className="glass p-10 rounded-[2.5rem] border border-secondary/20 relative group overflow-hidden flex-1"
                             >
                                 <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
@@ -73,32 +75,41 @@ export default function About() {
                                     OUR VISION
                                 </h2>
                                 <p className="text-xl text-gray-300 italic leading-relaxed relative z-10">
-                                    "Faire du Club HEC Entrepreneurs un pilier de la culture entrepreneuriale à l’IHEC Carthage. Un espace où les idées se transforment en projets, où les talents s’engagent, et où l’entrepreneuriat devient un levier de création de valeur."
+                                    "Faire du Club HEC Entrepreneurs un pilier de la culture entrepreneurial à l’IHEC Carthage. Un espace où les idées se transforment en projets, où les talents s’engagent, et où l’entrepreneuriat devient un levier de création de valeur."
                                 </p>
                             </motion.div>
 
                             {/* Values Grid */}
                             <motion.div
-                                initial={{ opacity: 0, y: 30 }}
-                                whileInView={{ opacity: 1, y: 0 }}
+                                initial={{ opacity: 0 }}
+                                whileInView={{ opacity: 1 }}
                                 viewport={{ once: true }}
+                                transition={{ staggerChildren: 0.1, delayChildren: 0.5 }}
                                 className="grid grid-cols-1 sm:grid-cols-2 gap-4"
                             >
                                 {values.map((val, idx) => (
-                                    <div
+                                    <motion.div
                                         key={idx}
+                                        initial={{ opacity: 0, y: 20 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true }}
                                         className="glass p-6 rounded-2xl flex items-center gap-4 hover:shadow-[0_0_20px_rgba(124,58,237,0.1)] transition-all border border-white/5 hover:border-primary/30 group"
                                     >
                                         <div className={`p-3 rounded-xl bg-white/5 group-hover:scale-110 transition-transform ${val.color}`}>
                                             <val.icon className="w-6 h-6" />
                                         </div>
                                         <span className="font-bold text-gray-200 text-sm tracking-wide uppercase">{val.label}</span>
-                                    </div>
+                                    </motion.div>
                                 ))}
-                                <div className="glass p-6 rounded-2xl flex items-center gap-4 border border-secondary/20 bg-secondary/5">
+                                <motion.div
+                                    initial={{ opacity: 0, y: 20 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    className="glass p-6 rounded-2xl flex items-center gap-4 border border-secondary/20 bg-secondary/5"
+                                >
                                     <Globe className="w-6 h-6 text-secondary" />
                                     <span className="font-bold text-secondary text-sm uppercase tracking-widest">Global Reach</span>
-                                </div>
+                                </motion.div>
                             </motion.div>
                         </div>
                     </div>

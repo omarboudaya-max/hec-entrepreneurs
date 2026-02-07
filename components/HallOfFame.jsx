@@ -43,14 +43,24 @@ export default function HallOfFame() {
                     </p>
                 </div>
 
-                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-[250px]">
+                <motion.div
+                    initial={{ opacity: 0 }}
+                    whileInView={{ opacity: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ staggerChildren: 0.1 }}
+                    className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 auto-rows-[250px]"
+                >
                     {startups.map((startup, idx) => (
                         <motion.div
                             key={idx}
-                            initial={{ opacity: 0, y: 20 }}
-                            whileInView={{ opacity: 1, y: 0 }}
+                            initial={{ opacity: 0, y: 30, scale: 0.9 }}
+                            whileInView={{ opacity: 1, y: 0, scale: 1 }}
                             viewport={{ once: true, margin: "-50px" }}
-                            transition={{ delay: idx * 0.1 }}
+                            transition={{
+                                type: "spring",
+                                stiffness: 100,
+                                damping: 15
+                            }}
                             className={`glass p-8 rounded-3xl hover:border-secondary/50 transition-all hover:-translate-y-2 group flex flex-col justify-between ${idx === 0 || idx === 3 ? "md:col-span-2 bg-gradient-to-br from-white/5 to-transparent" : "bg-white/5"
                                 }`}
                         >
@@ -78,8 +88,8 @@ export default function HallOfFame() {
                             <div className="w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent mt-6 group-hover:via-secondary/50 transition-colors" />
                         </motion.div>
                     ))}
-                </div>
             </div>
-        </section>
+        </div>
+        </section >
     );
 }
