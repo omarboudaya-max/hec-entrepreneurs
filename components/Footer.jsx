@@ -19,23 +19,6 @@ const Footer = () => {
                             Le premier club d'entrepreneuriat à l'IHEC Carthage.
                             Idéaliser, Construire, Propulser.
                         </p>
-                        <div className="flex gap-4">
-                            {[
-                                { icon: Mail, href: "mailto:contact@hec-entrepreneurs.tn" },
-                                { icon: Instagram, href: "#" },
-                                { icon: Linkedin, href: "#" },
-                                { icon: Globe, href: "#" }
-                            ].map((social, idx) => (
-                                <motion.a
-                                    key={idx}
-                                    href={social.href}
-                                    whileHover={{ scale: 1.1, color: "#7c3aed" }}
-                                    className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 transition-colors"
-                                >
-                                    <social.icon size={20} />
-                                </motion.a>
-                            ))}
-                        </div>
                     </div>
 
                     {/* Quick Links */}
@@ -47,7 +30,7 @@ const Footer = () => {
                                 { label: "À Propos", href: "/about" },
                                 { label: "Entrepreneuriat", href: "/entrepreuneuriat" },
                                 { label: "Ressources", href: "/resources" },
-                                { label: "TeamUp", href: "/team-up" }
+                                { label: "Team Up", href: "/team-up" }
                             ].map((link, idx) => (
                                 <li key={idx}>
                                     <Link href={link.href} className="text-gray-400 hover:text-primary transition-colors text-sm font-medium">
@@ -57,13 +40,28 @@ const Footer = () => {
                             ))}
                         </ul>
                     </div>
-
                     {/* Contact */}
                     <div>
                         <h4 className="text-white font-bold uppercase tracking-widest text-sm mb-6">Contact</h4>
-                        <p className="text-gray-400 text-sm mb-4">IHEC Carthage</p>
-                        <p className="text-gray-400 text-sm mb-4">Carthage Presidence, 2016</p>
-                        <p className="text-gray-400 text-sm">Tunisie</p>
+                        <div className="flex gap-4">
+                            {[
+                                { icon: Mail, href: "mailto:hecentrepreneurs8@gmail.com" },
+                                { icon: Instagram, href: "https://www.instagram.com/hec_entrepreneurs?igsh=MTdsOW4xOHVnbDdsYw==" },
+                                { icon: Linkedin, href: "https://www.linkedin.com/company/hec-entrepreneurs/" },
+                                { icon: Globe, href: "#" }
+                            ].map((social, idx) => (
+                                <motion.a
+                                    key={idx}
+                                    href={social.href}
+                                    target={social.href.startsWith("http") ? "_blank" : undefined}
+                                    rel={social.href.startsWith("http") ? "noopener noreferrer" : undefined}
+                                    whileHover={{ scale: 1.1, color: "#7c3aed" }}
+                                    className="w-10 h-10 rounded-xl bg-white/5 border border-white/10 flex items-center justify-center text-gray-400 transition-colors"
+                                >
+                                    <social.icon size={20} />
+                                </motion.a>
+                            ))}
+                        </div>
                     </div>
                 </div>
 

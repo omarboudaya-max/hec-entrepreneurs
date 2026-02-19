@@ -11,7 +11,7 @@ const links = [
     { href: "/about", label: "À Propos" },
     { href: "/entrepreuneuriat", label: "Entrepreuneuriat" },
     { href: "/resources", label: "Ressources" },
-    { href: "/team-up", label: "TeamUp" },
+    { href: "/team-up", label: "Team Up" },
 ];
 
 export default function Navbar() {

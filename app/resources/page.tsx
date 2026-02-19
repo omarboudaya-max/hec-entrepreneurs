@@ -11,10 +11,10 @@ const perks = [
         bg: "from-primary/20 to-primary/5",
         text: "text-primary",
         icon: BookOpen,
-        desc: "Ateliers certifiés en IA, No-Code et Stratégie."
+        desc: "Ateliers certifiés en soft skills, hard skills et Stratégie."
     },
     {
-        name: "Simulation de Startup",
+        name: "Simulation de startup",
         value: "Visuel Temps Réel",
         bg: "from-secondary/20 to-secondary/5",
         text: "text-secondary",
@@ -22,12 +22,12 @@ const perks = [
         desc: "Espace virtuel pour tester vos modèles d'affaires."
     },
     {
-        name: "Stripe",
-        value: "Niveau Fondateur",
+        name: "Pépinière d'Innovation",
+        value: "Éclosion & Mentorat",
         bg: "from-accent/20 to-accent/5",
         text: "text-accent",
         icon: CreditCard,
-        desc: "Infrastructure de paiement exclusive pour les startups étudiantes."
+        desc: "Accompagnement personnalisé pour transformer vos intuitions en projets structurés."
     },
 ];
 
@@ -96,7 +96,7 @@ export default function Resources() {
                                         <perk.icon className="w-7 h-7" />
                                     </div>
 
-                                    <h3 className={`text-xs font-black uppercase tracking-[0.4em] mb-4 ${perk.text}`}>{perk.name}</h3>
+                                    <h3 className={`text-base font-black uppercase tracking-[0.2em] mb-4 text-glow ${perk.text}`}>{perk.name}</h3>
                                     <p className="text-4xl font-black text-white mb-6 tracking-tighter">{perk.value}</p>
                                     <p className="text-gray-400 text-base font-medium leading-relaxed flex-1">{perk.desc}</p>
 

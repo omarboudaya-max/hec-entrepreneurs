@@ -48,7 +48,7 @@ const team = [
     { name: "Yassmin Zghal", role: "Secrétaire Général" },
     { name: "Melek Kammoun", role: "Trésorier" },
     { name: "Nourhene Ben Amor", role: "Vice-Président chargé des Adhérents (VPA)" },
-    { name: "Omar Boudaya", role: "Vice-Président chargé des Relations (VPR)" },
+    { name: "Omar Boudaya", role: "Vice-Président chargé des Relations (VPR)", image: "/team/omar.jpeg" },
     { name: "Eya Cherif", role: "Vice-Président chargé de la Communication (VPCOM)" },
     { name: "Jihed Hersi", role: "Responsable Marketing et design" },
     { name: "Noura Derbel", role: "Adjointe Secrétaire Général" },
@@ -102,8 +102,8 @@ export default function About() {
                                 <h2 className="text-3xl font-black mb-6 text-secondary flex items-center gap-3 italic uppercase tracking-tighter">
                                     NOTRE VISION
                                 </h2>
-                                <p className="text-xl md:text-3xl text-gray-300 italic leading-relaxed relative z-10 font-light">
-                                    "Faire du Club HEC Entrepreneurs un pilier de la culture entrepreneuriale à l’IHEC Carthage. Un espace où les idées se transforment en projets, où les talents s’engagent, et où l’entrepreneuriat devient un levier de création de valeur."
+                                <p className="text-xl text-gray-300 italic leading-relaxed relative z-10 font-light">
+                                    "Faire du Club HEC Entrepreneurs un <span className="text-secondary font-black">pilier</span> de la culture entrepreneuriale à l’<span className="text-primary font-black">IHEC Carthage</span>. Un espace où les idées se transforment en <span className="text-secondary font-black">projets</span>, où les talents s’engagent, et où l’entrepreneuriat devient un levier de <span className="text-primary font-black">création de valeur</span>."
                                 </p>
                             </motion.div>
                         </div>
@@ -179,7 +179,7 @@ export default function About() {
                     <div className="mb-32">
                         <div className="text-center mb-20">
                             <h2 className="text-4xl md:text-7xl font-black text-wave uppercase tracking-tighter italic mb-4">NOTRE ÉQUIPE</h2>
-                            <p className="text-gray-500 font-mono tracking-widest uppercase text-sm">Bureau Exécutif 2024-2025</p>
+                            <p className="text-gray-500 font-mono tracking-widest uppercase text-sm">Bureau Exécutif 2025-2026</p>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -192,8 +192,12 @@ export default function About() {
                                     transition={{ delay: idx * 0.05 }}
                                     className="glass p-8 rounded-[2rem] border border-white/5 hover:border-primary/30 transition-all text-center group"
                                 >
-                                    <div className="w-20 h-20 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full mx-auto mb-6 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform">
-                                        <Users className="w-8 h-8 text-white/50" />
+                                    <div className="w-24 h-24 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full mx-auto mb-6 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform overflow-hidden shadow-xl shadow-primary/10">
+                                        {member.image ? (
+                                            <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
+                                        ) : (
+                                            <Users className="w-10 h-10 text-white/50" />
+                                        )}
                                     </div>
                                     <h4 className="text-xl font-black text-white uppercase tracking-tighter mb-2 italic">{member.name}</h4>
                                     <p className="text-primary text-xs font-black uppercase tracking-widest leading-tight">

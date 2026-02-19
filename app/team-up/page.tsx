@@ -5,34 +5,34 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Search, X, Send, Briefcase, Code, Palette, Rocket } from "lucide-react";
 
 const initialFounders = [
-    { id: 1, role: "CTO Needed", pitch: "Building Airbnb for campervans in Tunisia.", skills: ["React", "Node.js", "AWS"], type: "Tech" },
-    { id: 2, role: "Marketing Lead", pitch: "EdTech platform scaling to MENA region.", skills: ["Growth", "SEO", "Ads"], type: "Business" },
-    { id: 3, role: "UI/UX Designer", pitch: "FinTech app for Gen Z savings.", skills: ["Figma", "Prototyping", "UI"], type: "Creative" },
-    { id: 4, role: "AI Co-founder", pitch: "AI-based legal assistant for SMEs.", skills: ["AI/ML", "Python", "NLP"], type: "Tech" },
+    { id: 1, role: "CTO Recommandé", pitch: "Construire le Airbnb des camping-cars en Tunisie.", skills: ["React", "Node.js", "AWS"], type: "Tech" },
+    { id: 2, role: "Responsable Marketing", pitch: "Plateforme EdTech en expansion dans la région MENA.", skills: ["Growth", "SEO", "Ads"], type: "Business" },
+    { id: 3, role: "Designer UI/UX", pitch: "Application FinTech pour l'épargne de la Génération Z.", skills: ["Figma", "Prototyping", "UI"], type: "Creative" },
+    { id: 4, role: "Co-fondateur IA", pitch: "Assistant juridique basé sur l'IA pour les PME.", skills: ["AI/ML", "Python", "NLP"], type: "Tech" },
 ];
 
 // Generate 40+ examples
 const additionalRoles = [
-    "Marketing Lead", "Frontend Developer", "Backend Developer", "Sales Executive",
-    "UI/UX Designer", "Product Manager", "Mobile Developer", "Growth Hacker",
-    "Data Scientist", "Social Media Manager", "Operations Lead", "Legal Specialist",
-    "Fullstack Developer", "AI Engineer", "Game Designer", "Brand Manager"
+    "Responsable Marketing", "Développeur Frontend", "Développeur Backend", "Directeur Commercial",
+    "Designer UI/UX", "Chef de Produit", "Développeur Mobile", "Growth Hacker",
+    "Data Scientist", "Social Media Manager", "Responsable Opérations", "Spécialiste Juridique",
+    "Développeur Fullstack", "Ingénieur IA", "Concepteur de Jeux", "Responsable de Marque"
 ];
 
 const areas = [
-    "Fintech", "Healthtech", "Edtech", "E-commerce", "SaaS", "Real Estate",
-    "Sustainability", "Foodtech", "Logistics", "Travel", "Cybersecurity", "Blockchain"
+    "Fintech", "Healthtech", "Edtech", "E-commerce", "SaaS", "Immobilier",
+    "Durabilité", "Foodtech", "Logistique", "Voyage", "Cybersécurité", "Blockchain"
 ];
 
 const generatedFounders = Array.from({ length: 40 }, (_, i) => {
     const role = additionalRoles[i % additionalRoles.length];
     const area = areas[Math.floor(Math.random() * areas.length)];
-    const type = ["Tech", "Business", "Creative", "Strategy"][Math.floor(Math.random() * 4)];
+    const type = ["Tech", "Business", "Créatif", "Stratégie"][Math.floor(Math.random() * 4)];
     return {
         id: i + 5,
         role: role,
-        pitch: `${role} for a new ${area} project focused on innovation.`,
-        skills: [role.split(' ')[0], "Strategy", "Impact"],
+        pitch: `${role} pour un nouveau projet ${area} axé sur l'innovation.`,
+        skills: [role.split(' ')[0], "Stratégie", "Impact"],
         type: type
     };
 });
@@ -61,9 +61,9 @@ export default function TeamUp() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                     >
-                        <h1 className="text-6xl md:text-8xl font-black mb-6 text-wave tracking-tighter">TEAM UP</h1>
+                        <h1 className="text-6xl md:text-8xl font-black mb-6 text-wave tracking-tighter uppercase">TEAM UP</h1>
                         <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
-                            Find your co-founder, join a project, or build your dream team.
+                            Trouvez votre co-fondateur, rejoignez un projet ou bâtissez votre équipe de rêve.
                         </p>
                     </motion.div>
                 </div>
@@ -75,7 +75,7 @@ export default function TeamUp() {
                             type="text"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder="Search by skill, role, or keyword..."
+                            placeholder="Rechercher par compétence, rôle ou mot-clé..."
                             className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-6 pl-14 focus:outline-none focus:border-primary/50 transition-all text-white placeholder-gray-600 focus:bg-white/10 shadow-2xl"
                         />
                         <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400 group-focus-within:text-primary transition-colors" />
@@ -84,7 +84,7 @@ export default function TeamUp() {
 
                 {/* Results Count */}
                 <p className="text-center text-gray-500 mb-8 font-mono text-sm uppercase tracking-widest">
-                    Showing {filteredFounders.length} available talent profiles
+                    Affichage de {filteredFounders.length} profils de talents disponibles
                 </p>
 
                 {/* Founder Grid */}
@@ -102,24 +102,33 @@ export default function TeamUp() {
                             initial={{ opacity: 0, y: 30, scale: 0.95 }}
                             whileInView={{ opacity: 1, y: 0, scale: 1 }}
                             viewport={{ once: true }}
-                            whileHover={{ y: -8, scale: 1.02 }}
                             transition={{ type: "spring", stiffness: 100, damping: 15 }}
-                            className="glass p-8 rounded-3xl border border-white/5 hover:border-primary/40 transition-all cursor-pointer relative overflow-hidden group flex flex-col"
-                            onClick={() => setSelectedFounder(founder)}
+                            className="glass p-8 rounded-3xl border border-white/5 relative overflow-hidden group flex flex-col grayscale opacity-60"
                         >
+                            {/* Blur & Coming Soon Overlay */}
+                            <div className="absolute inset-0 bg-black/40 backdrop-blur-[6px] z-20 flex items-center justify-center">
+                                <motion.div
+                                    initial={{ opacity: 0, scale: 0.8 }}
+                                    whileInView={{ opacity: 1, scale: 1 }}
+                                    className="px-6 py-2 border-2 border-primary/50 rounded-full bg-black/80 shadow-2xl shadow-primary/20"
+                                >
+                                    <span className="text-sm font-black text-primary uppercase tracking-[0.3em]">Bientôt disponible</span>
+                                </motion.div>
+                            </div>
+
                             <div className="flex justify-between items-start mb-6">
                                 <div className={`p-4 rounded-2xl ${founder.type === 'Tech' ? 'bg-blue-500/10 text-blue-400' :
                                     founder.type === 'Business' ? 'bg-green-500/10 text-green-400' :
-                                        founder.type === 'Creative' ? 'bg-pink-500/10 text-pink-400' : 'bg-purple-500/10 text-purple-400'
+                                        founder.type === 'Créatif' ? 'bg-pink-500/10 text-pink-400' : 'bg-purple-500/10 text-purple-400'
                                     }`}>
                                     {founder.type === 'Tech' ? <Code className="w-6 h-6" /> :
                                         founder.type === 'Business' ? <Rocket className="w-6 h-6" /> :
-                                            founder.type === 'Creative' ? <Palette className="w-6 h-6" /> : <Briefcase className="w-6 h-6" />}
+                                            founder.type === 'Créatif' ? <Palette className="w-6 h-6" /> : <Briefcase className="w-6 h-6" />}
                                 </div>
                                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">{founder.type}</span>
                             </div>
 
-                            <h3 className="text-2xl font-bold mb-4 group-hover:text-primary transition-colors line-clamp-1">{founder.role}</h3>
+                            <h3 className="text-2xl font-bold mb-4 line-clamp-1">{founder.role}</h3>
                             <p className="text-gray-400 mb-8 flex-1 leading-relaxed line-clamp-3">{founder.pitch}</p>
 
                             <div className="flex flex-wrap gap-2 mb-8">
@@ -131,13 +140,10 @@ export default function TeamUp() {
                             </div>
 
                             <button
-                                className="w-full py-4 rounded-xl bg-primary/10 hover:bg-primary text-primary hover:text-white font-bold transition-all transform active:scale-95 border border-primary/20"
-                                onClick={(e) => {
-                                    e.stopPropagation();
-                                    setSelectedFounder(founder);
-                                }}
+                                disabled
+                                className="w-full py-4 rounded-xl bg-white/5 text-gray-500 font-bold border border-white/5 cursor-not-allowed"
                             >
-                                Request Intro
+                                Demander une Intro
                             </button>
                         </motion.div>
                     ))}
@@ -164,8 +170,8 @@ export default function TeamUp() {
                             </button>
 
                             <div className="mb-8">
-                                <span className="text-xs font-black text-primary uppercase tracking-[0.3em]">{selectedFounder.type} Profile</span>
-                                <h3 className="text-3xl font-black mt-2 text-white">Connect with {selectedFounder.role}</h3>
+                                <span className="text-xs font-black text-primary uppercase tracking-[0.3em]">Profil {selectedFounder.type}</span>
+                                <h3 className="text-3xl font-black mt-2 text-white">Connecter avec {selectedFounder.role}</h3>
                                 <div className="w-20 h-1 bg-primary/30 mt-4 rounded-full" />
                             </div>
 
@@ -173,11 +179,11 @@ export default function TeamUp() {
 
                             <div className="space-y-6">
                                 <div>
-                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 block">Your Message</label>
+                                    <label className="text-[10px] font-black uppercase tracking-widest text-gray-500 mb-2 block">Votre Message</label>
                                     <textarea
                                         autoFocus
                                         className="w-full h-40 bg-white/5 border border-white/10 rounded-2xl p-6 text-white placeholder-gray-600 focus:outline-none focus:border-primary/50 transition-all resize-none shadow-inner"
-                                        placeholder="Hi! I'm interested in your vision because..."
+                                        placeholder="Salut ! Je suis intéressé par votre vision car..."
                                     ></textarea>
                                 </div>
 
@@ -185,7 +191,7 @@ export default function TeamUp() {
                                     onClick={() => setSelectedFounder(null)}
                                     className="w-full py-5 rounded-2xl bg-gradient-to-r from-primary to-accent hover:scale-[1.02] text-white font-black uppercase tracking-widest flex items-center justify-center gap-3 transition-all shadow-xl shadow-primary/20"
                                 >
-                                    <Send className="w-5 h-5" /> Send Connection Request
+                                    <Send className="w-5 h-5" /> Envoyer la Demande
                                 </button>
                             </div>
                         </motion.div>

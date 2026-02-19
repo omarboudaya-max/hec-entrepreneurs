@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
+import AiAssistant from "@/components/AiAssistant";
+import LiveFeed from "@/components/LiveFeed";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -56,6 +58,8 @@ export default function RootLayout({
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
         {children}
+        <AiAssistant />
+        <LiveFeed />
       </body>
     </html>
   );

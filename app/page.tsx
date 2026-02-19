@@ -1,8 +1,6 @@
 "use client";
 import Navbar from "@/components/Navbar";
-import AiAssistant from "@/components/AiAssistant";
 import Hero from "@/components/Hero";
-import JourneyTracks from "@/components/JourneyTracks";
 import Footer from "@/components/Footer";
 import { motion, useScroll, useTransform } from "framer-motion";
 import { useRef } from "react";
@@ -105,9 +103,6 @@ export default function Home() {
 
       <div className="w-full h-px bg-gradient-to-r from-transparent via-secondary/20 to-transparent my-10" />
 
-      <JourneyTracks />
-
-      <AiAssistant />
 
       <Footer />
     </main>
