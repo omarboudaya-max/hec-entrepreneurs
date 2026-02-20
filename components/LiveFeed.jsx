@@ -3,44 +3,107 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X, Send, Reply, User, Zap } from "lucide-react";
 import clsx from "clsx";
+import { db } from "@/lib/firebase";
+import {
+    collection,
+    addDoc,
+    onSnapshot,
+    query,
+    orderBy,
+    serverTimestamp,
+    updateDoc,
+    doc,
+    arrayUnion,
+} from "firebase/firestore";
+
+function timeAgo(timestamp) {
+    if (!timestamp) return "À l'instant";
+    const seconds = Math.floor((Date.now() - timestamp.toMillis()) / 1000);
+    if (seconds < 60) return "À l'instant";
+    if (seconds < 3600) return `il y a ${Math.floor(seconds / 60)} min`;
+    if (seconds < 86400) return `il y a ${Math.floor(seconds / 3600)}h`;
+    return `il y a ${Math.floor(seconds / 86400)}j`;
+}
 
 export default function LiveFeed() {
     const [isOpen, setIsOpen] = useState(false);
-    const [messages, setMessages] = useState([
-        { id: 1, user: "Amine", content: "Quelqu'un est motivé pour le hackathon de demain ?", replies: [] },
-        {
-            id: 2, user: "Sarra", content: "Moi ! Je cherche justement une équipe tech.", replies: [
-                { id: 3, user: "Kais", content: "Je suis partant, on se voit au club ?" }
-            ]
-        }
-    ]);
+    const [messages, setMessages] = useState([]);
     const [input, setInput] = useState("");
     const [replyTo, setReplyTo] = useState(null);
+    const [username, setUsername] = useState("");
+    const [askingName, setAskingName] = useState(false);
+    const [pendingMessage, setPendingMessage] = useState("");
+    const [isSending, setIsSending] = useState(false);
     const messagesEndRef = useRef(null);
 
-    const scrollToBottom = () => {
-        messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
-    };
+    // Load saved username
+    useEffect(() => {
+        const saved = localStorage.getItem("livefeed_username");
+        if (saved) setUsername(saved);
+    }, []);
+
+    // Real-time Firestore listener
+    useEffect(() => {
+        const q = query(collection(db, "livefeed"), orderBy("createdAt", "asc"));
+        const unsubscribe = onSnapshot(q, (snapshot) => {
+            const msgs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
+            setMessages(msgs);
+        });
+        return () => unsubscribe();
+    }, []);
 
     useEffect(() => {
-        if (isOpen) scrollToBottom();
+        if (isOpen) messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, isOpen]);
+
+    const sendMessage = async (name, content, replyTarget) => {
+        if (!content.trim() || isSending) return;
+        setIsSending(true);
+        try {
+            if (replyTarget) {
+                // Append reply to existing message
+                await updateDoc(doc(db, "livefeed", replyTarget.id), {
+                    replies: arrayUnion({ user: name, content, createdAt: new Date().toISOString() }),
+                });
+            } else {
+                await addDoc(collection(db, "livefeed"), {
+                    user: name,
+                    content,
+                    replies: [],
+                    createdAt: serverTimestamp(),
+                });
+            }
+        } finally {
+            setIsSending(false);
+        }
+    };
 
     const handleSubmit = (e) => {
         e.preventDefault();
         if (!input.trim()) return;
 
-        if (replyTo) {
-            setMessages(prev => prev.map(msg =>
-                msg.id === replyTo.id
-                    ? { ...msg, replies: [...msg.replies, { id: Date.now(), user: "Vous", content: input }] }
-                    : msg
-            ));
-            setReplyTo(null);
-        } else {
-            setMessages(prev => [...prev, { id: Date.now(), user: "Vous", content: input, replies: [] }]);
+        if (!username) {
+            setPendingMessage(input);
+            setAskingName(true);
+            return;
         }
+
+        sendMessage(username, input, replyTo);
         setInput("");
+        setReplyTo(null);
+    };
+
+    const handleNameSubmit = (e) => {
+        e.preventDefault();
+        const name = e.target.name.value.trim();
+        if (!name) return;
+        localStorage.setItem("livefeed_username", name);
+        setUsername(name);
+        setAskingName(false);
+        sendMessage(name, pendingMessage, replyTo);
+        setInput("");
+        setReplyTo(null);
+        setPendingMessage("");
     };
 
     return (
@@ -61,7 +124,9 @@ export default function LiveFeed() {
                                 </div>
                                 <div>
                                     <h3 className="font-black text-sm uppercase tracking-widest text-white">Live Feed</h3>
-                                    <p className="text-[10px] text-secondary font-mono">Communauté en direct</p>
+                                    <p className="text-[10px] text-secondary font-mono">
+                                        {messages.length} message{messages.length !== 1 ? "s" : ""} · en direct
+                                    </p>
                                 </div>
                             </div>
                             <button onClick={() => setIsOpen(false)} className="text-gray-400 hover:text-white pb-1">
@@ -69,20 +134,53 @@ export default function LiveFeed() {
                             </button>
                         </div>
 
+                        {/* Ask Name Dialog */}
+                        <AnimatePresence>
+                            {askingName && (
+                                <motion.div
+                                    initial={{ opacity: 0 }}
+                                    animate={{ opacity: 1 }}
+                                    exit={{ opacity: 0 }}
+                                    className="absolute inset-0 z-30 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center p-8 gap-4"
+                                >
+                                    <User className="w-10 h-10 text-secondary" />
+                                    <h4 className="text-white font-black uppercase tracking-widest text-center">Comment vous appelez-vous ?</h4>
+                                    <p className="text-gray-400 text-xs text-center">Votre prénom sera visible dans le feed.</p>
+                                    <form onSubmit={handleNameSubmit} className="w-full flex flex-col gap-3 mt-2">
+                                        <input
+                                            name="name"
+                                            autoFocus
+                                            placeholder="Votre prénom..."
+                                            className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-secondary/50"
+                                        />
+                                        <button type="submit" className="bg-secondary text-white font-black uppercase tracking-widest text-xs py-3 rounded-xl hover:bg-secondary/80 transition-all">
+                                            Rejoindre le Live
+                                        </button>
+                                    </form>
+                                </motion.div>
+                            )}
+                        </AnimatePresence>
+
                         {/* Messages Area */}
-                        <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-black/40 custom-scrollbar">
+                        <div className="flex-1 overflow-y-auto p-6 space-y-6 bg-black/40">
+                            {messages.length === 0 && (
+                                <div className="flex flex-col items-center justify-center h-full gap-3 text-center">
+                                    <MessageCircle className="w-10 h-10 text-secondary/30" />
+                                    <p className="text-gray-500 text-sm">Soyez le premier à écrire !</p>
+                                </div>
+                            )}
                             {messages.map((msg) => (
                                 <div key={msg.id} className="space-y-3">
                                     <div className="flex items-start gap-3 group">
-                                        <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-secondary">
+                                        <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-secondary flex-shrink-0">
                                             <User size={16} />
                                         </div>
-                                        <div className="flex-1">
+                                        <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-1">
                                                 <span className="text-xs font-black text-white uppercase tracking-tighter">{msg.user}</span>
-                                                <span className="text-[8px] text-gray-500 font-mono">À l'instant</span>
+                                                <span className="text-[8px] text-gray-500 font-mono">{timeAgo(msg.createdAt)}</span>
                                             </div>
-                                            <p className="text-sm text-gray-300 leading-relaxed">{msg.content}</p>
+                                            <p className="text-sm text-gray-300 leading-relaxed break-words">{msg.content}</p>
                                             <button
                                                 onClick={() => setReplyTo(msg)}
                                                 className="text-[10px] text-secondary font-bold uppercase tracking-widest mt-2 flex items-center gap-1 hover:gap-2 transition-all opacity-0 group-hover:opacity-100"
@@ -93,13 +191,13 @@ export default function LiveFeed() {
                                     </div>
 
                                     {/* Replies */}
-                                    {msg.replies.map((reply) => (
-                                        <div key={reply.id} className="ml-11 flex items-start gap-3 border-l-2 border-white/5 pl-4">
+                                    {msg.replies?.map((reply, idx) => (
+                                        <div key={idx} className="ml-11 flex items-start gap-3 border-l-2 border-white/5 pl-4">
                                             <div className="flex-1">
                                                 <div className="flex items-center gap-2 mb-1">
                                                     <span className="text-[10px] font-black text-primary uppercase tracking-tighter">{reply.user}</span>
                                                 </div>
-                                                <p className="text-xs text-gray-400">{reply.content}</p>
+                                                <p className="text-xs text-gray-400 break-words">{reply.content}</p>
                                             </div>
                                         </div>
                                     ))}
@@ -113,7 +211,7 @@ export default function LiveFeed() {
                             {replyTo && (
                                 <div className="mb-2 px-3 py-1 bg-secondary/10 border border-secondary/20 rounded-lg flex justify-between items-center">
                                     <span className="text-[10px] text-secondary font-bold uppercase">Réponse à {replyTo.user}</span>
-                                    <button onClick={() => setReplyTo(null)} className="text-secondary"><X size={12} /></button>
+                                    <button type="button" onClick={() => setReplyTo(null)} className="text-secondary"><X size={12} /></button>
                                 </div>
                             )}
                             <div className="relative">
@@ -121,15 +219,15 @@ export default function LiveFeed() {
                                     type="text"
                                     value={input}
                                     onChange={(e) => setInput(e.target.value)}
-                                    placeholder="Écrivez un message..."
+                                    placeholder={username ? `Écrivez en tant que ${username}...` : "Écrivez un message..."}
                                     className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 pr-12 text-sm text-white placeholder-gray-600 focus:outline-none focus:border-secondary/50 transition-all font-medium"
                                 />
                                 <button
                                     type="submit"
-                                    disabled={!input.trim()}
+                                    disabled={!input.trim() || isSending}
                                     className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-secondary hover:bg-secondary/80 rounded-lg text-white disabled:opacity-50 transition-all"
                                 >
-                                    <Send className="w-4 h-4" />
+                                    <Send className={clsx("w-4 h-4", isSending && "animate-pulse")} />
                                 </button>
                             </div>
                         </form>
@@ -147,9 +245,9 @@ export default function LiveFeed() {
                 <div className="absolute inset-0 bg-gradient-to-tr from-secondary/50 to-primary/50 opacity-0 group-hover:opacity-40 transition-opacity" />
                 <div className="absolute inset-x-0 bottom-0 h-1 bg-secondary animate-pulse" />
                 <MessageCircle className="w-8 h-8 text-white relative z-10" />
-                {!isOpen && (
-                    <span className="absolute -top-1 -right-1 w-4 h-4 bg-primary rounded-full border-2 border-black z-20 flex items-center justify-center">
-                        <span className="w-1.5 h-1.5 bg-white rounded-full animate-ping" />
+                {!isOpen && messages.length > 0 && (
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full border-2 border-black z-20 flex items-center justify-center text-[9px] font-black text-white">
+                        {messages.length > 9 ? "9+" : messages.length}
                     </span>
                 )}
             </motion.button>

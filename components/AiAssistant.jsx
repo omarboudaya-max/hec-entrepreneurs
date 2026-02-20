@@ -7,9 +7,10 @@ import clsx from "clsx";
 export default function AiAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "Bonjour ! Je suis PRO ENTREPREUNEUR, l'ambassadeur IA de HEC Entrepreneurs IHEC Carthage. Je peux vous guider à travers nos parcours, vous aider à trouver un co-fondateur ou débloquer des ressources. Comment puis-je vous aider aujourd'hui ?" }
+    { role: "assistant", content: "Bonjour ! Je suis PRO ENTREPRENEUR, l'ambassadeur IA de HEC Entrepreneurs IHEC Carthage. Je peux vous guider à travers nos parcours, vous aider à trouver un co-fondateur ou débloquer des ressources. Comment puis-je vous aider aujourd'hui ?" }
   ]);
   const [input, setInput] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const messagesEndRef = useRef(null);
 
   const scrollToBottom = () => {
@@ -20,33 +21,35 @@ export default function AiAssistant() {
     scrollToBottom();
   }, [messages]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault();
-    if (!input.trim()) return;
+    if (!input.trim() || isLoading) return;
 
-    setMessages((prev) => [...prev, { role: "user", content: input }]);
+    const userMessage = { role: "user", content: input };
+    const updatedMessages = [...messages, userMessage];
+    setMessages(updatedMessages);
     setInput("");
+    setIsLoading(true);
 
-    // Mock AI logic based on keywords
-    setTimeout(() => {
-      let response = "C'est une question intéressante. Je vous recommande d'explorer notre parcours Découvrir pour en savoir plus.";
-      const lowerInput = input.toLowerCase();
+    try {
+      const res = await fetch("/api/chat", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ messages: updatedMessages }),
+      });
 
-      if (lowerInput.includes("financement") || lowerInput.includes("argent") || lowerInput.includes("investir") || lowerInput.includes("funds")) {
-        response = "Pour le financement et le passage à l'échelle, notre **Parcours Propulser** est parfait pour vous. Nous proposons des VC Office Hours et un accès privilégié à Station F.";
-      } else if (lowerInput.includes("apprendre") || lowerInput.includes("commencer") || lowerInput.includes("idée") || lowerInput.includes("start")) {
-        response = "Excellent ! Pour commencer, consultez le **Parcours Découvrir**. Nous avons des séries de conférences et des ateliers d'initiation à la tech.";
-      } else if (lowerInput.includes("équipe") || lowerInput.includes("fondateur") || lowerInput.includes("partenaire") || lowerInput.includes("team")) {
-        response = "Vous cherchez une équipe ? Rendez-vous dans notre section **TeamUp** pour trouver le co-fondateur idéal.";
-      } else if (lowerInput.includes("aws") || lowerInput.includes("notion") || lowerInput.includes("avantage") || lowerInput.includes("perk")) {
-        response = "Nous offrons d'excellents avantages comme des crédits AWS et Notion Enterprise ! Consultez la page **Ressources** (réservée aux membres).";
+      const data = await res.json();
+
+      if (data.error) {
+        setMessages((prev) => [...prev, { role: "assistant", content: data.error }]);
+      } else {
+        setMessages((prev) => [...prev, { role: "assistant", content: data.message }]);
       }
-
-      setMessages((prev) => [
-        ...prev,
-        { role: "assistant", content: response }
-      ]);
-    }, 1000);
+    } catch {
+      setMessages((prev) => [...prev, { role: "assistant", content: "Désolé, une erreur de connexion s'est produite. Veuillez réessayer." }]);
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   return (
@@ -95,6 +98,13 @@ export default function AiAssistant() {
                   {msg.content}
                 </div>
               ))}
+              {isLoading && (
+                <div className="max-w-[85%] p-3.5 rounded-2xl bg-white/10 border border-white/5 rounded-bl-none shadow-lg flex items-center gap-1.5">
+                  <span className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '0ms' }} />
+                  <span className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '150ms' }} />
+                  <span className="w-2 h-2 bg-primary rounded-full animate-bounce" style={{ animationDelay: '300ms' }} />
+                </div>
+              )}
               <div ref={messagesEndRef} />
             </div>
 
@@ -110,7 +120,7 @@ export default function AiAssistant() {
                 />
                 <button
                   type="submit"
-                  disabled={!input.trim()}
+                  disabled={!input.trim() || isLoading}
                   className="absolute right-2 top-1/2 -translate-y-1/2 p-2 bg-primary hover:bg-primary/80 rounded-lg text-white disabled:opacity-50 disabled:cursor-not-allowed transition-all hover:scale-105 active:scale-95 shadow-lg shadow-primary/20"
                 >
                   <Send className="w-4 h-4" />
