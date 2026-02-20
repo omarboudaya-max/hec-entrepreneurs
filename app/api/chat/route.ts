@@ -1,12 +1,6 @@
 import OpenAI from "openai";
 import { NextRequest, NextResponse } from "next/server";
 
-// Groq is free with 14,400 req/day — uses OpenAI-compatible API
-const openai = new OpenAI({
-    apiKey: process.env.GROQ_API_KEY,
-    baseURL: "https://api.groq.com/openai/v1",
-});
-
 const SYSTEM_PROMPT = `Tu es PRO ENTREPRENEUR — l'assistant IA officiel et ambassadeur du Club HEC Entrepreneurs de l'IHEC Carthage, Tunisie.
 
 ## Qui tu es
@@ -53,14 +47,28 @@ Tu es un conseiller entrepreneurial expert, motivant et accessible. Tu parles pr
 
 export async function POST(req: NextRequest) {
     try {
+        const apiKey = process.env.GROQ_API_KEY;
+
+        if (!apiKey) {
+            console.error("GROQ_API_KEY is missing");
+            return NextResponse.json(
+                { error: "Configuration de l'IA manquante." },
+                { status: 500 }
+            );
+        }
+
+        const openai = new OpenAI({
+            apiKey: apiKey,
+            baseURL: "https://api.groq.com/openai/v1",
+        });
+
         const { messages } = await req.json();
 
-        // Build messages array for OpenAI — skip the initial assistant greeting (index 0)
-        // and convert our format to OpenAI format
+        // Convert messages to OpenAI format, skipping the initial assistant greeting
         const openaiMessages = [
             { role: "system" as const, content: SYSTEM_PROMPT },
             ...messages
-                .filter((_: unknown, idx: number) => idx > 0) // skip initial greeting
+                .filter((_: unknown, idx: number) => idx > 0)
                 .map((msg: { role: string; content: string }) => ({
                     role: (msg.role === "assistant" ? "assistant" : "user") as "assistant" | "user",
                     content: msg.content,
@@ -77,7 +85,7 @@ export async function POST(req: NextRequest) {
         const response = completion.choices[0].message.content;
         return NextResponse.json({ message: response });
     } catch (error) {
-        console.error("OpenAI API error:", error);
+        console.error("AI API error:", error);
         return NextResponse.json(
             { error: "Désolé, une erreur s'est produite. Veuillez réessayer." },
             { status: 500 }
