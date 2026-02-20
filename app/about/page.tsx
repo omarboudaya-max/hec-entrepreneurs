@@ -48,7 +48,7 @@ const team = [
     { name: "Yassmin Zghal", role: "Secrétaire Général" },
     { name: "Melek Kammoun", role: "Trésorier" },
     { name: "Nourhene Ben Amor", role: "Vice-Président chargé des Adhérents (VPA)" },
-    { name: "Omar Boudaya", role: "Vice-Président chargé des Relations (VPR)", image: "/team/omar.jpeg" },
+    { name: "Omar Boudaya", role: "Vice-Président chargé des Relations (VPR)", image: "/team/omar.jpg" },
     { name: "Eya Cherif", role: "Vice-Président chargé de la Communication (VPCOM)" },
     { name: "Jihed Hersi", role: "Responsable Marketing et design" },
     { name: "Noura Derbel", role: "Adjointe Secrétaire Général" },
