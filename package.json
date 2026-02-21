@@ -10,8 +10,10 @@
   },
   "dependencies": {
     "@ai-sdk/google": "^3.0.30",
+    "@ai-sdk/openai": "^3.0.30",
     "@ai-sdk/react": "^3.0.95",
     "@google/generative-ai": "^0.24.1",
+    "@tailwindcss/typography": "^0.5.19",
     "ai": "^6.0.93",
     "clsx": "^2.1.1",
     "firebase": "^12.9.0",
@@ -21,6 +23,7 @@
     "openai": "^6.22.0",
     "react": "19.2.3",
     "react-dom": "19.2.3",
+    "react-markdown": "^10.1.0",
     "tailwind-merge": "^3.4.0"
   },
   "devDependencies": {

@@ -47,7 +47,7 @@ const Footer = () => {
                             {[
                                 { icon: Mail, href: "mailto:hecentrepreneurs8@gmail.com" },
                                 { icon: Instagram, href: "https://www.instagram.com/hec_entrepreneurs?igsh=MTdsOW4xOHVnbDdsYw==" },
-                                { icon: Linkedin, href: "https://www.linkedin.com/company/hec-entrepreneurs/" },
+                                { icon: Linkedin, href: "https://www.linkedin.com/in/hec-entrepreneurs-ab35773b2/" },
                                 { icon: Globe, href: "#" }
                             ].map((social, idx) => (
                                 <motion.a
