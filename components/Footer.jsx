@@ -12,7 +12,7 @@ const Footer = () => {
                 <div className="grid grid-cols-1 md:grid-cols-4 gap-12 mb-16">
                     {/* Brand & Mission */}
                     <div className="col-span-1 md:col-span-2">
-                        <Link href="/" className="text-2xl font-black tracking-tighter text-white mb-6 block">
+                        <Link href="/" className="text-xl font-bold tracking-[0.2em] text-white mb-6 block uppercase">
                             HEC <span className="text-primary italic">ENTREPRENEURS</span>
                         </Link>
                         <p className="text-gray-400 max-w-sm mb-8 leading-relaxed">
@@ -23,7 +23,7 @@ const Footer = () => {
 
                     {/* Quick Links */}
                     <div>
-                        <h4 className="text-white font-bold uppercase tracking-widest text-sm mb-6">Navigation</h4>
+                        <h4 className="text-white font-light uppercase tracking-[0.2em] text-xs mb-6 opacity-60">Navigation</h4>
                         <ul className="space-y-4">
                             {[
                                 { label: "Accueil", href: "/" },
@@ -42,7 +42,7 @@ const Footer = () => {
                     </div>
                     {/* Contact */}
                     <div>
-                        <h4 className="text-white font-bold uppercase tracking-widest text-sm mb-6">Contact</h4>
+                        <h4 className="text-white font-light uppercase tracking-[0.2em] text-xs mb-6 opacity-60">Contact</h4>
                         <div className="flex gap-4">
                             {[
                                 { icon: Mail, href: "mailto:hecentrepreneurs8@gmail.com" },

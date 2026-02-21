@@ -20,6 +20,16 @@ body {
   color: var(--foreground);
   overflow-x: hidden;
   position: relative;
+  font-weight: 300;
+}
+
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+  font-weight: 200;
 }
 
 body::before {

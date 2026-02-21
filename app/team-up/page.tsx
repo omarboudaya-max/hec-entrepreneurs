@@ -61,7 +61,7 @@ export default function TeamUp() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                     >
-                        <h1 className="text-6xl md:text-8xl font-black mb-6 text-wave tracking-tighter uppercase">TEAM UP</h1>
+                        <h1 className="text-5xl md:text-7xl font-thin mb-6 text-wave tracking-[0.3em] uppercase">TEAM UP</h1>
                         <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
                             Trouvez votre co-fondateur, rejoignez un projet ou bâtissez votre équipe de rêve.
                         </p>
@@ -112,7 +112,7 @@ export default function TeamUp() {
                                     whileInView={{ opacity: 1, scale: 1 }}
                                     className="px-6 py-2 border-2 border-primary/50 rounded-full bg-black/80 shadow-2xl shadow-primary/20"
                                 >
-                                    <span className="text-sm font-black text-primary uppercase tracking-[0.3em]">Bientôt disponible</span>
+                                    <span className="text-[10px] font-light text-primary uppercase tracking-[0.3em]">Bientôt disponible</span>
                                 </motion.div>
                             </div>
 
@@ -128,12 +128,12 @@ export default function TeamUp() {
                                 <span className="text-[10px] font-black uppercase tracking-[0.2em] text-gray-500">{founder.type}</span>
                             </div>
 
-                            <h3 className="text-2xl font-bold mb-4 line-clamp-1">{founder.role}</h3>
+                            <h3 className="text-xl font-light mb-4 line-clamp-1 uppercase tracking-tight">{founder.role}</h3>
                             <p className="text-gray-400 mb-8 flex-1 leading-relaxed line-clamp-3">{founder.pitch}</p>
 
                             <div className="flex flex-wrap gap-2 mb-8">
                                 {founder.skills.map((skill, idx) => (
-                                    <span key={idx} className="px-3 py-1 rounded-lg bg-white/5 text-[10px] font-bold text-gray-300 border border-white/5 uppercase tracking-wider">
+                                    <span key={idx} className="px-3 py-1 rounded-lg bg-white/5 text-[9px] font-medium text-gray-400 border border-white/5 uppercase tracking-wide">
                                         {skill}
                                     </span>
                                 ))}

@@ -55,7 +55,7 @@ export default function Hero() {
                 >
                     <motion.h1
                         style={{ y: yTitle }}
-                        className="text-4xl sm:text-6xl md:text-8xl font-black mb-6 tracking-tighter text-wave leading-tight"
+                        className="text-4xl sm:text-5xl md:text-7xl font-bold mb-8 tracking-[0.1em] text-wave leading-tight uppercase"
                         initial={{ filter: "blur(10px)", opacity: 0 }}
                         animate={{ filter: "blur(0px)", opacity: 1 }}
                         transition={{ duration: 1 }}
@@ -65,7 +65,7 @@ export default function Hero() {
 
                     <motion.h2
                         style={{ y: ySubtitle }}
-                        className="text-xl md:text-3xl font-bold mb-8 text-white uppercase tracking-widest"
+                        className="text-xl md:text-3xl font-semibold mb-8 text-white uppercase tracking-widest"
                     >
                         Des idées à l'impact
                     </motion.h2>
@@ -79,12 +79,12 @@ export default function Hero() {
 
                     <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center items-center">
                         <Link href="/entrepreuneuriat" className="w-full sm:w-auto">
-                            <button className="w-full sm:w-auto px-8 py-4 rounded-xl bg-transparent border border-primary/50 hover:bg-primary/10 text-white font-bold text-lg backdrop-blur-sm transition-all shadow-[0_0_15px_rgba(124,58,237,0.2)] hover:shadow-[0_0_25px_rgba(124,58,237,0.4)]">
+                            <button className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-transparent border border-white/40 hover:bg-white/5 text-white font-light text-base backdrop-blur-sm transition-all tracking-[0.15em] uppercase">
                                 Découvrir nos projets
                             </button>
                         </Link>
                         <Link href="/join" className="w-full sm:w-auto">
-                            <button className="w-full sm:w-auto px-8 py-4 rounded-xl bg-primary hover:bg-primary/90 text-white font-bold text-lg transition-all hover:scale-105 shadow-[0_0_20px_rgba(124,58,237,0.5)]">
+                            <button className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[#7c3aed] hover:bg-[#8b5cf6] text-white font-normal text-base transition-all hover:shadow-[0_0_30px_rgba(124,58,237,0.4)] tracking-[0.15em] uppercase">
                                 Rejoindre le Club
                             </button>
                         </Link>

@@ -51,7 +51,7 @@ export default function Resources() {
                     <motion.h1
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="text-6xl md:text-8xl font-black mb-6 text-wave tracking-tighter uppercase"
+                        className="text-5xl md:text-7xl font-thin mb-6 text-wave tracking-[0.2em] uppercase"
                     >
                         RESSOURCES
                     </motion.h1>
@@ -85,9 +85,9 @@ export default function Resources() {
                                         <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-6">
                                             <Lock className="w-8 h-8 text-primary" />
                                         </div>
-                                        <h4 className="text-xl font-black text-white uppercase tracking-widest mb-3">MEMBRES UNIQUEMENT</h4>
-                                        <p className="text-sm text-gray-400 font-medium mb-8 leading-relaxed">Débloquez l'accès en rejoignant l'écosystème HEC Entrepreneurs.</p>
-                                        <button className="flex items-center gap-2 text-primary font-black uppercase tracking-widest text-xs hover:gap-4 transition-all">
+                                        <h4 className="text-lg font-light text-white uppercase tracking-[0.2em] mb-3">MEMBRES UNIQUEMENT</h4>
+                                        <p className="text-sm text-gray-400 font-light mb-8 leading-relaxed">Débloquez l'accès en rejoignant l'écosystème HEC Entrepreneurs.</p>
+                                        <button className="flex items-center gap-2 text-primary font-light uppercase tracking-[0.1em] text-xs hover:gap-4 transition-all">
                                             Rejoindre Maintenant <ArrowRight className="w-4 h-4" />
                                         </button>
                                     </div>
@@ -96,9 +96,9 @@ export default function Resources() {
                                         <perk.icon className="w-7 h-7" />
                                     </div>
 
-                                    <h3 className={`text-base font-black uppercase tracking-[0.2em] mb-4 text-glow ${perk.text}`}>{perk.name}</h3>
-                                    <p className="text-4xl font-black text-white mb-6 tracking-tighter">{perk.value}</p>
-                                    <p className="text-gray-400 text-base font-medium leading-relaxed flex-1">{perk.desc}</p>
+                                    <h3 className={`text-sm font-light uppercase tracking-[0.2em] mb-4 text-glow ${perk.text}`}>{perk.name}</h3>
+                                    <p className="text-3xl font-thin text-white mb-6 tracking-wide">{perk.value}</p>
+                                    <p className="text-gray-400 text-sm font-light leading-relaxed flex-1">{perk.desc}</p>
 
                                     <div className="w-full h-1 bg-white/5 mt-10 rounded-full overflow-hidden">
                                         <div className={`h-full bg-gradient-to-r ${perk.bg} w-1/3 group-hover:w-full transition-all duration-1000`} />
@@ -115,7 +115,7 @@ export default function Resources() {
                         <div className="p-4 rounded-2xl bg-primary/10 text-primary">
                             <Users className="w-8 h-8" />
                         </div>
-                        <h2 className="text-4xl font-black uppercase tracking-widest italic text-wave">MENTORS</h2>
+                        <h2 className="text-3xl font-thin uppercase tracking-[0.3em] italic text-wave">MENTORS</h2>
                     </div>
 
                     <motion.div
@@ -139,12 +139,12 @@ export default function Resources() {
                                 </div>
                                 <div className="text-center md:text-left flex-1">
                                     <div className="flex flex-col md:flex-row md:items-center gap-3 mb-2">
-                                        <h3 className="text-2xl font-black text-white tracking-tight uppercase italic">{mentor.name}</h3>
-                                        <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-black rounded-full border border-primary/20 uppercase tracking-widest w-fit mx-auto md:mx-0">
+                                        <h3 className="text-xl font-light text-white tracking-[0.05em] uppercase italic">{mentor.name}</h3>
+                                        <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-light rounded-full border border-primary/20 uppercase tracking-[0.2em] w-fit mx-auto md:mx-0">
                                             {mentor.expertise}
                                         </span>
                                     </div>
-                                    <p className="text-gray-400 text-sm font-bold uppercase tracking-widest mb-4">{mentor.company}</p>
+                                    <p className="text-gray-400 text-xs font-light uppercase tracking-[0.2em] mb-4">{mentor.company}</p>
                                     <p className="text-gray-400 text-lg leading-relaxed">{mentor.bio}</p>
                                 </div>
                             </motion.div>

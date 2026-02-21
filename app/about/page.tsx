@@ -4,6 +4,7 @@ import Navbar from "@/components/Navbar";
 import { Zap, Heart, Star, Target, Users, Rocket, Globe, Lightbulb } from "lucide-react";
 import { useRef } from "react";
 import Footer from "@/components/Footer";
+import clsx from "clsx";
 
 const values = [
     {
@@ -44,14 +45,14 @@ const values = [
 ];
 
 const team = [
-    { name: "Youssef Drira", role: "Président" },
-    { name: "Yassmin Zghal", role: "Secrétaire Général" },
-    { name: "Melek Kammoun", role: "Trésorier" },
-    { name: "Nourhene Ben Amor", role: "Vice-Président chargé des Adhérents (VPA)" },
+    { name: "Youssef Drira", role: "Président", image: "/team/youssef.JPG" },
+    { name: "Yassmin Zghal", role: "Secrétaire Général", image: "/team/yassmin.jpg" },
+    { name: "Melek Kammoun", role: "Trésorier", image: "/team/melek.jpg" },
+    { name: "Nourhene Ben Amor", role: "Vice-Président chargé des Adhérents (VPA)", image: "/team/nourhene.jpg" },
     { name: "Omar Boudaya", role: "Vice-Président chargé des Relations (VPR)", image: "/team/omar.jpg" },
-    { name: "Eya Cherif", role: "Vice-Président chargé de la Communication (VPCOM)" },
-    { name: "Jihed Hersi", role: "Responsable Marketing et design" },
-    { name: "Noura Derbel", role: "Adjointe Secrétaire Général" },
+    { name: "Eya Cherif", role: "Vice-Président chargé de la Communication (VPCOM)", image: "/team/eya.jpg" },
+    { name: "Jihed Hersi", role: "Responsable Marketing et design", image: "/team/jihed.jpg" },
+    { name: "Noura Derbel", role: "Adjointe Secrétaire Général", image: "/team/noura.jpg" },
 ];
 
 export default function About() {
@@ -79,7 +80,7 @@ export default function About() {
                         <motion.h1
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="text-6xl md:text-8xl font-black mb-8 text-wave uppercase tracking-tighter"
+                            className="text-5xl md:text-7xl font-thin mb-8 text-wave uppercase tracking-[0.2em]"
                         >
                             QUI SOMMES-NOUS
                         </motion.h1>
@@ -99,7 +100,7 @@ export default function About() {
                                 <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
                                     <Lightbulb className="w-24 h-24 text-secondary" />
                                 </div>
-                                <h2 className="text-3xl font-black mb-6 text-secondary flex items-center gap-3 italic uppercase tracking-tighter">
+                                <h2 className="text-2xl font-light mb-6 text-secondary flex items-center gap-3 italic uppercase tracking-[0.1em]">
                                     NOTRE VISION
                                 </h2>
                                 <p className="text-xl text-gray-300 italic leading-relaxed relative z-10 font-light">
@@ -119,7 +120,7 @@ export default function About() {
                             <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
                                 <Rocket className="w-32 h-32 text-primary" />
                             </div>
-                            <h2 className="text-3xl font-black mb-8 text-primary flex items-center gap-3 italic uppercase tracking-tighter">
+                            <h2 className="text-2xl font-light mb-8 text-primary flex items-center gap-3 italic uppercase tracking-[0.1em]">
                                 NOTRE MISSION
                             </h2>
                             <p className="text-xl text-gray-300 leading-relaxed font-light">
@@ -131,7 +132,7 @@ export default function About() {
 
                     {/* Interactive Values Buttons */}
                     <div className="mb-32">
-                        <h2 className="text-4xl md:text-6xl font-black text-center mb-16 text-glow uppercase tracking-tighter italic">NOS VALEURS</h2>
+                        <h2 className="text-3xl md:text-5xl font-light text-center mb-16 text-glow uppercase tracking-[0.15em] italic">NOS VALEURS</h2>
                         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-20">
                             {values.map((val, idx) => (
                                 <motion.button
@@ -144,7 +145,7 @@ export default function About() {
                                     <div className={`p-4 rounded-xl bg-white/5 group-hover:scale-110 transition-transform ${val.color}`}>
                                         <val.icon className="w-8 h-8" />
                                     </div>
-                                    <span className="font-bold text-gray-200 text-[10px] md:text-xs tracking-widest uppercase text-center">{val.label}</span>
+                                    <span className="font-light text-gray-200 text-[10px] md:text-xs tracking-[0.2em] uppercase text-center">{val.label}</span>
                                 </motion.button>
                             ))}
                         </div>
@@ -165,7 +166,7 @@ export default function About() {
                                 >
                                     <div className={`mb-6 flex items-center gap-4 ${val.color}`}>
                                         <val.icon className="w-10 h-10" />
-                                        <h3 className="text-2xl font-black uppercase tracking-tight italic">{val.label}</h3>
+                                        <h3 className="text-xl font-light uppercase tracking-[0.1em] italic">{val.label}</h3>
                                     </div>
                                     <p className="text-gray-400 text-lg leading-relaxed font-medium">
                                         {val.desc}
@@ -178,8 +179,8 @@ export default function About() {
                     {/* Team Section */}
                     <div className="mb-32">
                         <div className="text-center mb-20">
-                            <h2 className="text-4xl md:text-7xl font-black text-wave uppercase tracking-tighter italic mb-4">NOTRE ÉQUIPE</h2>
-                            <p className="text-gray-500 font-mono tracking-widest uppercase text-sm">Bureau Exécutif 2025-2026</p>
+                            <h2 className="text-4xl md:text-6xl font-thin text-wave uppercase tracking-[0.1em] italic mb-4">NOTRE ÉQUIPE</h2>
+                            <p className="text-gray-500 font-mono tracking-[0.3em] uppercase text-xs">Bureau Exécutif 2025-2026</p>
                         </div>
 
                         <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
@@ -194,13 +195,20 @@ export default function About() {
                                 >
                                     <div className="w-24 h-24 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full mx-auto mb-6 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform overflow-hidden shadow-xl shadow-primary/10">
                                         {member.image ? (
-                                            <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
+                                            <img
+                                                src={member.image}
+                                                alt={member.name}
+                                                className={clsx(
+                                                    "w-full h-full object-cover transition-transform duration-500",
+                                                    member.name === "Omar Boudaya" && "scale-[1.4] object-center"
+                                                )}
+                                            />
                                         ) : (
                                             <Users className="w-10 h-10 text-white/50" />
                                         )}
                                     </div>
-                                    <h4 className="text-xl font-black text-white uppercase tracking-tighter mb-2 italic">{member.name}</h4>
-                                    <p className="text-primary text-xs font-black uppercase tracking-widest leading-tight">
+                                    <h4 className="text-lg font-light text-white uppercase tracking-[0.05em] mb-2 italic">{member.name}</h4>
+                                    <p className="text-primary text-[10px] font-medium uppercase tracking-[0.15em] leading-tight opacity-80">
                                         {member.role}
                                     </p>
                                 </motion.div>

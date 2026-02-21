@@ -69,8 +69,8 @@ export default function AiAssistant() {
                   <Bot className="w-5 h-5 text-white" />
                 </div>
                 <div>
-                  <h3 className="font-black text-sm tracking-wider text-white">
-                    PRO ENTREPREUNEUR
+                  <h3 className="font-light text-xs tracking-[0.2em] text-white uppercase">
+                    PRO ENTREPRENEUR
                   </h3>
                   <p className="text-[10px] text-secondary font-mono uppercase tracking-widest">Ambassadeur IA</p>
                 </div>
@@ -154,9 +154,9 @@ export default function AiAssistant() {
               transition={{ delay: 1 }}
               className="absolute right-full mr-4 top-1/2 -translate-y-1/2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl whitespace-nowrap"
             >
-              <p className="text-sm font-bold text-white flex items-center gap-2">
+              <p className="text-sm font-light text-white flex items-center gap-2 tracking-wide">
                 <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
-                Discutez avec PRO ENTREPREUNEUR
+                Discutez avec PRO ENTREPRENEUR
               </p>
             </motion.div>
           )}

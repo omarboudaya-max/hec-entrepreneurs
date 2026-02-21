@@ -1,7 +1,6 @@
 "use client";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import HallOfFame from "@/components/HallOfFame";
 import { motion } from "framer-motion";
 import { Lightbulb, Target, Rocket, HelpCircle } from "lucide-react";
 
@@ -23,7 +22,7 @@ export default function Entrepreuneuriat() {
                         <motion.h1
                             initial={{ opacity: 0, y: -20 }}
                             animate={{ opacity: 1, y: 0 }}
-                            className="text-6xl md:text-8xl font-black mb-6 text-wave tracking-tighter uppercase"
+                            className="text-5xl md:text-7xl font-thin mb-6 text-wave tracking-[0.2em] uppercase"
                         >
                             ENTREPRENEURIAT
                         </motion.h1>
@@ -41,7 +40,7 @@ export default function Entrepreuneuriat() {
                     >
                         <div className="flex items-center gap-4 mb-6">
                             <HelpCircle className="w-10 h-10 text-primary" />
-                            <h2 className="text-3xl md:text-4xl font-bold text-white uppercase tracking-tight">C'EST QUOI ?</h2>
+                            <h2 className="text-2xl md:text-3xl font-light text-white uppercase tracking-[0.1em]">C'EST QUOI ?</h2>
                         </div>
                         <p className="text-lg md:text-xl text-gray-300 leading-relaxed">
                             L'entrepreneuriat ne se résume pas à créer une entreprise. C'est un <span className="text-primary font-bold italic">état d'esprit</span>. C'est la capacité à identifier un problème, à imaginer une solution et à mobiliser les ressources nécessaires pour transformer cette vision en <span className="text-secondary font-bold">impact réel</span>. C'est l'art de bâtir le possible.
@@ -57,23 +56,23 @@ export default function Entrepreuneuriat() {
                     >
                         <div className="flex items-center gap-4 mb-6">
                             <Target className="w-10 h-10 text-secondary" />
-                            <h2 className="text-3xl md:text-4xl font-bold text-white uppercase tracking-tight">POURQUOI ?</h2>
+                            <h2 className="text-2xl md:text-3xl font-light text-white uppercase tracking-[0.1em]">POURQUOI ?</h2>
                         </div>
                         <div className="grid md:grid-cols-2 gap-8">
                             <div>
-                                <h3 className="text-xl font-black text-secondary mb-3">IMPACT</h3>
+                                <h3 className="text-xl font-extrabold text-secondary mb-3 uppercase tracking-tight">IMPACT</h3>
                                 <p className="text-gray-400">Résoudre des défis sociétaux et économiques concrets par l'innovation.</p>
                             </div>
                             <div>
-                                <h3 className="text-xl font-black text-secondary mb-3">LIBERTÉ</h3>
+                                <h3 className="text-xl font-extrabold text-secondary mb-3 uppercase tracking-tight">LIBERTÉ</h3>
                                 <p className="text-gray-400">Devenir l'architecte de sa propre carrière et de sa vision.</p>
                             </div>
                             <div>
-                                <h3 className="text-xl font-black text-secondary mb-3">APPRENTISSAGE</h3>
+                                <h3 className="text-xl font-extrabold text-secondary mb-3 uppercase tracking-tight">APPRENTISSAGE</h3>
                                 <p className="text-gray-400">Un parcours accéléré de croissance personnelle et professionnelle.</p>
                             </div>
                             <div>
-                                <h3 className="text-xl font-black text-secondary mb-3">CRÉATIVITÉ</h3>
+                                <h3 className="text-xl font-extrabold text-secondary mb-3 uppercase tracking-tight">CRÉATIVITÉ</h3>
                                 <p className="text-gray-400">Donner vie à ses idées les plus audacieuses sans limites.</p>
                             </div>
                         </div>
@@ -88,7 +87,7 @@ export default function Entrepreuneuriat() {
                     >
                         <div className="text-center mb-16">
                             <Rocket className="w-16 h-16 text-primary mx-auto mb-6 animate-float" />
-                            <h2 className="text-4xl md:text-5xl font-black text-white uppercase tracking-widest italic">COMMENT ?</h2>
+                            <h2 className="text-3xl md:text-4xl font-light text-white uppercase tracking-[0.3em] italic opacity-80">COMMENT ?</h2>
                         </div>
                         <div className="grid md:grid-cols-3 gap-6">
                             {[
@@ -97,8 +96,8 @@ export default function Entrepreuneuriat() {
                                 { step: "03", title: "S'ENTOURER", desc: "Rejoignez le Club HEC pour accéder à un réseau de mentors et de partenaires." }
                             ].map((step, idx) => (
                                 <div key={idx} className="glass p-8 rounded-3xl border border-white/5 relative group hover:border-primary/50 transition-all">
-                                    <span className="text-6xl font-black text-primary/10 absolute top-4 right-4 group-hover:text-primary/20 transition-colors">{step.step}</span>
-                                    <h3 className="text-2xl font-black text-white mb-4 relative z-10">{step.title}</h3>
+                                    <span className="text-5xl font-thin text-primary/10 absolute top-4 right-4 group-hover:text-primary/20 transition-colors uppercase">{step.step}</span>
+                                    <h3 className="text-xl font-light text-white mb-4 relative z-10 tracking-[0.1em]">{step.title}</h3>
                                     <p className="text-gray-400 relative z-10">{step.desc}</p>
                                 </div>
                             ))}
@@ -107,15 +106,6 @@ export default function Entrepreuneuriat() {
                 </div>
 
                 <div className="w-full h-px bg-gradient-to-r from-transparent via-primary/30 to-transparent my-20" />
-
-                {/* Hall Of Fame Integration */}
-                <motion.div
-                    initial={{ opacity: 0, y: 50 }}
-                    whileInView={{ opacity: 1, y: 0 }}
-                    viewport={{ once: true }}
-                >
-                    <HallOfFame />
-                </motion.div>
             </div>
             <Footer />
         </main>

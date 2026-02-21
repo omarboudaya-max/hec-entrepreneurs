@@ -123,7 +123,7 @@ export default function LiveFeed() {
                                     <Zap className="w-5 h-5 text-white animate-pulse" />
                                 </div>
                                 <div>
-                                    <h3 className="font-black text-sm uppercase tracking-widest text-white">Live Feed</h3>
+                                    <h3 className="font-light text-xs uppercase tracking-[0.2em] text-white">Live Feed</h3>
                                     <p className="text-[10px] text-secondary font-mono">
                                         {messages.length} message{messages.length !== 1 ? "s" : ""} · en direct
                                     </p>
@@ -144,7 +144,7 @@ export default function LiveFeed() {
                                     className="absolute inset-0 z-30 bg-black/80 backdrop-blur-md flex flex-col items-center justify-center p-8 gap-4"
                                 >
                                     <User className="w-10 h-10 text-secondary" />
-                                    <h4 className="text-white font-black uppercase tracking-widest text-center">Comment vous appelez-vous ?</h4>
+                                    <h4 className="text-white font-light uppercase tracking-[0.1em] text-center">Comment vous appelez-vous ?</h4>
                                     <p className="text-gray-400 text-xs text-center">Votre prénom sera visible dans le feed.</p>
                                     <form onSubmit={handleNameSubmit} className="w-full flex flex-col gap-3 mt-2">
                                         <input
@@ -153,7 +153,7 @@ export default function LiveFeed() {
                                             placeholder="Votre prénom..."
                                             className="w-full bg-white/5 border border-white/10 rounded-xl py-3 px-4 text-sm text-white placeholder-gray-500 focus:outline-none focus:border-secondary/50"
                                         />
-                                        <button type="submit" className="bg-secondary text-white font-black uppercase tracking-widest text-xs py-3 rounded-xl hover:bg-secondary/80 transition-all">
+                                        <button type="submit" className="bg-secondary/80 text-white font-light uppercase tracking-[0.2em] text-[10px] py-3 rounded-xl hover:bg-secondary transition-all">
                                             Rejoindre le Live
                                         </button>
                                     </form>
@@ -177,7 +177,7 @@ export default function LiveFeed() {
                                         </div>
                                         <div className="flex-1 min-w-0">
                                             <div className="flex items-center gap-2 mb-1">
-                                                <span className="text-xs font-black text-white uppercase tracking-tighter">{msg.user}</span>
+                                                <span className="text-xs font-medium text-white/90 uppercase tracking-[0.05em]">{msg.user}</span>
                                                 <span className="text-[8px] text-gray-500 font-mono">{timeAgo(msg.createdAt)}</span>
                                             </div>
                                             <p className="text-sm text-gray-300 leading-relaxed break-words">{msg.content}</p>
@@ -195,7 +195,7 @@ export default function LiveFeed() {
                                         <div key={idx} className="ml-11 flex items-start gap-3 border-l-2 border-white/5 pl-4">
                                             <div className="flex-1">
                                                 <div className="flex items-center gap-2 mb-1">
-                                                    <span className="text-[10px] font-black text-primary uppercase tracking-tighter">{reply.user}</span>
+                                                    <span className="text-[10px] font-medium text-primary uppercase tracking-[0.05em]">{reply.user}</span>
                                                 </div>
                                                 <p className="text-xs text-gray-400 break-words">{reply.content}</p>
                                             </div>
@@ -246,7 +246,7 @@ export default function LiveFeed() {
                 <div className="absolute inset-x-0 bottom-0 h-1 bg-secondary animate-pulse" />
                 <MessageCircle className="w-8 h-8 text-white relative z-10" />
                 {!isOpen && messages.length > 0 && (
-                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full border-2 border-black z-20 flex items-center justify-center text-[9px] font-black text-white">
+                    <span className="absolute -top-1 -right-1 w-5 h-5 bg-primary rounded-full border border-black z-20 flex items-center justify-center text-[9px] font-light text-white">
                         {messages.length > 9 ? "9+" : messages.length}
                     </span>
                 )}

@@ -41,7 +41,7 @@ export default function Home() {
               bounce: 0.4
             }}
           >
-            <h2 className="text-3xl md:text-5xl font-bold mb-8 text-white uppercase tracking-widest text-glow">
+            <h2 className="text-3xl md:text-5xl font-light mb-8 text-white uppercase tracking-[0.2em] text-glow">
               NOTRE PROMESSE
             </h2>
             <p className="text-lg md:text-3xl text-gray-300 max-w-4xl mx-auto leading-relaxed font-light italic">
@@ -64,7 +64,7 @@ export default function Home() {
             initial={{ opacity: 0, x: -50 }}
             whileInView={{ opacity: 1, x: 0 }}
             viewport={{ once: true }}
-            className="text-3xl md:text-6xl font-black text-center mb-20 text-wave uppercase tracking-tighter"
+            className="text-3xl md:text-5xl font-light text-center mb-20 text-wave uppercase tracking-[0.1em]"
           >
             POURQUOI NOUS SOMMES DIFFÉRENTS
           </motion.h2>
@@ -90,11 +90,11 @@ export default function Home() {
                 whileHover={{ y: -10, transition: { duration: 0.2 } }}
                 className="glass p-10 rounded-[2.5rem] border border-white/5 hover:border-primary/50 transition-colors group relative overflow-hidden"
               >
-                <div className="absolute top-0 right-0 p-6 opacity-5 group-hover:opacity-10 transition-opacity">
-                  <span className="text-8xl font-black text-white">{idx + 1}</span>
+                <div className="absolute top-0 right-0 p-6 opacity-3 group-hover:opacity-10 transition-opacity">
+                  <span className="text-7xl font-thin text-white">{idx + 1}</span>
                 </div>
-                <h3 className="text-xl font-bold mb-4 text-primary group-hover:text-white transition-colors uppercase tracking-tight italic">{item.title}</h3>
-                <p className="text-gray-400 text-sm leading-relaxed group-hover:text-gray-200 transition-colors">{item.desc}</p>
+                <h3 className="text-xl font-light mb-4 text-primary group-hover:text-white transition-colors uppercase tracking-[0.15em] italic">{item.title}</h3>
+                <p className="text-gray-400 text-sm leading-relaxed group-hover:text-gray-200 transition-colors font-light">{item.desc}</p>
               </motion.div>
             ))}
           </div>

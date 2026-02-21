@@ -32,7 +32,7 @@ export default function Navbar() {
                             key={link.href}
                             href={link.href}
                             className={clsx(
-                                "relative px-4 py-2 rounded-full text-sm font-medium transition-colors",
+                                "relative px-4 py-2 rounded-full text-sm font-light tracking-widest transition-colors",
                                 pathname === link.href ? "text-white" : "text-gray-400 hover:text-white"
                             )}
                         >
@@ -71,7 +71,7 @@ export default function Navbar() {
                                     href={link.href}
                                     onClick={() => setIsOpen(false)}
                                     className={clsx(
-                                        "px-6 py-4 rounded-2xl text-base font-bold transition-all",
+                                        "px-6 py-4 rounded-2xl text-sm font-light uppercase tracking-widest transition-all",
                                         pathname === link.href
                                             ? "bg-primary/20 text-primary border border-primary/30"
                                             : "text-gray-400 hover:text-white hover:bg-white/5"

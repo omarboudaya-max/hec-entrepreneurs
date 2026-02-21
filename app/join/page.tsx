@@ -11,13 +11,13 @@ export default function Join() {
 
             <div className="z-10 text-center px-4 py-32">
                 <Clock className="w-20 h-20 text-primary mx-auto mb-8 animate-pulse" />
-                <h1 className="text-4xl md:text-6xl font-black mb-6 text-wave uppercase tracking-tighter">
+                <h1 className="text-3xl md:text-5xl font-thin mb-6 text-wave uppercase tracking-[0.2em]">
                     RECRUTEMENT PAS ENCORE OUVERT
                 </h1>
-                <p className="text-xl text-gray-400 max-w-lg mx-auto leading-relaxed">
-                    Merci pour votre intérêt pour <span className="text-white font-bold">HEC Entrepreneurs</span>.
+                <p className="text-lg font-light text-gray-400 max-w-lg mx-auto leading-relaxed">
+                    Merci pour votre intérêt pour <span className="text-white font-medium uppercase tracking-widest">HEC Entrepreneurs</span>.
                     La session de recrutement est actuellement fermée.
-                    <br /><span className="text-secondary font-bold">Veuillez attendre le prochain cycle de recrutement !</span>
+                    <br /><span className="text-secondary font-medium uppercase tracking-widest opacity-80 mt-4 block">Veuillez attendre le prochain cycle de recrutement !</span>
                 </p>
 
                 <div className="mt-12">
