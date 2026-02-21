@@ -80,7 +80,7 @@ export default function About() {
                         <motion.h1
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="text-5xl md:text-7xl font-thin mb-8 text-wave uppercase tracking-[0.2em]"
+                            className="text-3xl sm:text-5xl md:text-7xl font-thin mb-8 text-wave uppercase tracking-[0.1em] sm:tracking-[0.2em]"
                         >
                             QUI SOMMES-NOUS
                         </motion.h1>
@@ -95,15 +95,15 @@ export default function About() {
                                 whileInView={{ opacity: 1, x: 0, filter: "blur(0px)" }}
                                 viewport={{ once: true, margin: "-100px" }}
                                 transition={{ duration: 0.8 }}
-                                className="glass p-10 rounded-[2.5rem] border border-secondary/20 relative group overflow-hidden flex-1"
+                                className="glass p-6 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-secondary/20 relative group overflow-hidden flex-1"
                             >
-                                <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                                <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity hidden sm:block">
                                     <Lightbulb className="w-24 h-24 text-secondary" />
                                 </div>
-                                <h2 className="text-2xl font-light mb-6 text-secondary flex items-center gap-3 italic uppercase tracking-[0.1em]">
+                                <h2 className="text-xl sm:text-2xl font-light mb-6 text-secondary flex items-center gap-3 italic uppercase tracking-[0.1em]">
                                     NOTRE VISION
                                 </h2>
-                                <p className="text-xl text-gray-300 italic leading-relaxed relative z-10 font-light">
+                                <p className="text-lg sm:text-xl text-gray-300 italic leading-relaxed relative z-10 font-light">
                                     "Faire du Club HEC Entrepreneurs un <span className="text-secondary font-black">pilier</span> de la culture entrepreneuriale à l’<span className="text-primary font-black">IHEC Carthage</span>. Un espace où les idées se transforment en <span className="text-secondary font-black">projets</span>, où les talents s’engagent, et où l’entrepreneuriat devient un levier de <span className="text-primary font-black">création de valeur</span>."
                                 </p>
                             </motion.div>
@@ -115,15 +115,15 @@ export default function About() {
                             whileInView={{ opacity: 1, x: 0, filter: "blur(0px)" }}
                             viewport={{ once: true, margin: "-100px" }}
                             transition={{ duration: 0.8 }}
-                            className="glass p-10 rounded-[2.5rem] border border-primary/20 flex flex-col justify-center relative group overflow-hidden"
+                            className="glass p-6 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-primary/20 flex flex-col justify-center relative group overflow-hidden"
                         >
-                            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity">
+                            <div className="absolute top-0 right-0 p-8 opacity-10 group-hover:opacity-20 transition-opacity hidden sm:block">
                                 <Rocket className="w-32 h-32 text-primary" />
                             </div>
-                            <h2 className="text-2xl font-light mb-8 text-primary flex items-center gap-3 italic uppercase tracking-[0.1em]">
+                            <h2 className="text-xl sm:text-2xl font-light mb-8 text-primary flex items-center gap-3 italic uppercase tracking-[0.1em]">
                                 NOTRE MISSION
                             </h2>
-                            <p className="text-xl text-gray-300 leading-relaxed font-light">
+                            <p className="text-lg sm:text-xl text-gray-300 leading-relaxed font-light">
                                 <span className="text-primary font-bold uppercase tracking-widest text-sm block mb-4">Inspirer • Accompagner • Former</span>
                                 Nous aidons les étudiants de l’IHEC Carthage à explorer l’entrepreneuriat par l’<span className="text-secondary font-bold">action</span>, développer leurs compétences clés et transformer leurs idées en projets <span className="text-accent font-bold">concrets</span>, <span className="text-accent font-bold">responsables</span> et à <span className="text-accent font-bold">impact</span>.
                             </p>
@@ -132,7 +132,7 @@ export default function About() {
 
                     {/* Interactive Values Buttons */}
                     <div className="mb-32">
-                        <h2 className="text-3xl md:text-5xl font-light text-center mb-16 text-glow uppercase tracking-[0.15em] italic">NOS VALEURS</h2>
+                        <h2 className="text-2xl sm:text-3xl md:text-5xl font-light text-center mb-16 text-glow uppercase tracking-[0.15em] italic">NOS VALEURS</h2>
                         <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-20">
                             {values.map((val, idx) => (
                                 <motion.button
@@ -140,12 +140,12 @@ export default function About() {
                                     onClick={() => scrollToValue(val.id)}
                                     whileHover={{ y: -5, scale: 1.05 }}
                                     whileTap={{ scale: 0.95 }}
-                                    className="glass p-6 rounded-2xl flex flex-col items-center justify-center gap-4 border border-white/5 hover:border-primary/50 transition-all group"
+                                    className="glass p-4 sm:p-6 rounded-2xl flex flex-col items-center justify-center gap-4 border border-white/5 hover:border-primary/50 transition-all group"
                                 >
-                                    <div className={`p-4 rounded-xl bg-white/5 group-hover:scale-110 transition-transform ${val.color}`}>
-                                        <val.icon className="w-8 h-8" />
+                                    <div className={`p-3 sm:p-4 rounded-xl bg-white/5 group-hover:scale-110 transition-transform ${val.color}`}>
+                                        <val.icon className="w-6 h-6 sm:w-8 sm:h-8" />
                                     </div>
-                                    <span className="font-light text-gray-200 text-[10px] md:text-xs tracking-[0.2em] uppercase text-center">{val.label}</span>
+                                    <span className="font-light text-gray-200 text-[9px] md:text-xs tracking-[0.2em] uppercase text-center">{val.label}</span>
                                 </motion.button>
                             ))}
                         </div>
@@ -162,13 +162,13 @@ export default function About() {
                                     initial={{ opacity: 0, y: 30 }}
                                     whileInView={{ opacity: 1, y: 0 }}
                                     viewport={{ once: true }}
-                                    className="glass p-10 rounded-[2.5rem] border border-white/5 relative group"
+                                    className="glass p-6 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-white/5 relative group"
                                 >
                                     <div className={`mb-6 flex items-center gap-4 ${val.color}`}>
-                                        <val.icon className="w-10 h-10" />
-                                        <h3 className="text-xl font-light uppercase tracking-[0.1em] italic">{val.label}</h3>
+                                        <val.icon className="w-8 h-8 sm:w-10 sm:h-10" />
+                                        <h3 className="text-lg sm:text-xl font-light uppercase tracking-[0.1em] italic">{val.label}</h3>
                                     </div>
-                                    <p className="text-gray-400 text-lg leading-relaxed font-medium">
+                                    <p className="text-gray-400 text-base sm:text-lg leading-relaxed font-medium">
                                         {val.desc}
                                     </p>
                                 </motion.div>
@@ -179,7 +179,7 @@ export default function About() {
                     {/* Team Section */}
                     <div className="mb-32">
                         <div className="text-center mb-20">
-                            <h2 className="text-4xl md:text-6xl font-thin text-wave uppercase tracking-[0.1em] italic mb-4">NOTRE ÉQUIPE</h2>
+                            <h2 className="text-3xl sm:text-4xl md:text-6xl font-thin text-wave uppercase tracking-[0.1em] italic mb-4">NOTRE ÉQUIPE</h2>
                             <p className="text-gray-500 font-mono tracking-[0.3em] uppercase text-xs">Bureau Exécutif 2025-2026</p>
                         </div>
 

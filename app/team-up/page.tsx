@@ -61,29 +61,29 @@ export default function TeamUp() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                     >
-                        <h1 className="text-5xl md:text-7xl font-thin mb-6 text-wave tracking-[0.3em] uppercase">TEAM UP</h1>
-                        <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                        <h1 className="text-4xl sm:text-5xl md:text-7xl font-thin mb-6 text-wave tracking-[0.1em] sm:tracking-[0.3em] uppercase">TEAM UP</h1>
+                        <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed px-4">
                             Trouvez votre co-fondateur, rejoignez un projet ou bâtissez votre équipe de rêve.
                         </p>
                     </motion.div>
                 </div>
 
                 {/* Search Bar */}
-                <div className="max-w-2xl mx-auto mb-16 relative">
+                <div className="max-w-2xl mx-auto mb-16 relative px-2">
                     <div className="relative group">
                         <input
                             type="text"
                             value={searchTerm}
                             onChange={(e) => setSearchTerm(e.target.value)}
-                            placeholder="Rechercher par compétence, rôle ou mot-clé..."
-                            className="w-full bg-white/5 border border-white/10 rounded-2xl py-5 px-6 pl-14 focus:outline-none focus:border-primary/50 transition-all text-white placeholder-gray-600 focus:bg-white/10 shadow-2xl"
+                            placeholder="Rechercher..."
+                            className="w-full bg-white/5 border border-white/10 rounded-2xl py-4 sm:py-5 px-5 sm:px-6 pl-12 sm:pl-14 focus:outline-none focus:border-primary/50 transition-all text-white placeholder-gray-600 focus:bg-white/10 shadow-2xl"
                         />
-                        <Search className="absolute left-5 top-1/2 -translate-y-1/2 w-6 h-6 text-gray-400 group-focus-within:text-primary transition-colors" />
+                        <Search className="absolute left-4 sm:left-5 top-1/2 -translate-y-1/2 w-5 h-5 sm:w-6 sm:h-6 text-gray-400 group-focus-within:text-primary transition-colors" />
                     </div>
                 </div>
 
                 {/* Results Count */}
-                <p className="text-center text-gray-500 mb-8 font-mono text-sm uppercase tracking-widest">
+                <p className="text-center text-gray-500 mb-8 font-mono text-[10px] sm:text-sm uppercase tracking-widest px-4 leading-tight">
                     Affichage de {filteredFounders.length} profils de talents disponibles
                 </p>
 
@@ -93,7 +93,7 @@ export default function TeamUp() {
                     whileInView={{ opacity: 1 }}
                     viewport={{ once: true, margin: "-100px" }}
                     transition={{ staggerChildren: 0.05 }}
-                    className="grid md:grid-cols-2 lg:grid-cols-3 gap-8"
+                    className="grid md:grid-cols-2 lg:grid-cols-3 gap-6 sm:gap-8"
                 >
                     {filteredFounders.map((founder) => (
                         <motion.div
@@ -103,16 +103,16 @@ export default function TeamUp() {
                             whileInView={{ opacity: 1, y: 0, scale: 1 }}
                             viewport={{ once: true }}
                             transition={{ type: "spring", stiffness: 100, damping: 15 }}
-                            className="glass p-8 rounded-3xl border border-white/5 relative overflow-hidden group flex flex-col grayscale opacity-60"
+                            className="glass p-6 sm:p-8 rounded-3xl border border-white/5 relative overflow-hidden group flex flex-col grayscale opacity-60"
                         >
                             {/* Blur & Coming Soon Overlay */}
                             <div className="absolute inset-0 bg-black/40 backdrop-blur-[6px] z-20 flex items-center justify-center">
                                 <motion.div
                                     initial={{ opacity: 0, scale: 0.8 }}
                                     whileInView={{ opacity: 1, scale: 1 }}
-                                    className="px-6 py-2 border-2 border-primary/50 rounded-full bg-black/80 shadow-2xl shadow-primary/20"
+                                    className="px-4 py-2 sm:px-6 sm:py-2 border-2 border-primary/50 rounded-full bg-black/80 shadow-2xl shadow-primary/20"
                                 >
-                                    <span className="text-[10px] font-light text-primary uppercase tracking-[0.3em]">Bientôt disponible</span>
+                                    <span className="text-[9px] sm:text-[10px] font-light text-primary uppercase tracking-[0.2em] sm:tracking-[0.3em]">Bientôt disponible</span>
                                 </motion.div>
                             </div>
 

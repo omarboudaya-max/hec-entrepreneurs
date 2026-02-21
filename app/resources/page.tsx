@@ -51,11 +51,11 @@ export default function Resources() {
                     <motion.h1
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="text-5xl md:text-7xl font-thin mb-6 text-wave tracking-[0.2em] uppercase"
+                        className="text-3xl sm:text-5xl md:text-7xl font-thin mb-6 text-wave tracking-[0.1em] sm:tracking-[0.2em] uppercase"
                     >
                         RESSOURCES
                     </motion.h1>
-                    <p className="text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                    <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed px-4">
                         La boîte à outils ultime pour l'entrepreneur moderne.
                     </p>
                 </div>
@@ -79,7 +79,7 @@ export default function Resources() {
                                 className="relative group"
                             >
                                 <div className={`absolute inset-0 bg-gradient-to-br ${perk.bg} rounded-[2.5rem] blur-xl opacity-0 group-hover:opacity-100 transition-opacity duration-500`} />
-                                <div className="glass p-8 md:p-10 rounded-[2.5rem] border border-white/5 relative overflow-hidden group hover:border-primary/40 transition-all flex flex-col h-full">
+                                <div className="glass p-6 sm:p-10 rounded-[2.5rem] border border-white/5 relative overflow-hidden group hover:border-primary/40 transition-all flex flex-col h-full">
 
                                     <div className="absolute inset-0 bg-black/95 backdrop-blur-[8px] flex flex-col items-center justify-center opacity-0 group-hover:opacity-100 transition-all duration-500 z-20 p-8 text-center translate-y-4 group-hover:translate-y-0">
                                         <div className="w-16 h-16 rounded-full bg-primary/20 flex items-center justify-center mb-6">
@@ -96,8 +96,8 @@ export default function Resources() {
                                         <perk.icon className="w-7 h-7" />
                                     </div>
 
-                                    <h3 className={`text-sm font-light uppercase tracking-[0.2em] mb-4 text-glow ${perk.text}`}>{perk.name}</h3>
-                                    <p className="text-3xl font-thin text-white mb-6 tracking-wide">{perk.value}</p>
+                                    <h3 className={`text-xs sm:text-sm font-light uppercase tracking-[0.2em] mb-4 text-glow ${perk.text}`}>{perk.name}</h3>
+                                    <p className="text-2xl sm:text-3xl font-thin text-white mb-6 tracking-wide">{perk.value}</p>
                                     <p className="text-gray-400 text-sm font-light leading-relaxed flex-1">{perk.desc}</p>
 
                                     <div className="w-full h-1 bg-white/5 mt-10 rounded-full overflow-hidden">
@@ -115,7 +115,7 @@ export default function Resources() {
                         <div className="p-4 rounded-2xl bg-primary/10 text-primary">
                             <Users className="w-8 h-8" />
                         </div>
-                        <h2 className="text-3xl font-thin uppercase tracking-[0.3em] italic text-wave">MENTORS</h2>
+                        <h2 className="text-2xl sm:text-3xl font-thin uppercase tracking-[0.3em] italic text-wave">MENTORS</h2>
                     </div>
 
                     <motion.div

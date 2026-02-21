@@ -114,7 +114,7 @@ export default function LiveFeed() {
                         initial={{ opacity: 0, y: 20, scale: 0.9, x: -20 }}
                         animate={{ opacity: 1, y: 0, scale: 1, x: 0 }}
                         exit={{ opacity: 0, y: 20, scale: 0.9, x: -20 }}
-                        className="absolute bottom-20 left-0 w-[350px] md:w-[400px] h-[500px] glass rounded-[2rem] border border-secondary/30 shadow-2xl overflow-hidden flex flex-col"
+                        className="absolute bottom-20 left-0 w-[calc(100vw-4rem)] sm:w-[350px] md:w-[400px] h-[500px] glass rounded-[2rem] border border-secondary/30 shadow-2xl overflow-hidden flex flex-col"
                     >
                         {/* Header */}
                         <div className="p-6 bg-gradient-to-r from-secondary/20 to-primary/20 border-b border-white/10 flex justify-between items-center">

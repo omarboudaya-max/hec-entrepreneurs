@@ -25,11 +25,11 @@ export default function Navbar() {
             className="fixed top-0 left-0 right-0 z-50 pt-6 px-4"
         >
             {/* Corner Logos */}
-            <div className="absolute top-6 left-8 items-center hidden sm:flex">
-                <img src="/logo-ihec.png" alt="IHEC Carthage" className="h-32 w-auto opacity-100 transition-opacity" />
+            <div className="absolute top-4 left-4 sm:top-6 sm:left-8 items-center flex">
+                <img src="/logo-ihec.png" alt="IHEC Carthage" className="h-12 sm:h-24 md:h-32 w-auto opacity-100 transition-opacity" />
             </div>
-            <div className="absolute top-6 right-8 items-center hidden sm:flex">
-                <img src="/logo-club.png" alt="HEC Entrepreneurs" className="h-32 w-auto opacity-100 transition-opacity" />
+            <div className="absolute top-4 right-4 sm:top-6 sm:right-8 items-center flex">
+                <img src="/logo-club.png" alt="HEC Entrepreneurs" className="h-12 sm:h-24 md:h-32 w-auto opacity-100 transition-opacity" />
             </div>
 
             <div className="flex justify-center">
