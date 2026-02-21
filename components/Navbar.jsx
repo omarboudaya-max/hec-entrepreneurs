@@ -69,10 +69,10 @@ export default function Navbar() {
                     <AnimatePresence>
                         {isOpen && (
                             <motion.div
-                                initial={{ opacity: 0, scale: 0.95, y: 10 }}
-                                animate={{ opacity: 1, scale: 1, y: 0 }}
-                                exit={{ opacity: 0, scale: 0.95, y: 10 }}
-                                className="absolute top-full left-0 right-0 mt-4 p-4 glass rounded-3xl border border-primary/20 md:hidden flex flex-col gap-2"
+                                initial={{ opacity: 0, scale: 0.95, y: 10, x: "-50%" }}
+                                animate={{ opacity: 1, scale: 1, y: 0, x: "-50%" }}
+                                exit={{ opacity: 0, scale: 0.95, y: 10, x: "-50%" }}
+                                className="absolute top-full left-1/2 mt-4 p-2 glass rounded-[2rem] border border-primary/20 md:hidden flex flex-col gap-1 w-[280px] shadow-2xl"
                             >
                                 {links.map((link) => (
                                     <Link
@@ -80,7 +80,7 @@ export default function Navbar() {
                                         href={link.href}
                                         onClick={() => setIsOpen(false)}
                                         className={clsx(
-                                            "px-6 py-4 rounded-2xl text-sm font-light uppercase tracking-widest transition-all",
+                                            "px-6 py-3 rounded-2xl text-xs font-light uppercase tracking-[0.1em] transition-all text-center",
                                             pathname === link.href
                                                 ? "bg-primary/20 text-primary border border-primary/30"
                                                 : "text-gray-400 hover:text-white hover:bg-white/5"
