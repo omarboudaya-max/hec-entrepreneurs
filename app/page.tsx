@@ -69,12 +69,11 @@ export default function Home() {
             POURQUOI NOUS SOMMES DIFFÉRENTS
           </motion.h2>
 
-          <div className="grid md:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
             {[
               { title: "Approche 100 % action", desc: "Nous ne restons pas dans la théorie, nous construisons des projets concrets." },
               { title: "Connexion réelle avec l’écosystème", desc: "Un lien direct avec les entrepreneurs et investisseurs tunisiens." },
-              { title: "Leadership & entrepreneuriat responsable", desc: "Former des leaders conscients de leur impact social et environnemental." },
-              { title: "Premier club HEC avec un site web", desc: "L'innovation commence par nos propres outils numériques." }
+              { title: "Leadership & entrepreneuriat responsable", desc: "Former des leaders conscients de leur impact social et environnemental." }
             ].map((item, idx) => (
               <motion.div
                 key={idx}

@@ -45,7 +45,7 @@ export default function LiveFeed() {
     // Real-time Firestore listener
     useEffect(() => {
         const q = query(collection(db, "livefeed"), orderBy("createdAt", "asc"));
-        const unsubscribe = onSnapshot(q, (snapshot) => {
+        const unsubscribe = onSnapshot(q, { includeMetadataChanges: true }, (snapshot) => {
             const msgs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
             setMessages(msgs);
         });
