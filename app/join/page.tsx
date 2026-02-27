@@ -173,7 +173,7 @@ export default function Join() {
             <div className="absolute top-1/4 -left-20 w-80 h-80 bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
             <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-secondary/10 rounded-full blur-[100px] pointer-events-none" />
 
-            <div className="z-10 container mx-auto px-4 py-24 md:py-32 flex flex-col items-center">
+            <div className="z-10 container mx-auto px-4 py-16 md:py-32 flex flex-col items-center">
                 <motion.div
                     initial="hidden"
                     animate="visible"
@@ -184,7 +184,7 @@ export default function Join() {
                         <header className="text-center mb-12">
                             <motion.div variants={itemVariants}>
                                 <Sparkles className="w-12 h-12 text-primary mx-auto mb-4 animate-float" />
-                                <h1 className="text-4xl md:text-6xl font-thin mb-4 text-wave uppercase tracking-[0.2em]">
+                                <h1 className="text-3xl sm:text-4xl md:text-6xl font-thin mb-4 text-wave uppercase tracking-[0.2em] px-2">
                                     REJOIGNEZ NOUS
                                 </h1>
                                 <div className="flex items-center justify-center gap-4 mb-8">
@@ -211,7 +211,7 @@ export default function Join() {
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: 20 }}
                                     onSubmit={nextStep}
-                                    className="glass p-8 md:p-12 rounded-3xl space-y-8"
+                                    className="glass p-5 sm:p-8 md:p-12 rounded-3xl space-y-8"
                                 >
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
@@ -236,7 +236,7 @@ export default function Join() {
                                             <label className="text-sm font-medium text-gray-400 flex items-center gap-2">
                                                 <Phone size={16} className="text-primary" /> Numéro de téléphone
                                             </label>
-                                            <input required type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="00 000 000" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary/50 transition-all text-white" />
+                                            <input required type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="00 000 000" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary/50 transition-all text-white text-base" />
                                         </div>
                                     </div>
                                     <div className="space-y-2">
@@ -305,7 +305,7 @@ export default function Join() {
                                     initial={{ opacity: 0, x: 20 }}
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: -20 }}
-                                    className="glass p-8 md:p-12 rounded-3xl space-y-8"
+                                    className="glass p-5 sm:p-8 md:p-12 rounded-3xl space-y-8"
                                 >
                                     <div className="space-y-4">
                                         <div className="flex items-center gap-4 text-white">
@@ -329,14 +329,14 @@ export default function Join() {
                                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                                             <div className="flex items-center gap-4 text-white">
                                                 <Clock className="text-secondary" />
-                                                <h2 className="text-xl font-medium tracking-wide">Choisissez l'heure</h2>
+                                                <h2 className="text-lg sm:text-xl font-medium tracking-wide">Choisissez l'heure</h2>
                                             </div>
                                             {isLoadingSlots ? (
                                                 <div className="flex justify-center py-8">
                                                     <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
                                                 </div>
                                             ) : (
-                                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
                                                     {TIMES.map((time) => {
                                                         const full = isSlotFull(formData.interviewDate, time);
                                                         return (
@@ -355,14 +355,14 @@ export default function Join() {
                                         </motion.div>
                                     )}
 
-                                    <div className="flex gap-4 pt-6">
-                                        <button onClick={prevStep} className="flex-1 py-4 rounded-xl border border-white/10 text-white font-medium hover:bg-white/5 transition-all flex items-center justify-center gap-2">
+                                    <div className="flex flex-col sm:flex-row gap-4 pt-6">
+                                        <button onClick={prevStep} className="w-full sm:flex-1 py-4 rounded-xl border border-white/10 text-white font-medium hover:bg-white/5 transition-all flex items-center justify-center gap-2 order-2 sm:order-1">
                                             <ChevronLeft size={20} /> Retour
                                         </button>
                                         <button
                                             disabled={!formData.interviewDate || !formData.interviewTime || isSubmitting}
                                             onClick={handleSubmit}
-                                            className="flex-[2] py-4 rounded-xl bg-gradient-to-r from-primary to-accent text-white font-bold text-lg hover:shadow-primary/40 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                                            className="w-full sm:flex-[2] py-4 rounded-xl bg-gradient-to-r from-primary to-accent text-white font-bold text-lg hover:shadow-primary/40 transition-all flex items-center justify-center gap-3 disabled:opacity-50 order-1 sm:order-2"
                                         >
                                             {isSubmitting ? <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Confirmer mon inscription"}
                                         </button>
@@ -374,7 +374,7 @@ export default function Join() {
                                 key="success"
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 animate={{ opacity: 1, scale: 1 }}
-                                className="glass p-12 rounded-3xl text-center space-y-6"
+                                className="glass p-6 sm:p-12 rounded-3xl text-center space-y-6 mx-2"
                             >
                                 <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                                     <CheckCircle2 className="text-green-500 w-10 h-10" />
