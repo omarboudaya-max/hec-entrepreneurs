@@ -1,31 +1,358 @@
+"use client";
+
+import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
-import { Clock } from "lucide-react";
+import { motion, AnimatePresence } from "framer-motion";
+import {
+    Send, User, GraduationCap, Mail, Phone, MapPin,
+    Facebook, Rocket, Sparkles, Calendar, Clock,
+    ChevronLeft, ChevronRight, CheckCircle2
+} from "lucide-react";
+import { db } from "@/lib/firebase";
+import { collection, addDoc, query, where, getDocs, Timestamp } from "firebase/firestore";
+
+// Constants for scheduling
+const DATES = ["02/03/2026", "03/03/2026", "04/03/2026", "05/03/2026", "06/03/2026", "07/03/2026"];
+const TIMES = ["10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00"];
+const SLOT_LIMIT = 3;
+
+interface SlotAvailability {
+    [key: string]: number; // "date-time" : count
+}
 
 export default function Join() {
+    const [step, setStep] = useState(1);
+    const [formData, setFormData] = useState({
+        fullName: "",
+        education: "",
+        email: "",
+        phone: "",
+        address: "",
+        facebook: "",
+        hasProject: "", // Empty initial state
+        projectDetails: "",
+        interviewDate: "",
+        interviewTime: "",
+    });
+
+    const [isSubmitting, setIsSubmitting] = useState(false);
+    const [submitted, setSubmitted] = useState(false);
+    const [availability, setAvailability] = useState<SlotAvailability>({});
+    const [isLoadingSlots, setIsLoadingSlots] = useState(false);
+
+    // Fetch slot availability when moving to step 2
+    useEffect(() => {
+        if (step === 2) {
+            fetchAvailability();
+        }
+    }, [step]);
+
+    const fetchAvailability = async () => {
+        setIsLoadingSlots(true);
+        try {
+            const q = query(collection(db, "candidates"));
+            const querySnapshot = await getDocs(q);
+            const counts: SlotAvailability = {};
+
+            querySnapshot.forEach((doc) => {
+                const data = doc.data();
+                if (data.interviewDate && data.interviewTime) {
+                    const key = `${data.interviewDate}-${data.interviewTime}`;
+                    counts[key] = (counts[key] || 0) + 1;
+                }
+            });
+            setAvailability(counts);
+        } catch (error) {
+            console.error("Error fetching availability:", error);
+        }
+        setIsLoadingSlots(false);
+    };
+
+    const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
+        const { name, value } = e.target;
+        setFormData((prev) => ({ ...prev, [name]: value }));
+    };
+
+    const nextStep = (e: React.FormEvent) => {
+        e.preventDefault();
+        if (step === 1) setStep(2);
+    };
+
+    const prevStep = () => {
+        setStep(1);
+    };
+
+    const handleSubmit = async () => {
+        setIsSubmitting(true);
+        try {
+            // 1. Save to Firebase
+            await addDoc(collection(db, "candidates"), {
+                ...formData,
+                submittedAt: Timestamp.now(),
+            });
+
+            // 2. Save to Google Sheets (if URL is provided)
+            const sheetsUrl = process.env.NEXT_PUBLIC_SHEETS_SCRIPT_URL;
+            console.log("Tentative d'envoi vers Google Sheets...", sheetsUrl ? "URL trouvée" : "URL manquante");
+
+            if (sheetsUrl) {
+                // Use a standard POST request that avoids CORS preflight issues
+                await fetch(sheetsUrl, {
+                    method: "POST",
+                    mode: "no-cors",
+                    cache: "no-cache",
+                    headers: {
+                        "Content-Type": "text/plain", // Simple content type to avoid preflight
+                    },
+                    body: JSON.stringify({
+                        ...formData,
+                        submittedAt: new Date().toLocaleString(),
+                    }),
+                });
+                console.log("Requête Google Sheets envoyée (mode no-cors)");
+            }
+
+            setSubmitted(true);
+        } catch (error) {
+            console.error("Error submitting form:", error);
+            alert("Une erreur est survenue lors de l'envoi. Veuillez réessayer.");
+        }
+        setIsSubmitting(false);
+    };
+
+    const isSlotFull = (date: string, time: string) => {
+        return (availability[`${date}-${time}`] || 0) >= SLOT_LIMIT;
+    };
+
+    const containerVariants = {
+        hidden: { opacity: 0, y: 20 },
+        visible: {
+            opacity: 1,
+            y: 0,
+            transition: { duration: 0.6, staggerChildren: 0.1 },
+        },
+    };
+
+    const itemVariants = {
+        hidden: { opacity: 0, x: -10 },
+        visible: { opacity: 1, x: 0 },
+    };
+
     return (
-        <main className="min-h-screen bg-background text-foreground flex flex-col items-center justify-center relative overflow-hidden">
+        <main className="min-h-screen bg-background text-foreground flex flex-col relative overflow-hidden">
             <Navbar />
 
-            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_50%,rgba(124,58,237,0.1),transparent_50%)]" />
+            {/* Background elements */}
+            <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(124,58,237,0.15),transparent_70%)] pointer-events-none" />
+            <div className="absolute top-1/4 -left-20 w-80 h-80 bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
+            <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-secondary/10 rounded-full blur-[100px] pointer-events-none" />
 
-            <div className="z-10 text-center px-4 py-32">
-                <Clock className="w-20 h-20 text-primary mx-auto mb-8 animate-pulse" />
-                <h1 className="text-3xl md:text-5xl font-thin mb-6 text-wave uppercase tracking-[0.2em]">
-                    RECRUTEMENT PAS ENCORE OUVERT
-                </h1>
-                <p className="text-lg font-light text-gray-400 max-w-lg mx-auto leading-relaxed">
-                    Merci pour votre intérêt pour <span className="text-white font-medium uppercase tracking-widest">HEC Entrepreneurs</span>.
-                    La session de recrutement est actuellement fermée.
-                    <br /><span className="text-secondary font-medium uppercase tracking-widest opacity-80 mt-4 block">Veuillez attendre le prochain cycle de recrutement !</span>
-                </p>
+            <div className="z-10 container mx-auto px-4 py-24 md:py-32 flex flex-col items-center">
+                <motion.div
+                    initial="hidden"
+                    animate="visible"
+                    variants={containerVariants}
+                    className="w-full max-w-3xl"
+                >
+                    {!submitted && (
+                        <header className="text-center mb-12">
+                            <motion.div variants={itemVariants}>
+                                <Sparkles className="w-12 h-12 text-primary mx-auto mb-4 animate-float" />
+                                <h1 className="text-4xl md:text-6xl font-thin mb-4 text-wave uppercase tracking-[0.2em]">
+                                    REJOIGNEZ NOUS
+                                </h1>
+                                <div className="flex items-center justify-center gap-4 mb-8">
+                                    <div className={`flex items-center gap-2 ${step === 1 ? 'text-white' : 'text-gray-500'}`}>
+                                        <span className={`w-8 h-8 rounded-full flex items-center justify-center border ${step === 1 ? 'border-primary bg-primary/20' : 'border-gray-700'}`}>1</span>
+                                        <span className="text-sm font-medium uppercase tracking-widest hidden sm:inline">Infos Personnelles</span>
+                                    </div>
+                                    <div className="w-12 h-px bg-gray-800" />
+                                    <div className={`flex items-center gap-2 ${step === 2 ? 'text-white' : 'text-gray-500'}`}>
+                                        <span className={`w-8 h-8 rounded-full flex items-center justify-center border ${step === 2 ? 'border-primary bg-primary/20' : 'border-gray-700'}`}>2</span>
+                                        <span className="text-sm font-medium uppercase tracking-widest hidden sm:inline">Entretien</span>
+                                    </div>
+                                </div>
+                            </motion.div>
+                        </header>
+                    )}
 
-                <div className="mt-12">
-                    <a href="/" className="px-8 py-3 rounded-full glass border border-primary/30 text-white font-bold hover:bg-primary/20 transition-all">
-                        Retour à l'Accueil
-                    </a>
-                </div>
+                    <AnimatePresence mode="wait">
+                        {!submitted ? (
+                            step === 1 ? (
+                                <motion.form
+                                    key="step1"
+                                    initial={{ opacity: 0, x: -20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: 20 }}
+                                    onSubmit={nextStep}
+                                    className="glass p-8 md:p-12 rounded-3xl space-y-6"
+                                >
+                                    <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-medium text-gray-400 flex items-center gap-2">
+                                                <User size={16} className="text-primary" /> Nom et Prénom
+                                            </label>
+                                            <input required type="text" name="fullName" value={formData.fullName} onChange={handleChange} placeholder="Votre nom complet" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary/50 transition-all text-white" />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-medium text-gray-400 flex items-center gap-2">
+                                                <GraduationCap size={16} className="text-primary" /> Niveau scolaire et filière
+                                            </label>
+                                            <input required type="text" name="education" value={formData.education} onChange={handleChange} placeholder="Ex: 3ème liscence finance" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary/50 transition-all text-white" />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-medium text-gray-400 flex items-center gap-2">
+                                                <Mail size={16} className="text-primary" /> Email
+                                            </label>
+                                            <input required type="email" name="email" value={formData.email} onChange={handleChange} placeholder="votre@mail.com" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary/50 transition-all text-white" />
+                                        </div>
+                                        <div className="space-y-2">
+                                            <label className="text-sm font-medium text-gray-400 flex items-center gap-2">
+                                                <Phone size={16} className="text-primary" /> Numéro de téléphone
+                                            </label>
+                                            <input required type="tel" name="phone" value={formData.phone} onChange={handleChange} placeholder="00 000 000" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary/50 transition-all text-white" />
+                                        </div>
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-gray-400 flex items-center gap-2">
+                                            <MapPin size={16} className="text-primary" /> Adresse
+                                        </label>
+                                        <input required type="text" name="address" value={formData.address} onChange={handleChange} placeholder="Votre adresse actuelle" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary/50 transition-all text-white" />
+                                    </div>
+                                    <div className="space-y-2">
+                                        <label className="text-sm font-medium text-gray-400 flex items-center gap-2">
+                                            <Facebook size={16} className="text-primary" /> Lien Facebook
+                                        </label>
+                                        <input required type="url" name="facebook" value={formData.facebook} onChange={handleChange} placeholder="https://facebook.com/votre.profil" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary/50 transition-all text-white" />
+                                    </div>
+
+                                    <div className="space-y-4 pt-4 border-t border-white/5">
+                                        <label className="text-base font-medium text-white flex items-center gap-2">
+                                            <Rocket size={18} className="text-secondary" /> Avez-vous un projet personnel que vous aimeriez développer ?
+                                        </label>
+                                        <div className="flex gap-6">
+                                            {["oui", "non"].map((opt) => (
+                                                <label key={opt} className="flex items-center gap-2 cursor-pointer group">
+                                                    <input required type="radio" name="hasProject" value={opt} checked={formData.hasProject === opt} onChange={handleChange} className="w-4 h-4 accent-primary" />
+                                                    <span className={`capitalize transition-colors ${formData.hasProject === opt ? "text-primary font-bold" : "text-gray-400 group-hover:text-white"}`}>{opt}</span>
+                                                </label>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    <AnimatePresence>
+                                        {formData.hasProject === "oui" && (
+                                            <motion.div initial={{ opacity: 0, height: 0 }} animate={{ opacity: 1, height: "auto" }} exit={{ opacity: 0, height: 0 }} className="space-y-2 overflow-hidden">
+                                                <label className="text-sm font-medium text-gray-400">Parle-nous de ce projet si tu veux</label>
+                                                <textarea name="projectDetails" value={formData.projectDetails} onChange={handleChange} placeholder="Décrivez brièvement votre idée ou projet..." rows={4} className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-secondary/50 transition-all text-white resize-none" />
+                                            </motion.div>
+                                        )}
+                                    </AnimatePresence>
+
+                                    <button type="submit" className="w-full py-4 rounded-xl bg-gradient-to-r from-primary to-accent text-white font-bold text-lg hover:shadow-primary/40 transition-all flex items-center justify-center gap-3">
+                                        Étape Suivante <ChevronRight size={20} />
+                                    </button>
+                                </motion.form>
+                            ) : (
+                                <motion.div
+                                    key="step2"
+                                    initial={{ opacity: 0, x: 20 }}
+                                    animate={{ opacity: 1, x: 0 }}
+                                    exit={{ opacity: 0, x: -20 }}
+                                    className="glass p-8 md:p-12 rounded-3xl space-y-8"
+                                >
+                                    <div className="space-y-4">
+                                        <div className="flex items-center gap-4 text-white">
+                                            <Calendar className="text-primary" />
+                                            <h2 className="text-xl font-medium tracking-wide">Choisissez la date de votre entretien</h2>
+                                        </div>
+                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+                                            {DATES.map((date) => (
+                                                <button
+                                                    key={date}
+                                                    onClick={() => setFormData(p => ({ ...p, interviewDate: date, interviewTime: "" }))}
+                                                    className={`py-3 px-2 rounded-xl border transition-all text-xs font-medium ${formData.interviewDate === date ? 'bg-primary border-primary text-white' : 'bg-white/5 border-white/10 text-gray-400 hover:border-primary/50'}`}
+                                                >
+                                                    {date.split('/')[0]}/{date.split('/')[1]}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
+                                    {formData.interviewDate && (
+                                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
+                                            <div className="flex items-center gap-4 text-white">
+                                                <Clock className="text-secondary" />
+                                                <h2 className="text-xl font-medium tracking-wide">Choisissez l'heure</h2>
+                                            </div>
+                                            {isLoadingSlots ? (
+                                                <div className="flex justify-center py-8">
+                                                    <div className="w-8 h-8 border-2 border-primary/30 border-t-primary rounded-full animate-spin" />
+                                                </div>
+                                            ) : (
+                                                <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
+                                                    {TIMES.map((time) => {
+                                                        const full = isSlotFull(formData.interviewDate, time);
+                                                        return (
+                                                            <button
+                                                                key={time}
+                                                                disabled={full}
+                                                                onClick={() => setFormData(p => ({ ...p, interviewTime: time }))}
+                                                                className={`py-3 rounded-xl border transition-all text-sm ${formData.interviewTime === time ? 'bg-secondary border-secondary text-white' : full ? 'bg-red-500/10 border-red-500/20 text-red-500/50 cursor-not-allowed' : 'bg-white/5 border-white/10 text-gray-400 hover:border-secondary/50'}`}
+                                                            >
+                                                                {time} {full && "(Plein)"}
+                                                            </button>
+                                                        );
+                                                    })}
+                                                </div>
+                                            )}
+                                        </motion.div>
+                                    )}
+
+                                    <div className="flex gap-4 pt-6">
+                                        <button onClick={prevStep} className="flex-1 py-4 rounded-xl border border-white/10 text-white font-medium hover:bg-white/5 transition-all flex items-center justify-center gap-2">
+                                            <ChevronLeft size={20} /> Retour
+                                        </button>
+                                        <button
+                                            disabled={!formData.interviewDate || !formData.interviewTime || isSubmitting}
+                                            onClick={handleSubmit}
+                                            className="flex-[2] py-4 rounded-xl bg-gradient-to-r from-primary to-accent text-white font-bold text-lg hover:shadow-primary/40 transition-all flex items-center justify-center gap-3 disabled:opacity-50"
+                                        >
+                                            {isSubmitting ? <div className="w-6 h-6 border-2 border-white/30 border-t-white rounded-full animate-spin" /> : "Confirmer mon inscription"}
+                                        </button>
+                                    </div>
+                                </motion.div>
+                            )
+                        ) : (
+                            <motion.div
+                                key="success"
+                                initial={{ opacity: 0, scale: 0.9 }}
+                                animate={{ opacity: 1, scale: 1 }}
+                                className="glass p-12 rounded-3xl text-center space-y-6"
+                            >
+                                <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
+                                    <CheckCircle2 className="text-green-500 w-10 h-10" />
+                                </div>
+                                <h1 className="text-3xl md:text-5xl font-thin text-wave uppercase tracking-[0.2em]">C'est prêt !</h1>
+                                <div className="space-y-2">
+                                    <p className="text-xl text-white font-light uppercase tracking-widest">Candidature Envoyée</p>
+                                    <p className="text-gray-400 max-w-sm mx-auto">
+                                        Merci <span className="text-primary font-medium">{formData.fullName.split(' ')[0]}</span> !
+                                        Ton entretien est prévu le <span className="text-white">{formData.interviewDate}</span> à <span className="text-white">{formData.interviewTime}</span>.
+                                    </p>
+                                </div>
+                                <div className="pt-8">
+                                    <a href="/" className="px-12 py-4 rounded-full bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all uppercase text-sm tracking-widest">
+                                        Retour à l'accueil
+                                    </a>
+                                </div>
+                            </motion.div>
+                        )}
+                    </AnimatePresence>
+                </motion.div>
             </div>
+
             <Footer />
         </main>
     );
