@@ -7,15 +7,23 @@ import { motion, AnimatePresence } from "framer-motion";
 import {
     Send, User, GraduationCap, Mail, Phone, MapPin,
     Facebook, Rocket, Sparkles, Calendar, Clock,
-    ChevronLeft, ChevronRight, CheckCircle2
+    ChevronLeft, ChevronRight, CheckCircle2, Briefcase
 } from "lucide-react";
 import { db } from "@/lib/firebase";
-import { collection, addDoc, query, where, getDocs, Timestamp } from "firebase/firestore";
+import { collection, addDoc, getDocs, Timestamp, query } from "firebase/firestore";
 
 // Constants for scheduling
-const DATES = ["02/03/2026", "03/03/2026", "04/03/2026", "05/03/2026", "06/03/2026", "07/03/2026"];
-const TIMES = ["10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00"];
+const DATES = ["02/03/2026", "03/03/2026", "04/03/2026", "05/03/2026"];
+const TIMES = ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00"];
 const SLOT_LIMIT = 3;
+
+const SKILLS_OPTIONS = [
+    { id: "tech", label: "Tech & Innovation", desc: "AI, Data & Analyse..." },
+    { id: "design", label: "Design & Création", desc: "Graphic Design, Content Creation...." },
+    { id: "business", label: "Business & Croissance", desc: "Sponsoring, Marketing..." },
+    { id: "management", label: "Management & Leadership", desc: "Gestion de projet, Public Speaking..." },
+    { id: "autre", label: "Autre", desc: "" }
+];
 
 interface SlotAvailability {
     [key: string]: number; // "date-time" : count
@@ -30,7 +38,8 @@ export default function Join() {
         phone: "",
         address: "",
         facebook: "",
-        hasProject: "", // Empty initial state
+        skills: [] as string[],
+        hasProject: "",
         projectDetails: "",
         interviewDate: "",
         interviewTime: "",
@@ -41,7 +50,6 @@ export default function Join() {
     const [availability, setAvailability] = useState<SlotAvailability>({});
     const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
-    // Fetch slot availability when moving to step 2
     useEffect(() => {
         if (step === 2) {
             fetchAvailability();
@@ -74,9 +82,30 @@ export default function Join() {
         setFormData((prev) => ({ ...prev, [name]: value }));
     };
 
+    const toggleSkill = (skillLabel: string) => {
+        setFormData(prev => {
+            const current = [...prev.skills];
+            if (current.includes(skillLabel)) {
+                return { ...prev, skills: current.filter(s => s !== skillLabel) };
+            } else {
+                return { ...prev, skills: [...current, skillLabel] };
+            }
+        });
+    };
+
     const nextStep = (e: React.FormEvent) => {
         e.preventDefault();
-        if (step === 1) setStep(2);
+        if (step === 1) {
+            if (formData.skills.length === 0) {
+                alert("Veuillez choisir au moins une compétence.");
+                return;
+            }
+            if (!formData.hasProject) {
+                alert("Veuillez répondre à la question sur le projet personnel.");
+                return;
+            }
+            setStep(2);
+        }
     };
 
     const prevStep = () => {
@@ -86,31 +115,28 @@ export default function Join() {
     const handleSubmit = async () => {
         setIsSubmitting(true);
         try {
-            // 1. Save to Firebase
-            await addDoc(collection(db, "candidates"), {
+            const submissionData = {
                 ...formData,
+                skills: formData.skills.join(", "),
                 submittedAt: Timestamp.now(),
-            });
+            };
 
-            // 2. Save to Google Sheets (if URL is provided)
+            // 1. Save to Firebase
+            await addDoc(collection(db, "candidates"), submissionData);
+
+            // 2. Save to Google Sheets
             const sheetsUrl = process.env.NEXT_PUBLIC_SHEETS_SCRIPT_URL;
-            console.log("Tentative d'envoi vers Google Sheets...", sheetsUrl ? "URL trouvée" : "URL manquante");
-
             if (sheetsUrl) {
-                // Use a standard POST request that avoids CORS preflight issues
                 await fetch(sheetsUrl, {
                     method: "POST",
                     mode: "no-cors",
                     cache: "no-cache",
-                    headers: {
-                        "Content-Type": "text/plain", // Simple content type to avoid preflight
-                    },
+                    headers: { "Content-Type": "text/plain" },
                     body: JSON.stringify({
-                        ...formData,
+                        ...submissionData,
                         submittedAt: new Date().toLocaleString(),
                     }),
                 });
-                console.log("Requête Google Sheets envoyée (mode no-cors)");
             }
 
             setSubmitted(true);
@@ -143,7 +169,6 @@ export default function Join() {
         <main className="min-h-screen bg-background text-foreground flex flex-col relative overflow-hidden">
             <Navbar />
 
-            {/* Background elements */}
             <div className="absolute inset-0 bg-[radial-gradient(circle_at_50%_20%,rgba(124,58,237,0.15),transparent_70%)] pointer-events-none" />
             <div className="absolute top-1/4 -left-20 w-80 h-80 bg-primary/10 rounded-full blur-[100px] pointer-events-none" />
             <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-secondary/10 rounded-full blur-[100px] pointer-events-none" />
@@ -165,7 +190,7 @@ export default function Join() {
                                 <div className="flex items-center justify-center gap-4 mb-8">
                                     <div className={`flex items-center gap-2 ${step === 1 ? 'text-white' : 'text-gray-500'}`}>
                                         <span className={`w-8 h-8 rounded-full flex items-center justify-center border ${step === 1 ? 'border-primary bg-primary/20' : 'border-gray-700'}`}>1</span>
-                                        <span className="text-sm font-medium uppercase tracking-widest hidden sm:inline">Infos Personnelles</span>
+                                        <span className="text-sm font-medium uppercase tracking-widest hidden sm:inline">Infos & Compétences</span>
                                     </div>
                                     <div className="w-12 h-px bg-gray-800" />
                                     <div className={`flex items-center gap-2 ${step === 2 ? 'text-white' : 'text-gray-500'}`}>
@@ -186,7 +211,7 @@ export default function Join() {
                                     animate={{ opacity: 1, x: 0 }}
                                     exit={{ opacity: 0, x: 20 }}
                                     onSubmit={nextStep}
-                                    className="glass p-8 md:p-12 rounded-3xl space-y-6"
+                                    className="glass p-8 md:p-12 rounded-3xl space-y-8"
                                 >
                                     <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                                         <div className="space-y-2">
@@ -227,6 +252,26 @@ export default function Join() {
                                         <input required type="url" name="facebook" value={formData.facebook} onChange={handleChange} placeholder="https://facebook.com/votre.profil" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3 focus:outline-none focus:border-primary/50 transition-all text-white" />
                                     </div>
 
+                                    {/* Skills Section */}
+                                    <div className="space-y-4 pt-6 border-t border-white/5">
+                                        <label className="text-base font-medium text-white flex items-center gap-2">
+                                            <Briefcase size={18} className="text-primary" /> Choisir les compétences que vous sachiez faire ou ce que vous aimerais developper :
+                                        </label>
+                                        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                                            {SKILLS_OPTIONS.map((skill) => (
+                                                <button
+                                                    key={skill.id}
+                                                    type="button"
+                                                    onClick={() => toggleSkill(skill.label)}
+                                                    className={`p-4 rounded-xl border text-left transition-all ${formData.skills.includes(skill.label) ? 'bg-primary/20 border-primary text-white' : 'bg-white/5 border-white/10 text-gray-400 hover:border-white/20'}`}
+                                                >
+                                                    <div className="text-sm font-bold">{skill.label}</div>
+                                                    {skill.desc && <div className="text-xs opacity-60 mt-1">{skill.desc}</div>}
+                                                </button>
+                                            ))}
+                                        </div>
+                                    </div>
+
                                     <div className="space-y-4 pt-4 border-t border-white/5">
                                         <label className="text-base font-medium text-white flex items-center gap-2">
                                             <Rocket size={18} className="text-secondary" /> Avez-vous un projet personnel que vous aimeriez développer ?
@@ -234,7 +279,7 @@ export default function Join() {
                                         <div className="flex gap-6">
                                             {["oui", "non"].map((opt) => (
                                                 <label key={opt} className="flex items-center gap-2 cursor-pointer group">
-                                                    <input required type="radio" name="hasProject" value={opt} checked={formData.hasProject === opt} onChange={handleChange} className="w-4 h-4 accent-primary" />
+                                                    <input type="radio" name="hasProject" value={opt} checked={formData.hasProject === opt} onChange={handleChange} className="w-4 h-4 accent-primary" />
                                                     <span className={`capitalize transition-colors ${formData.hasProject === opt ? "text-primary font-bold" : "text-gray-400 group-hover:text-white"}`}>{opt}</span>
                                                 </label>
                                             ))}
@@ -267,7 +312,7 @@ export default function Join() {
                                             <Calendar className="text-primary" />
                                             <h2 className="text-xl font-medium tracking-wide">Choisissez la date de votre entretien</h2>
                                         </div>
-                                        <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+                                        <div className="grid grid-cols-2 sm:grid-cols-4 gap-3">
                                             {DATES.map((date) => (
                                                 <button
                                                     key={date}
@@ -334,12 +379,17 @@ export default function Join() {
                                 <div className="w-20 h-20 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
                                     <CheckCircle2 className="text-green-500 w-10 h-10" />
                                 </div>
-                                <h1 className="text-3xl md:text-5xl font-thin text-wave uppercase tracking-[0.2em]">C'est prêt !</h1>
-                                <div className="space-y-2">
-                                    <p className="text-xl text-white font-light uppercase tracking-widest">Candidature Envoyée</p>
-                                    <p className="text-gray-400 max-w-sm mx-auto">
-                                        Merci <span className="text-primary font-medium">{formData.fullName.split(' ')[0]}</span> !
-                                        Ton entretien est prévu le <span className="text-white">{formData.interviewDate}</span> à <span className="text-white">{formData.interviewTime}</span>.
+                                <h1 className="text-3xl md:text-5xl font-thin text-wave uppercase tracking-[0.2em]">Enregistré</h1>
+                                <div className="space-y-4">
+                                    <div className="space-y-2">
+                                        <p className="text-xl text-white font-light uppercase tracking-widest">Candidature Envoyée</p>
+                                        <p className="text-gray-400 max-w-sm mx-auto">
+                                            Merci <span className="text-primary font-medium">{formData.fullName.split(' ')[0]}</span> !
+                                            Ton entretien est prévu le <span className="text-white">{formData.interviewDate}</span> à <span className="text-white">{formData.interviewTime}</span>.
+                                        </p>
+                                    </div>
+                                    <p className="text-secondary font-medium max-w-xs mx-auto text-sm">
+                                        nous allons vous contacter via mail le plus tot possible pour confirmer votre entretien
                                     </p>
                                 </div>
                                 <div className="pt-8">
