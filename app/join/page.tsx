@@ -15,7 +15,7 @@ import { collection, addDoc, getDocs, Timestamp, query } from "firebase/firestor
 // Constants for scheduling
 const DATES = ["02/03/2026", "03/03/2026", "04/03/2026", "05/03/2026"];
 const TIMES = ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00"];
-const SLOT_LIMIT = 3;
+const SLOT_LIMIT = 2;
 
 const SKILLS_OPTIONS = [
     { id: "tech", label: "Tech & Innovation", desc: "AI, Data & Analyse..." },
