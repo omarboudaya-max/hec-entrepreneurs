@@ -13,8 +13,8 @@ import { db } from "@/lib/firebase";
 import { collection, addDoc, getDocs, Timestamp, query } from "firebase/firestore";
 
 // Constants for scheduling
-const DATES = ["02/03/2026", "03/03/2026", "04/03/2026", "05/03/2026"];
-const TIMES = ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00"];
+const DATES = ["02/03/2026", "03/03/2026", "04/03/2026", "05/03/2026", "06/03/2026", "07/03/2026"];
+const TIMES = ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00"];
 const SLOT_LIMIT = 2;
 
 const SKILLS_OPTIONS = [
@@ -337,7 +337,15 @@ export default function Join() {
                                                 </div>
                                             ) : (
                                                 <div className="grid grid-cols-2 sm:grid-cols-4 gap-2 sm:gap-3">
-                                                    {TIMES.map((time) => {
+                                                    {TIMES.filter(time => {
+                                                        if (formData.interviewDate === "07/03/2026") {
+                                                            return ["09:00", "09:30", "10:00", "10:30"].includes(time);
+                                                        }
+                                                        if (["03/03/2026", "04/03/2026", "05/03/2026", "06/03/2026"].includes(formData.interviewDate)) {
+                                                            return ["09:00", "09:30", "10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00"].includes(time);
+                                                        }
+                                                        return ["10:00", "10:30", "11:00", "11:30", "12:00", "12:30", "13:00", "13:30", "14:00"].includes(time);
+                                                    }).map((time) => {
                                                         const full = isSlotFull(formData.interviewDate, time);
                                                         return (
                                                             <button

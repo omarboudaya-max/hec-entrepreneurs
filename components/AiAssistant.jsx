@@ -3,11 +3,12 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageSquare, X, Send, Sparkles, Bot } from "lucide-react";
 import clsx from "clsx";
+import ReactMarkdown from "react-markdown";
 
 export default function AiAssistant() {
   const [isOpen, setIsOpen] = useState(false);
   const [messages, setMessages] = useState([
-    { role: "assistant", content: "Bonjour ! Je suis PRO ENTREPRENEUR, l'ambassadeur IA de HEC Entrepreneurs IHEC Carthage. Je peux vous guider à travers nos parcours, vous aider à trouver un co-fondateur ou débloquer des ressources. Comment puis-je vous aider aujourd'hui ?" }
+    { role: "assistant", content: "Salut ! 👋 Je suis **PRO ENTREPRENEUR**, l'ambassadeur IA de HEC Entrepreneurs IHEC Carthage.\n\nJe suis là pour t'accompagner dans ton aventure entrepreneuriale : que ce soit pour trouver un co-fondateur, accéder à nos ressources ou simplement discuter de ton projet. Comment puis-je t'aider aujourd'hui ?" }
   ]);
   const [input, setInput] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -95,7 +96,13 @@ export default function AiAssistant() {
                       : "bg-white/10 border border-white/5 text-gray-200 rounded-bl-none shadow-lg"
                   )}
                 >
-                  {msg.content}
+                  {msg.role === "assistant" ? (
+                    <div className="prose prose-invert prose-sm max-w-none prose-p:leading-relaxed prose-pre:bg-white/5 prose-pre:border prose-pre:border-white/10">
+                      <ReactMarkdown>{msg.content}</ReactMarkdown>
+                    </div>
+                  ) : (
+                    msg.content
+                  )}
                 </div>
               ))}
               {isLoading && (
@@ -152,7 +159,7 @@ export default function AiAssistant() {
               animate={{ opacity: 1, x: 0, scale: 1 }}
               exit={{ opacity: 0, scale: 0.8 }}
               transition={{ delay: 1 }}
-              className="absolute right-full mr-4 top-1/2 -translate-y-1/2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl whitespace-nowrap"
+              className="absolute right-full mr-4 top-1/2 -translate-y-1/2 px-4 py-2 bg-white/10 backdrop-blur-md border border-white/20 rounded-xl whitespace-nowrap hidden md:block"
             >
               <p className="text-sm font-light text-white flex items-center gap-2 tracking-wide">
                 <span className="w-2 h-2 rounded-full bg-green-400 animate-pulse" />
