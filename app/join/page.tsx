@@ -148,7 +148,8 @@ export default function Join() {
     };
 
     const isSlotFull = (date: string, time: string) => {
-        return (availability[`${date}-${time}`] || 0) >= SLOT_LIMIT;
+        const limit = date === "04/03/2026" ? 3 : SLOT_LIMIT;
+        return (availability[`${date}-${time}`] || 0) >= limit;
     };
 
     const containerVariants = {
