@@ -316,16 +316,65 @@ export default function Join() {
                                             {DATES.map((date) => (
                                                 <button
                                                     key={date}
+                                                    type="button"
                                                     onClick={() => setFormData(p => ({ ...p, interviewDate: date, interviewTime: "" }))}
                                                     className={`py-3 px-2 rounded-xl border transition-all text-xs font-medium ${formData.interviewDate === date ? 'bg-primary border-primary text-white' : 'bg-white/5 border-white/10 text-gray-400 hover:border-primary/50'}`}
                                                 >
                                                     {date.split('/')[0]}/{date.split('/')[1]}
                                                 </button>
                                             ))}
+                                            <button
+                                                type="button"
+                                                onClick={() => setFormData(p => ({ ...p, interviewDate: "Autre", interviewTime: "CONTACT DIRECT" }))}
+                                                className={`py-3 px-2 rounded-xl border transition-all text-sm font-medium ${formData.interviewDate === "Autre" ? 'bg-primary border-primary text-white' : 'bg-white/5 border-white/10 text-gray-400 hover:border-primary/50'}`}
+                                            >
+                                                Autre
+                                            </button>
                                         </div>
                                     </div>
 
-                                    {formData.interviewDate && (
+                                    {formData.interviewDate === "Autre" && (
+                                        <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-6 rounded-2xl bg-primary/10 border border-primary/20 space-y-4">
+                                            <div className="flex items-center gap-3 text-primary">
+                                                <Sparkles className="w-6 h-6" />
+                                                <h3 className="text-lg font-bold">Contactez-nous directement</h3>
+                                            </div>
+                                            <p className="text-gray-300 text-sm">
+                                                Si aucune de ces dates ne vous convient, veuillez contacter notre VPA pour fixer un rendez-vous personnalisé :
+                                            </p>
+                                            <div className="space-y-3 pt-2">
+                                                <div className="flex items-center gap-3 text-white">
+                                                    <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center text-primary">
+                                                        <User size={18} />
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-xs text-gray-400 uppercase tracking-wider">VPA</div>
+                                                        <div className="font-medium">Nourhene Ben Amor</div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-3 text-white">
+                                                    <div className="w-10 h-10 rounded-full bg-secondary/20 flex items-center justify-center text-secondary">
+                                                        <Phone size={18} />
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-xs text-gray-400 uppercase tracking-wider">Téléphone</div>
+                                                        <div className="font-medium text-lg">98 135 135</div>
+                                                    </div>
+                                                </div>
+                                                <div className="flex items-center gap-3 text-white border-t border-white/5 pt-3">
+                                                    <div className="w-10 h-10 rounded-full bg-accent/20 flex items-center justify-center text-accent">
+                                                        <Mail size={18} />
+                                                    </div>
+                                                    <div>
+                                                        <div className="text-xs text-gray-400 uppercase tracking-wider">Email Club</div>
+                                                        <div className="font-medium">hecentrepreneurs8@gmail.com</div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </motion.div>
+                                    )}
+
+                                    {formData.interviewDate && formData.interviewDate !== "Autre" && (
                                         <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                                             <div className="flex items-center gap-4 text-white">
                                                 <Clock className="text-secondary" />
