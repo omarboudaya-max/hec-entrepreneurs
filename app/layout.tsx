@@ -3,6 +3,7 @@ import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
 import AiAssistant from "@/components/AiAssistant";
 import LiveFeed from "@/components/LiveFeed";
+import { Analytics } from "@vercel/analytics/next";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -60,6 +61,7 @@ export default function RootLayout({
         {children}
         <AiAssistant />
         <LiveFeed />
+        <Analytics />
       </body>
     </html>
   );
