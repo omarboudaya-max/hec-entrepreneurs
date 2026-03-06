@@ -32,9 +32,9 @@ export default function TeamUp() {
                             ))}
                         </div>
 
-                        <button className="px-8 py-4 rounded-xl bg-white text-black font-bold hover:scale-105 transition-transform flex items-center gap-2 mx-auto">
+                        <button disabled className="px-8 py-4 rounded-xl bg-white/5 border border-white/10 text-gray-500 font-bold flex items-center gap-2 mx-auto cursor-not-allowed">
                             <UserPlus className="w-5 h-5" />
-                            Rejoindre le Talent Pool
+                            Bientôt Disponible
                         </button>
                     </motion.div>
                 </div>
