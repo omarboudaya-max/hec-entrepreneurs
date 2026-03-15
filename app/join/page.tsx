@@ -3,6 +3,7 @@
 import { useState, useEffect } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
+import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
     Send, User, GraduationCap, Mail, Phone, MapPin,
@@ -50,12 +51,6 @@ export default function Join() {
     const [availability, setAvailability] = useState<SlotAvailability>({});
     const [isLoadingSlots, setIsLoadingSlots] = useState(false);
 
-    useEffect(() => {
-        if (step === 2) {
-            fetchAvailability();
-        }
-    }, [step]);
-
     const fetchAvailability = async () => {
         setIsLoadingSlots(true);
         try {
@@ -76,6 +71,12 @@ export default function Join() {
         }
         setIsLoadingSlots(false);
     };
+
+    useEffect(() => {
+        if (step === 2) {
+            fetchAvailability();
+        }
+    }, [step]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -232,9 +233,9 @@ export default function Join() {
                             </div>
 
                             <div className="pt-8 flex flex-col sm:flex-row gap-4 justify-center">
-                                <a href="/" className="px-8 py-4 rounded-full bg-primary text-white font-bold hover:shadow-[0_0_20px_rgba(124,58,237,0.4)] transition-all uppercase text-sm tracking-widest">
-                                    Retour à l'accueil
-                                </a>
+                                <Link href="/" className="px-8 py-4 rounded-full bg-primary text-white font-bold hover:shadow-[0_0_20px_rgba(124,58,237,0.4)] transition-all uppercase text-sm tracking-widest">
+                                    Retour à l&apos;accueil
+                                </Link>
                                 <a href="https://www.instagram.com/hec_entrepreneurs" target="_blank" rel="noopener noreferrer" className="px-8 py-4 rounded-full bg-white/5 border border-white/10 text-white hover:bg-white/10 transition-all uppercase text-sm tracking-widest flex items-center justify-center gap-2">
                                     <Instagram size={16} /> Suivez-nous
                                 </a>

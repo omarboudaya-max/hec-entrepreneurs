@@ -41,7 +41,7 @@ const founders = [...initialFounders, ...generatedFounders];
 
 export default function TeamUp() {
     const [searchTerm, setSearchTerm] = useState("");
-    const [selectedFounder, setSelectedFounder] = useState(null as any);
+    const [selectedFounder, setSelectedFounder] = useState<typeof founders[0] | null>(null);
 
     const filteredFounders = useMemo(() => {
         return founders.filter(f =>
@@ -175,7 +175,7 @@ export default function TeamUp() {
                                 <div className="w-20 h-1 bg-primary/30 mt-4 rounded-full" />
                             </div>
 
-                            <p className="text-gray-400 mb-8 italic leading-relaxed">"{selectedFounder.pitch}"</p>
+                            <p className="text-gray-400 mb-8 italic leading-relaxed">&quot;{selectedFounder.pitch}&quot;</p>
 
                             <div className="space-y-6">
                                 <div>

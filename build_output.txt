@@ -1,0 +1,33 @@
+﻿
+> landing-page@0.1.0 build
+> next build
+
+Ôû▓ Next.js 16.1.6 (Turbopack)
+- Environments: .env.local
+
+  Creating an optimized production build ...
+Ô£ô Compiled successfully in 8.3s
+  Running TypeScript ...
+  Collecting page data using 15 workers ...
+  Generating static pages using 15 workers (0/10) ...
+  Generating static pages using 15 workers (2/10) 
+  Generating static pages using 15 workers (4/10) 
+  Generating static pages using 15 workers (7/10) 
+Ô£ô Generating static pages using 15 workers (10/10) in 1876.6ms
+  Finalizing page optimization ...
+
+Route (app)
+Ôöî Ôùï /
+Ôö£ Ôùï /_not-found
+Ôö£ Ôùï /about
+Ôö£ ãÆ /api/chat
+Ôö£ Ôùï /entrepreuneuriat
+Ôö£ ãÆ /entrepreuneuriat/[slug]
+Ôö£ Ôùï /join
+Ôö£ Ôùï /resources
+Ôöö Ôùï /team-up
+
+
+Ôùï  (Static)   prerendered as static content
+ãÆ  (Dynamic)  server-rendered on demand
+

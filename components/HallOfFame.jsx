@@ -39,7 +39,7 @@ export default function HallOfFame() {
                         HALL OF FAME
                     </h2>
                     <p className="text-gray-400 max-w-2xl mx-auto">
-                        Célébrer les visionnaires qui ont commencé leur parcours à l'HEC Carthage.
+                        Célébrer les visionnaires qui ont commencé leur parcours à l&apos;HEC Carthage.
                     </p>
                 </div>
 

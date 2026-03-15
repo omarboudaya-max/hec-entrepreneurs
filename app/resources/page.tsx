@@ -56,7 +56,7 @@ export default function Resources() {
                         RESSOURCES
                     </motion.h1>
                     <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed px-4">
-                        La boîte à outils ultime pour l'entrepreneur moderne.
+                        La boîte à outils ultime pour l&apos;entrepreneur moderne.
                     </p>
                 </div>
 
@@ -86,7 +86,7 @@ export default function Resources() {
                                             <Lock className="w-8 h-8 text-primary" />
                                         </div>
                                         <h4 className="text-lg font-light text-white uppercase tracking-[0.2em] mb-3">MEMBRES UNIQUEMENT</h4>
-                                        <p className="text-sm text-gray-400 font-light mb-8 leading-relaxed">Débloquez l'accès en rejoignant l'écosystème HEC Entrepreneurs.</p>
+                                        <p className="text-sm text-gray-400 font-light mb-8 leading-relaxed">Débloquez l&apos;accès en rejoignant l&apos;écosystème HEC Entrepreneurs.</p>
                                         <button className="flex items-center gap-2 text-primary font-light uppercase tracking-[0.1em] text-xs hover:gap-4 transition-all">
                                             Rejoindre Maintenant <ArrowRight className="w-4 h-4" />
                                         </button>

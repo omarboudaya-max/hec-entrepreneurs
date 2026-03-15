@@ -45,7 +45,7 @@ export default function Home() {
               NOTRE PROMESSE
             </h2>
             <p className="text-lg md:text-3xl text-gray-300 max-w-4xl mx-auto leading-relaxed font-light italic">
-              "Le Club HEC Entrepreneurs est une plateforme d’action, de formation et d’innovation dédiée aux étudiants qui souhaitent entreprendre, innover et avoir un impact réel sur leur environnement."
+              &quot;Le Club HEC Entrepreneurs est une plateforme d’action, de formation et d’innovation dédiée aux étudiants qui souhaitent entreprendre, innover et avoir un impact réel sur leur environnement.&quot;
             </p>
           </motion.div>
         </div>

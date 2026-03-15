@@ -16,7 +16,7 @@ const Footer = () => {
                             HEC <span className="text-primary italic">ENTREPRENEURS</span>
                         </Link>
                         <p className="text-gray-400 max-w-sm mb-8 leading-relaxed">
-                            Le premier club d'entrepreneuriat à l'IHEC Carthage.
+                            Le premier club d&apos;entrepreneuriat à l&apos;IHEC Carthage.
                             Idéaliser, Construire, Propulser.
                         </p>
                     </div>
@@ -71,7 +71,7 @@ const Footer = () => {
                         © 2026 HEC Entrepreneurs IHEC Carthage. Tous droits réservés.
                     </p>
                     <p className="text-gray-500 text-xs flex items-center gap-1">
-                        Fait avec <Heart size={12} className="text-primary fill-primary" /> par l'équipe HEC
+                        Fait avec <Heart size={12} className="text-primary fill-primary" /> par l&apos;équipe HEC
                     </p>
                 </div>
             </div>
