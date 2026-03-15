@@ -207,7 +207,7 @@ export default function ArticlePage() {
                     </div>
 
                     <div className="glass p-5 sm:p-8 md:p-12 rounded-3xl md:rounded-[2.5rem] border border-white/5 bg-white/[0.02]">
-                        <div className="prose prose-invert prose-headings:font-thin prose-headings:uppercase prose-headings:tracking-widest prose-p:text-gray-300 prose-p:leading-relaxed prose-strong:text-primary prose-blockquote:border-primary max-w-none prose-sm md:prose-base">
+                        <div className="prose prose-invert prose-headings:font-thin prose-headings:uppercase prose-headings:tracking-widest prose-h1:text-2xl md:prose-h1:text-4xl prose-h2:text-xl md:prose-h2:text-3xl prose-p:text-gray-300 prose-p:leading-relaxed prose-strong:text-primary prose-blockquote:border-primary max-w-none prose-sm md:prose-base">
                             <ReactMarkdown>{article.content}</ReactMarkdown>
                         </div>
                     </div>
