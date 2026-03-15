@@ -46,16 +46,16 @@ export default function Resources() {
                 <div className="absolute -bottom-20 -left-20 w-[400px] h-[400px] bg-primary/5 rounded-full blur-[100px] animate-pulse-slow delay-700" />
             </div>
 
-            <div className="container mx-auto px-4 pt-44 relative z-10">
-                <div className="text-center mb-24">
+            <div className="container mx-auto px-4 pt-32 md:pt-44 relative z-10">
+                <div className="text-center mb-16 md:mb-24">
                     <motion.h1
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
-                        className="text-3xl sm:text-5xl md:text-7xl font-thin mb-6 text-wave tracking-[0.1em] sm:tracking-[0.2em] uppercase"
+                        className="text-4xl sm:text-5xl md:text-7xl font-thin mb-6 text-wave tracking-[0.1em] sm:tracking-[0.2em] uppercase px-2"
                     >
                         RESSOURCES
                     </motion.h1>
-                    <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed px-4">
+                    <p className="text-base sm:text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed px-4">
                         La boîte à outils ultime pour l&apos;entrepreneur moderne.
                     </p>
                 </div>
@@ -67,7 +67,7 @@ export default function Resources() {
                         whileInView={{ opacity: 1 }}
                         viewport={{ once: true }}
                         transition={{ staggerChildren: 0.1 }}
-                        className="grid md:grid-cols-3 gap-8"
+                        className="grid grid-cols-1 md:grid-cols-3 gap-6 md:gap-8"
                     >
                         {perks.map((perk, idx) => (
                             <motion.div
@@ -110,8 +110,8 @@ export default function Resources() {
                 </div>
 
                 {/* Mentor Directory */}
-                <div className="max-w-4xl mx-auto">
-                    <div className="flex flex-col items-center gap-4 mb-14 text-center">
+                <div className="max-w-4xl mx-auto px-2">
+                    <div className="flex flex-col items-center gap-4 mb-10 md:mb-14 text-center">
                         <div className="p-4 rounded-2xl bg-primary/10 text-primary">
                             <Users className="w-8 h-8" />
                         </div>
@@ -132,20 +132,20 @@ export default function Resources() {
                                 whileInView={{ opacity: 1, x: 0 }}
                                 viewport={{ once: true }}
                                 whileHover={{ x: 10, scale: 1.01 }}
-                                className="glass rounded-[2rem] p-8 flex flex-col md:flex-row items-center gap-8 border border-white/5 hover:border-primary/30 transition-all group"
+                                className="glass rounded-[2rem] p-6 md:p-8 flex flex-col md:flex-row items-center md:items-start gap-6 md:gap-8 border border-white/5 hover:border-primary/30 transition-all group text-center md:text-left"
                             >
-                                <div className="w-24 h-24 rounded-full bg-gradient-to-tr from-primary via-accent to-secondary flex items-center justify-center font-black text-white text-4xl shadow-2xl shadow-primary/30 group-hover:rotate-12 transition-transform">
+                                <div className="w-20 h-20 md:w-24 md:h-24 shrink-0 rounded-full bg-gradient-to-tr from-primary via-accent to-secondary flex items-center justify-center font-black text-white text-3xl md:text-4xl shadow-2xl shadow-primary/30 group-hover:rotate-12 transition-transform">
                                     {mentor.name[0]}
                                 </div>
-                                <div className="text-center md:text-left flex-1">
-                                    <div className="flex flex-col md:flex-row md:items-center gap-3 mb-2">
+                                <div className="flex-1 w-full">
+                                    <div className="flex flex-col md:flex-row md:items-center justify-center md:justify-start gap-3 mb-2">
                                         <h3 className="text-xl font-light text-white tracking-[0.05em] uppercase italic">{mentor.name}</h3>
                                         <span className="px-3 py-1 bg-primary/10 text-primary text-[10px] font-light rounded-full border border-primary/20 uppercase tracking-[0.2em] w-fit mx-auto md:mx-0">
                                             {mentor.expertise}
                                         </span>
                                     </div>
                                     <p className="text-gray-400 text-xs font-light uppercase tracking-[0.2em] mb-4">{mentor.company}</p>
-                                    <p className="text-gray-400 text-lg leading-relaxed">{mentor.bio}</p>
+                                    <p className="text-gray-400 text-sm md:text-lg leading-relaxed">{mentor.bio}</p>
                                 </div>
                             </motion.div>
                         ))}
