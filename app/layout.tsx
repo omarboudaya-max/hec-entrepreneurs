@@ -16,6 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
+  metadataBase: new URL("https://hec-entrepreneurs.vercel.app"),
   title: "HEC Entrepreneurs | Bâtir le Possible",
   description: "Le premier club d'entrepreneuriat à l'IHEC Carthage. Donner aux étudiants les moyens de bâtir des startups à impact. Idéaliser, Construire, Propulser.",
   keywords: ["HEC Entrepreneurs", "IHEC Carthage", "Startup", "Entrepreneuriat", "Innovation"],
