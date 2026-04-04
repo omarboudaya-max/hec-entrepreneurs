@@ -12,6 +12,13 @@ const articles = [
         slug: "champ-scientifique-multidisciplinaire",
         excerpt: "Découvrez pourquoi l'entrepreneuriat est un domaine complexe au carrefour de l'économie, de la psychologie et de la sociologie.",
         icon: Target
+    },
+    {
+        title: "Le modèle des 3E en entrepreneuriat",
+        category: "THEORIE",
+        slug: "modele-des-3e",
+        excerpt: "Une approche intégrée et dynamique de la création d’entreprise selon Christian Bruyat.",
+        icon: Rocket
     }
 ];
 
@@ -98,9 +105,9 @@ export default function Entrepreuneuriat() {
                         className="mb-32 scroll-mt-32"
                     >
                         <div className="text-center mb-16">
-                            <h2 className="text-3xl md:text-4xl font-light text-white uppercase tracking-[0.3em] italic opacity-80">ARTICLE</h2>
+                            <h2 className="text-3xl md:text-4xl font-light text-white uppercase tracking-[0.3em] italic opacity-80">ARTICLES</h2>
                         </div>
-                        <div className="max-w-2xl mx-auto">
+                        <div className="max-w-5xl mx-auto grid md:grid-cols-2 gap-8">
                             {articles.map((article, idx) => (
                                 <Link
                                     key={idx}

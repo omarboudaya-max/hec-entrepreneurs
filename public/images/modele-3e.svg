@@ -1,0 +1,79 @@
+<svg viewBox="0 0 800 600" xmlns="http://www.w3.org/2000/svg">
+  <defs>
+    <linearGradient id="grad1" x1="0%" y1="0%" x2="100%" y2="100%">
+      <stop offset="0%" stop-color="#7c3aed" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#7c3aed" stop-opacity="0.05"/>
+    </linearGradient>
+    <linearGradient id="grad2" x1="0%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#06b6d4" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#06b6d4" stop-opacity="0.05"/>
+    </linearGradient>
+    <linearGradient id="grad3" x1="100%" y1="0%" x2="0%" y2="100%">
+      <stop offset="0%" stop-color="#db2777" stop-opacity="0.35"/>
+      <stop offset="100%" stop-color="#db2777" stop-opacity="0.05"/>
+    </linearGradient>
+
+    <filter id="glow" x="-20%" y="-20%" width="140%" height="140%">
+      <feGaussianBlur stdDeviation="15" result="blur" />
+      <feMerge>
+        <feMergeNode in="blur" />
+        <feMergeNode in="SourceGraphic" />
+      </feMerge>
+    </filter>
+    
+    <marker id="arrow-Z" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#7c3aed" />
+    </marker>
+    <marker id="arrow-A" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#06b6d4" />
+    </marker>
+    <marker id="arrow-B" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#db2777" />
+    </marker>
+    <marker id="arrow-C" markerWidth="10" markerHeight="10" refX="9" refY="3" orient="auto" markerUnits="strokeWidth">
+      <path d="M0,0 L0,6 L9,3 z" fill="#7c3aed" />
+    </marker>
+  </defs>
+
+  <rect width="100%" height="100%" fill="transparent" />
+  
+  <text x="400" y="60" fill="#ededed" font-size="28" font-weight="200" font-family="system-ui, sans-serif" text-anchor="middle" letter-spacing="4">LE PHÉNOMÈNE ENTREPRENEURIAL</text>
+
+  <circle cx="400" cy="240" r="160" fill="url(#grad1)" stroke="#7c3aed" stroke-width="2" filter="url(#glow)"/>
+  <text x="400" y="160" fill="#ededed" font-size="20" font-family="system-ui, sans-serif" text-anchor="middle" font-weight="300">Entrepreneur E1</text>
+
+  <circle cx="310" cy="380" r="160" fill="url(#grad3)" stroke="#db2777" stroke-width="2" filter="url(#glow)"/>
+  <text x="230" y="440" fill="#ededed" font-size="20" font-family="system-ui, sans-serif" text-anchor="middle" font-weight="300">Contexte E3</text>
+
+  <circle cx="490" cy="380" r="160" fill="url(#grad2)" stroke="#06b6d4" stroke-width="2" filter="url(#glow)"/>
+  <text x="570" y="440" fill="#ededed" font-size="20" font-family="system-ui, sans-serif" text-anchor="middle" font-weight="300">Entreprise E2</text>
+
+  <circle cx="400" cy="315" r="18" fill="#7c3aed" opacity="0.8" />
+  <text x="400" y="321" fill="#ffffff" font-size="16" font-family="system-ui, sans-serif" font-weight="bold" text-anchor="middle">Z</text>
+
+  <g transform="translate(560, 160)">
+    <rect x="0" y="0" width="180" height="40" rx="6" fill="rgba(15,15,26,0.6)" stroke="#7c3aed" stroke-width="1.5"/>
+    <text x="90" y="25" fill="#ededed" font-size="14" font-family="system-ui, sans-serif" text-anchor="middle">La zone de cohérence</text>
+  </g>
+  <line x1="416" y1="305" x2="560" y2="180" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrow-Z)"/>
+
+  <g transform="translate(620, 280)">
+    <rect x="0" y="0" width="100" height="40" rx="6" fill="rgba(15,15,26,0.6)" stroke="#06b6d4" stroke-width="1.5"/>
+    <text x="50" y="25" fill="#ededed" font-size="14" font-family="system-ui, sans-serif" text-anchor="middle">Zone A</text>
+  </g>
+  <line x1="480" y1="300" x2="620" y2="300" stroke="#06b6d4" stroke-width="2" marker-end="url(#arrow-A)"/>
+
+  <g transform="translate(140, 500)">
+    <rect x="0" y="0" width="100" height="40" rx="6" fill="rgba(15,15,26,0.6)" stroke="#db2777" stroke-width="1.5"/>
+    <text x="50" y="25" fill="#ededed" font-size="14" font-family="system-ui, sans-serif" text-anchor="middle">Zone B</text>
+  </g>
+  <line x1="400" y1="440" x2="240" y2="520" stroke="#db2777" stroke-width="2" marker-end="url(#arrow-B)"/>
+
+  <g transform="translate(80, 280)">
+    <rect x="0" y="0" width="100" height="40" rx="6" fill="rgba(15,15,26,0.6)" stroke="#7c3aed" stroke-width="1.5"/>
+    <text x="50" y="25" fill="#ededed" font-size="14" font-family="system-ui, sans-serif" text-anchor="middle">Zone C</text>
+  </g>
+  <line x1="320" y1="300" x2="180" y2="300" stroke="#7c3aed" stroke-width="2" marker-end="url(#arrow-C)"/>
+  
+  <text x="400" y="570" fill="#ededed" font-size="20" font-weight="300" font-style="italic" font-family="system-ui, sans-serif" text-anchor="middle">Modèle des « 3 E » (Bruyat, 1993)</text>
+</svg>
