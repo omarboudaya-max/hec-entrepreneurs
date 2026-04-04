@@ -43,7 +43,10 @@
   <text x="400" y="160" fill="#ededed" font-size="20" font-family="system-ui, sans-serif" text-anchor="middle" font-weight="300">Entrepreneur E1</text>
 
   <circle cx="310" cy="380" r="160" fill="url(#grad3)" stroke="#db2777" stroke-width="2" filter="url(#glow)"/>
-  <text x="230" y="440" fill="#ededed" font-size="20" font-family="system-ui, sans-serif" text-anchor="middle" font-weight="300">Contexte E3</text>
+  <text x="230" y="430" fill="#ededed" font-family="system-ui, sans-serif" text-anchor="middle" font-weight="300">
+    <tspan x="230" dy="0" font-size="20">Contexte</tspan>
+    <tspan x="230" dy="24" font-size="14">(Ecosystème entrepreneurial) E3</tspan>
+  </text>
 
   <circle cx="490" cy="380" r="160" fill="url(#grad2)" stroke="#06b6d4" stroke-width="2" filter="url(#glow)"/>
   <text x="570" y="440" fill="#ededed" font-size="20" font-family="system-ui, sans-serif" text-anchor="middle" font-weight="300">Entreprise E2</text>
