@@ -32,7 +32,7 @@ const perks = [
 ];
 
 const mentors = [
-    { name: "Youssef Drira", expertise: "Formateur Certifié", company: "Réseau HEC", bio: "Ex-formateur Google spécialisé dans le leadership haute performance." },
+    { name: "Youssef Drira", expertise: "Formateur Certifié", company: "Réseau HEC", bio: "Formateur spécialisé dans le leadership haute performance." },
 ];
 
 export default function Resources() {
