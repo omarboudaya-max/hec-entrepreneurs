@@ -28,8 +28,10 @@ export default function Navbar() {
             <div className="absolute top-4 left-4 sm:top-6 sm:left-8 items-center flex">
                 <img src="/logo-ihec.png" alt="IHEC Carthage" className="h-12 sm:h-24 md:h-32 w-auto opacity-100 transition-opacity" />
             </div>
-            <div className="absolute top-4 right-4 sm:top-6 sm:right-8 items-center flex">
-                <img src="/logo-club.png" alt="HEC Entrepreneurs" className="h-12 sm:h-24 md:h-32 w-auto opacity-100 transition-opacity" />
+            <div className="absolute top-4 right-4 sm:top-6 sm:right-8 items-center flex cursor-pointer">
+                <Link href="/admin/login">
+                    <img src="/logo-club.png" alt="HEC Entrepreneurs" className="h-12 sm:h-24 md:h-32 w-auto opacity-100 transition-opacity" />
+                </Link>
             </div>
 
             <div className="flex justify-center">

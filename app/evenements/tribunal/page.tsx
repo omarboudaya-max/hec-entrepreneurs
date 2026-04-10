@@ -34,6 +34,7 @@ export default function TribunalRegistration() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
+    let docId = "";
 
     try {
       const submissionData = {
@@ -64,6 +65,7 @@ export default function TribunalRegistration() {
             headers: { "Content-Type": "text/plain" },
             body: JSON.stringify({
               ...submissionData,
+              action: "create",
               submittedAt: new Date().toLocaleString()
             }),
           });
@@ -76,18 +78,22 @@ export default function TribunalRegistration() {
 
       // 2. Save to Firebase (Non-blocking fallback)
       try {
-        await addDoc(collection(db, "candidates"), {
+        const docRef = await addDoc(collection(db, "participants"), {
           ...submissionData,
+          attended: false,
           submittedAt: Timestamp.now()
         });
-        console.log("Firebase submission successful.");
+        docId = docRef.id;
+        console.log("Firebase submission successful. ID:", docId);
       } catch (fbErr) {
         console.error("Firebase permission error:", fbErr);
         // We do NOT block the redirection if Sheets was attempted
       }
 
-      // Always redirect to success page if we reached this point
-      router.push('/evenements/tribunal/success');
+      // Always redirect to success page
+      // Use docId if available, fallback to email encoded
+      const identifier = docId || encodeURIComponent(formData.email);
+      router.push(`/evenements/tribunal/success?id=${identifier}&email=${encodeURIComponent(formData.email)}&name=${encodeURIComponent(formData.firstName)}`);
 
     } catch (error) {
       console.error("Critical submission error:", error);
@@ -128,7 +134,7 @@ export default function TribunalRegistration() {
           ← Retourner à la page d&apos;accueil
         </Link>
         
-        <div className="bg-[#1c0804]/90 backdrop-blur-md border-[6px] border-[#38160d] p-10 md:p-14 shadow-[0_30px_60px_rgba(0,0,0,1),inset_0_0_40px_rgba(0,0,0,0.8)] relative isolate">
+        <div className="bg-[#1c0804]/90 backdrop-blur-xl border border-[#d4af37]/30 p-6 sm:p-10 shadow-[0_30px_60px_rgba(0,0,0,0.8)] rounded-2xl relative isolate">
           {/* Inner gold trim */}
           <div className="absolute inset-2 border border-[#d4af37]/20 pointer-events-none -z-10"></div>
           
