@@ -148,7 +148,7 @@ export default function TribunalRegistration() {
               Audience du <br/><span className="text-[#d4af37] font-bold">Tribunal</span>
             </h1>
             <p className="text-[#cbb0a5] font-serif italic text-lg">
-              Préparez-vous à défendre votre plaidoyer devant la Cour.
+              Préparez-vous à vivre une expérience unique et enrichissante.
             </p>
           </div>
 
@@ -303,7 +303,7 @@ export default function TribunalRegistration() {
 
             {/* Switch Role lors du procès */}
             <div className="space-y-4 pt-6 border-t border-[#d4af37]/20 mt-6">
-              <label className="text-sm uppercase tracking-widest text-[#9c8278] font-serif">Votre rôle lors du procès :</label>
+              <label className="text-sm uppercase tracking-widest text-[#9c8278] font-serif">Choisissez un camp lors du procès (vous n'etes pas obligé de participer au débat) :</label>
               <div className="flex flex-col sm:flex-row gap-4">
                 <button type="button" onClick={() => setRole('defenseur')} className={`flex-1 py-4 border-2 transition-all font-serif shadow-lg ${role === 'defenseur' ? 'bg-[rgba(218,165,32,0.15)] border-[#d4af37] text-[#d4af37]' : 'bg-[#110704] border-[#5c2312] text-[#9c8278] hover:border-[#8c3d26]'}`}>
                   <span className="block text-lg">Défenseur</span>
