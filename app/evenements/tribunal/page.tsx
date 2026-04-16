@@ -178,9 +178,15 @@ export default function TribunalRegistration() {
               </p>
             </div>
             
-            <div className="pt-8">
+            <div className="pt-8 relative z-10 flex flex-col items-center gap-6">
+              <Link href="/evenements/tribunal/vote">
+                <button type="button" className="w-full sm:w-auto py-5 px-10 text-base font-serif tracking-[0.2em] uppercase transition-all duration-300 border border-[#d4af37] shadow-[0_0_30px_rgba(212,175,55,0.3)] bg-[#3d160b] text-[#d4af37] hover:bg-[#521d0e] hover:text-white hover:shadow-[0_0_40px_rgba(212,175,55,0.5)] transform hover:-translate-y-1">
+                  Participer au Vote du Public
+                </button>
+              </Link>
+              
               <Link href="/">
-                <button type="button" className="py-4 px-8 text-sm font-serif tracking-[0.2em] uppercase transition-all duration-300 border border-[#d4af37]/50 shadow-[0_10px_20px_rgba(0,0,0,0.5)] bg-[#110704] text-[#d4af37] hover:bg-[#3d160b] hover:text-white">
+                <button type="button" className="py-4 px-8 text-sm font-serif tracking-[0.2em] uppercase transition-all duration-300 border border-[#d4af37]/30 bg-transparent text-[#9c8278] hover:bg-[#110704] hover:text-[#d4af37] hover:border-[#d4af37]/50">
                   Retourner à l&apos;accueil
                 </button>
               </Link>
