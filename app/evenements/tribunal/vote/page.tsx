@@ -119,7 +119,7 @@ export default function TribunalVote() {
               <>
                 <div className="bg-[rgba(212,175,55,0.05)] border border-[#d4af37]/20 p-8 rounded-xl shadow-inner">
                   <h2 className="text-2xl md:text-3xl font-serif text-[#ece2d0] leading-relaxed">
-                    Selon vous, l&apos;entrepreneuriat <br />est-il une forme de prison ?
+                    L&apos;entrepreneuriat doit-il aller en prison ?
                   </h2>
                 </div>
 
@@ -138,7 +138,7 @@ export default function TribunalVote() {
                     <div className="relative z-10 flex flex-col items-center gap-3">
                       <span className="text-3xl">⛓️</span>
                       <span className="text-xl font-serif uppercase tracking-widest text-[#ff6b6b] group-hover:text-white transition-colors">
-                        Oui, c&apos;est une prison
+                        Oui
                       </span>
                     </div>
                   </button>
@@ -151,7 +151,7 @@ export default function TribunalVote() {
                     <div className="relative z-10 flex flex-col items-center gap-3">
                       <span className="text-3xl">🕊️</span>
                       <span className="text-xl font-serif uppercase tracking-widest text-[#d4af37] group-hover:text-white transition-colors">
-                        Non, c&apos;est la liberté
+                        Non
                       </span>
                     </div>
                   </button>
