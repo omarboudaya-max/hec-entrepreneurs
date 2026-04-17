@@ -148,52 +148,11 @@ export default function TribunalRegistration() {
               Audience du <br/><span className="text-[#d4af37] font-bold">Tribunal</span>
             </h1>
             <p className="text-[#cbb0a5] font-serif italic text-lg">
-              Les inscriptions sont désormais fermées.
+              Remplissez ce formulaire pour participer au procès.
             </p>
           </div>
 
-          {/* Registration closed message */}
-          <div className="text-center space-y-6 py-4 mb-8">
-            <div className="inline-flex items-center justify-center w-20 h-20 rounded-full bg-[#110704] border-2 border-[#8b0000] mb-4 shadow-[0_0_30px_rgba(139,0,0,0.3)]">
-              <svg className="w-10 h-10 text-[#ff6b6b]" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 15v2m-6 4h12a2 2 0 002-2v-6a2 2 0 00-2-2H6a2 2 0 00-2 2v6a2 2 0 002 2zm10-10V7a4 4 0 00-8 0v4h8z" />
-              </svg>
-            </div>
-            
-            <h2 className="text-2xl font-serif uppercase tracking-widest text-[#d4af37]">
-              Capacité Maximale Atteinte
-            </h2>
-            
-            <p className="text-[#ece2d0] text-lg font-serif leading-relaxed max-w-2xl mx-auto">
-              Nous vous remercions pour l&apos;intérêt que vous portez au Tribunal de l&apos;Entrepreneuriat ! Les inscriptions sont malheureusement fermées car la capacité maximale a été atteinte.
-            </p>
-            
-            <div className="bg-[rgba(212,175,55,0.05)] border border-[#d4af37]/20 p-6 rounded-xl mt-8">
-              <p className="text-[#cbb0a5] font-serif flex items-start gap-4 text-left">
-                <Lightbulb className="w-8 h-8 text-[#d4af37] flex-shrink-0 mt-1" />
-                <span>
-                  <strong className="text-[#d4af37] block mb-2 text-lg">Tout le monde est le bienvenu !</strong>
-                  Vous pouvez quand même venir profiter de l&apos;ambiance en extérieur et découvrir l&apos;événement. Cependant, veuillez noter que <strong>seuls les participants inscrits</strong> pourront accéder à l&apos;intérieur de la salle d&apos;audience.
-                </span>
-              </p>
-            </div>
-            
-            <div className="pt-8 relative z-10 flex flex-col items-center gap-6">
-              <Link href="/evenements/tribunal/vote">
-                <button type="button" className="w-full sm:w-auto py-5 px-10 text-base font-serif tracking-[0.2em] uppercase transition-all duration-300 border border-[#d4af37] shadow-[0_0_30px_rgba(212,175,55,0.3)] bg-[#3d160b] text-[#d4af37] hover:bg-[#521d0e] hover:text-white hover:shadow-[0_0_40px_rgba(212,175,55,0.5)] transform hover:-translate-y-1">
-                  Participer au Vote du Public
-                </button>
-              </Link>
-              
-              <Link href="/">
-                <button type="button" className="py-4 px-8 text-sm font-serif tracking-[0.2em] uppercase transition-all duration-300 border border-[#d4af37]/30 bg-transparent text-[#9c8278] hover:bg-[#110704] hover:text-[#d4af37] hover:border-[#d4af37]/50">
-                  Retourner à l&apos;accueil
-                </button>
-              </Link>
-            </div>
-          </div>
-
-          <form className="space-y-6 hidden" onSubmit={handleSubmit}>
+          <form className="space-y-6" onSubmit={handleSubmit}>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
               <div className="space-y-2 group">
                 <label className="text-sm uppercase tracking-widest text-[#9c8278] group-focus-within:text-[#d4af37] transition-colors font-serif">Prénom du plaignant</label>
