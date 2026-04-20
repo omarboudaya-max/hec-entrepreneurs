@@ -215,7 +215,7 @@ export default function Home() {
             {[
               { name: "TLF", src: "/partners/tlf_clean_v2.png", scaleClass: "scale-125 md:scale-150" },
               { name: "KAYCO Motors", src: "/partners/kayco_clean.png", scaleClass: "scale-150 md:scale-[2]" },
-              { name: "Emagine", src: "/partners/emagine_clean_v3.png", scaleClass: "scale-110 md:scale-125" },
+              { name: "Emagine", src: "/partners/emagine_clean_v3.png", scaleClass: "scale-95 md:scale-100" },
             ].map((partner, idx) => (
               <motion.div
                 key={idx}
