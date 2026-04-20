@@ -226,7 +226,7 @@ export default function Home() {
                 whileHover={{ scale: 1.05 }}
                 className="relative w-full max-w-[320px] h-48 flex items-center justify-center group"
               >
-                <div className="relative w-full h-full p-4 transition-all duration-500 opacity-50 group-hover:opacity-100 flex items-center justify-center">
+                <div className="relative w-full h-full p-4 transition-all duration-500 flex items-center justify-center">
                   <Image
                     src={partner.src}
                     alt={partner.name}
