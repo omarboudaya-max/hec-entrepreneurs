@@ -191,19 +191,56 @@ export default function Home() {
                 </h3>
               </div>
 
-              <div className="pt-8">
-                <Link 
-                  href="/evenements/tribunal" 
-                  className="inline-block px-12 py-5 bg-[#3d160b] text-[#d4af37] text-lg font-serif tracking-[0.2em] uppercase hover:bg-[#521d0e] hover:text-white transition-all duration-300 border border-[#d4af37]/50 shadow-[0_10px_30px_rgba(0,0,0,0.8),inset_0_2px_4px_rgba(212,175,55,0.3)] relative overflow-hidden group"
-                >
-                  <span className="relative z-10">Participer à l&apos;audience</span>
-                  <div className="absolute inset-0 bg-gradient-to-r from-transparent via-[#d4af37]/10 to-transparent -translate-x-full group-hover:translate-x-full transition-transform duration-700"></div>
-                </Link>
-              </div>
             </motion.div>
           </div>
         </div>
       </section>
+
+      {/* Section Partners */}
+      <section className="py-24 bg-[#050505] relative overflow-hidden">
+        {/* Subtle background glow */}
+        <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-primary/5 blur-[100px] rounded-full pointer-events-none" />
+        
+        <div className="container mx-auto px-4 z-10 relative">
+          <motion.h2
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            className="text-2xl md:text-3xl font-light text-center mb-16 text-[#d4af37] uppercase tracking-[0.3em] font-serif"
+          >
+            NOS PARTENAIRES
+          </motion.h2>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-16 items-center justify-items-center">
+            {[
+              { name: "TLF", src: "/partners/tlf.png" },
+              { name: "KAYCO Motors", src: "/partners/kayco.png" },
+              { name: "Emagine", src: "/partners/emagine.png" },
+            ].map((partner, idx) => (
+              <motion.div
+                key={idx}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ delay: idx * 0.2, duration: 0.8 }}
+                whileHover={{ scale: 1.05 }}
+                className="relative w-full max-w-[320px] h-48 flex items-center justify-center group"
+              >
+                <div className="relative w-full h-full p-4 transition-all duration-500 opacity-50 group-hover:opacity-100 flex items-center justify-center">
+                  <Image
+                    src={partner.src}
+                    alt={partner.name}
+                    width={300}
+                    height={120}
+                    className="object-contain w-auto h-auto max-h-full"
+                  />
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
 
 
       <Footer />
