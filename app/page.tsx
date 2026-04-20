@@ -213,9 +213,9 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-16 items-center justify-items-center">
             {[
-              { name: "TLF", src: "/partners/tlf_clean_v2.png" },
-              { name: "KAYCO Motors", src: "/partners/kayco_clean.png" },
-              { name: "Emagine", src: "/partners/emagine_clean_v2.png" },
+              { name: "TLF", src: "/partners/tlf_clean_v2.png", scaleClass: "scale-125 md:scale-150" },
+              { name: "KAYCO Motors", src: "/partners/kayco_clean.png", scaleClass: "scale-150 md:scale-[2]" },
+              { name: "Emagine", src: "/partners/emagine_clean_v3.png", scaleClass: "scale-110 md:scale-125" },
             ].map((partner, idx) => (
               <motion.div
                 key={idx}
@@ -226,7 +226,7 @@ export default function Home() {
                 whileHover={{ scale: 1.05 }}
                 className="relative w-full max-w-[400px] h-64 flex items-center justify-center group"
               >
-                <div className="relative w-full h-full p-4 transition-all duration-500 flex items-center justify-center">
+                <div className={`relative w-full h-full p-4 transition-all duration-500 flex items-center justify-center ${partner.scaleClass}`}>
                   <Image
                     src={partner.src}
                     alt={partner.name}
