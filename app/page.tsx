@@ -213,7 +213,7 @@ export default function Home() {
 
           <div className="grid grid-cols-1 md:grid-cols-3 gap-16 items-center justify-items-center">
             {[
-              { name: "TLF", src: "/partners/tlf_clean.png" },
+              { name: "TLF", src: "/partners/tlf_clean_v2.png" },
               { name: "KAYCO Motors", src: "/partners/kayco_clean.png" },
               { name: "Emagine", src: "/partners/emagine_clean.png" },
             ].map((partner, idx) => (
