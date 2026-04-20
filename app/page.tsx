@@ -215,7 +215,7 @@ export default function Home() {
             {[
               { name: "TLF", src: "/partners/tlf_clean_v2.png" },
               { name: "KAYCO Motors", src: "/partners/kayco_clean.png" },
-              { name: "Emagine", src: "/partners/emagine_clean.png" },
+              { name: "Emagine", src: "/partners/emagine_clean_v2.png" },
             ].map((partner, idx) => (
               <motion.div
                 key={idx}
@@ -224,15 +224,15 @@ export default function Home() {
                 viewport={{ once: true }}
                 transition={{ delay: idx * 0.2, duration: 0.8 }}
                 whileHover={{ scale: 1.05 }}
-                className="relative w-full max-w-[320px] h-48 flex items-center justify-center group"
+                className="relative w-full max-w-[400px] h-64 flex items-center justify-center group"
               >
                 <div className="relative w-full h-full p-4 transition-all duration-500 flex items-center justify-center">
                   <Image
                     src={partner.src}
                     alt={partner.name}
-                    width={300}
-                    height={120}
-                    className="object-contain w-auto h-auto max-h-full"
+                    width={400}
+                    height={160}
+                    className="object-contain w-auto h-auto max-h-full max-w-full"
                   />
                 </div>
               </motion.div>
