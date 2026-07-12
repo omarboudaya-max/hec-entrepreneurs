@@ -16,7 +16,7 @@ const geistMono = Geist_Mono({
 });
 
 export const metadata: Metadata = {
-  metadataBase: new URL("https://hec-entrepreneurs.vercel.app"),
+  metadataBase: new URL(process.env.NEXT_PUBLIC_SITE_URL || "https://hec-entrepreneurs.vercel.app"),
   title: "HEC Entrepreneurs | Bâtir le Possible",
   description: "Le premier club d'entrepreneuriat à l'IHEC Carthage. Donner aux étudiants les moyens de bâtir des startups à impact. Idéaliser, Construire, Propulser.",
   keywords: ["HEC Entrepreneurs", "IHEC Carthage", "Startup", "Entrepreneuriat", "Innovation"],
@@ -28,7 +28,7 @@ export const metadata: Metadata = {
   openGraph: {
     title: "HEC Entrepreneurs",
     description: "Former la prochaine génération de fondateurs à l'IHEC Carthage.",
-    url: "https://hec-entrepreneurs.vercel.app", // Placeholder URL
+    url: process.env.NEXT_PUBLIC_SITE_URL || "https://hec-entrepreneurs.vercel.app",
     siteName: "HEC Entrepreneurs",
     images: [
       {

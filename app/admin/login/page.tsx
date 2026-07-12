@@ -1,95 +1,110 @@
 "use client";
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
+import React, { useState } from "react";
 import { useRouter } from "next/navigation";
+import { motion } from "framer-motion";
+import { Lock, ArrowRight, Loader2 } from "lucide-react";
+import Image from "next/image";
 import Link from "next/link";
-import { Shield, Lock } from "lucide-react";
 
 export default function AdminLogin() {
-  const [credentials, setCredentials] = useState({ username: "", password: "" });
+  const [username, setUsername] = useState("");
+  const [password, setPassword] = useState("");
   const [error, setError] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
 
-  useEffect(() => {
-    const isAuth = localStorage.getItem("admin_auth") === "true";
-    if (isAuth) router.push("/admin");
-  }, [router]);
-
-  const handleLogin = (e: React.FormEvent) => {
+  const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (credentials.username === "Bureau2026" && credentials.password === "Bureau2026") {
-      localStorage.setItem("admin_auth", "true");
-      router.push("/admin");
-    } else {
-      setError("Identifiants incorrects. Accès refusé par la Cour.");
+    setError("");
+    setIsLoading(true);
+
+    try {
+      const res = await fetch("/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ username, password }),
+      });
+
+      const data = await res.json();
+
+      if (res.ok) {
+        router.push("/store");
+        router.refresh(); // Force server to read new cookie
+      } else {
+        setError(data.error || "Identifiants incorrects.");
+      }
+    } catch (err) {
+      setError("Erreur de connexion au serveur.");
+    } finally {
+      setIsLoading(false);
     }
   };
 
   return (
-    <main className="min-h-screen relative flex items-center justify-center bg-[#050100] px-4 overflow-hidden">
-      {/* Background themed as Tribunal */}
-      <div className="absolute inset-0 bg-[url('/event-tribunal.jpg')] bg-cover bg-center opacity-20 filter grayscale z-0"></div>
-      <div className="absolute inset-0 bg-gradient-to-tr from-[#1c0804] via-black to-[#3d160b]/30 z-0"></div>
-
+    <div className="min-h-screen bg-background text-foreground flex flex-col justify-center items-center p-4 relative selection:bg-primary/30">
+      <Link href="/" className="absolute top-8 left-8 hover:opacity-80 transition-opacity">
+        <img src="/logo-ihec.png" alt="IHEC" className="h-12 w-auto" />
+      </Link>
+      
       <motion.div 
         initial={{ opacity: 0, y: 20 }}
         animate={{ opacity: 1, y: 0 }}
-        className="w-full max-w-md relative z-10"
+        className="glass w-full max-w-md p-8 rounded-3xl border border-white/10 shadow-2xl relative z-10 bg-[#0f0f1a]/80"
       >
-        <div className="bg-[#1c0804]/90 backdrop-blur-xl border border-[#d4af37]/30 p-10 shadow-[0_30px_60px_rgba(0,0,0,0.8)] rounded-2xl">
-          <div className="text-center mb-8">
-            <div className="w-16 h-16 bg-[#d4af37]/10 rounded-full flex items-center justify-center mx-auto mb-4 border border-[#d4af37]/30">
-              <Shield className="text-[#d4af37] w-8 h-8" />
-            </div>
-            <h1 className="text-3xl font-serif uppercase tracking-[0.2em] text-[#ece2d0]">Accès Bureau</h1>
-            <p className="text-[#9c8278] font-serif italic text-sm mt-2">Zone restreinte - Membres du Bureau 2026</p>
-          </div>
-
-          <form onSubmit={handleLogin} className="space-y-6">
-            <div className="space-y-2 group">
-              <label className="text-xs uppercase tracking-widest text-[#9c8278] group-focus-within:text-[#d4af37] transition-colors font-serif">Identifiant</label>
-              <input 
-                type="text" 
-                required
-                className="w-full bg-black/50 border border-[#5c2312] focus:border-[#d4af37] px-4 py-3 text-[#ece2d0] outline-none transition-all font-serif"
-                onChange={(e) => setCredentials({ ...credentials, username: e.target.value })}
-              />
-            </div>
-
-            <div className="space-y-2 group">
-              <label className="text-xs uppercase tracking-widest text-[#9c8278] group-focus-within:text-[#d4af37] transition-colors font-serif">Mot de passe</label>
-              <div className="relative">
-                <input 
-                  type="password" 
-                  required
-                  className="w-full bg-black/50 border border-[#5c2312] focus:border-[#d4af37] px-4 py-3 text-[#ece2d0] outline-none transition-all font-serif pr-10"
-                  onChange={(e) => setCredentials({ ...credentials, password: e.target.value })}
-                />
-                <Lock className="absolute right-3 top-1/2 -translate-y-1/2 w-4 h-4 text-[#5c2312]" />
-              </div>
-            </div>
-
-            {error && (
-              <motion.p initial={{ opacity: 0 }} animate={{ opacity: 1 }} className="text-red-500 text-xs font-serif italic text-center">
-                {error}
-              </motion.p>
-            )}
-
-            <button 
-              type="submit"
-              className="w-full py-4 bg-[#3d160b] text-[#d4af37] text-sm font-serif tracking-[0.2em] uppercase hover:bg-[#d4af37] hover:text-[#1c0804] transition-all duration-300 border border-[#d4af37]/30"
-            >
-              Entrer dans la Cour
-            </button>
-          </form>
-
-          <div className="mt-8 text-center pt-6 border-t border-[#d4af37]/10">
-            <Link href="/" className="text-[#9c8278] hover:text-[#ece2d0] text-xs font-serif transition-colors tracking-widest uppercase">
-              ← Retour au site public
-            </Link>
+        <div className="flex justify-center mb-8">
+          <div className="p-4 bg-primary/20 border border-primary/30 rounded-full">
+            <Lock className="w-8 h-8 text-primary" />
           </div>
         </div>
+
+        <h1 className="text-2xl font-serif text-center mb-2 tracking-widest uppercase">Espace Admin</h1>
+        <p className="text-center text-white/50 text-sm mb-8 font-light">
+          Veuillez vous identifier pour gérer la boutique.
+        </p>
+
+        {error && (
+          <div className="mb-6 p-3 bg-red-500/10 border border-red-500/30 rounded-lg text-red-400 text-sm text-center">
+            {error}
+          </div>
+        )}
+
+        <form onSubmit={handleLogin} className="space-y-4">
+          <div>
+            <label className="block text-xs font-mono uppercase tracking-widest text-white/50 mb-2">Nom d'utilisateur</label>
+            <input
+              type="text"
+              value={username}
+              onChange={(e) => setUsername(e.target.value)}
+              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all"
+              placeholder="Ex: admin"
+              required
+            />
+          </div>
+          <div>
+            <label className="block text-xs font-mono uppercase tracking-widest text-white/50 mb-2">Mot de passe</label>
+            <input
+              type="password"
+              value={password}
+              onChange={(e) => setPassword(e.target.value)}
+              className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary/50 focus:ring-1 focus:ring-primary/50 transition-all"
+              placeholder="••••••••"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            disabled={isLoading}
+            className="w-full bg-primary hover:bg-primary/90 text-white font-medium py-3 rounded-xl transition-all flex items-center justify-center gap-2 mt-8 disabled:opacity-50 disabled:cursor-not-allowed"
+          >
+            {isLoading ? <Loader2 className="w-5 h-5 animate-spin" /> : (
+              <>
+                Se connecter <ArrowRight className="w-4 h-4" />
+              </>
+            )}
+          </button>
+        </form>
       </motion.div>
-    </main>
+    </div>
   );
 }

@@ -1,9 +1,11 @@
 "use client";
-import { motion } from "framer-motion";
+import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import { Zap, Heart, Star, Target, Users, Rocket, Globe, Lightbulb } from "lucide-react";
-import { useRef } from "react";
+import { useRef, useState } from "react";
 import Footer from "@/components/Footer";
+import Link from "next/link";
+import Image from "next/image";
 import clsx from "clsx";
 
 const values = [
@@ -56,12 +58,7 @@ const team = [
 ];
 
 export default function About() {
-    const valueRefs = useRef({});
-
-    const scrollToValue = (id: string) => {
-        const refs = valueRefs.current as Record<string, HTMLDivElement | null>;
-        refs[id]?.scrollIntoView({ behavior: "smooth", block: "center" });
-    };
+    const [expandedValue, setExpandedValue] = useState<string | null>(null);
 
     return (
         <main className="min-h-screen bg-background text-foreground pb-20 relative overflow-hidden">
@@ -130,49 +127,53 @@ export default function About() {
                         </motion.div>
                     </div>
 
-                    {/* Interactive Values Buttons */}
+                    {/* Interactive Values Accordion */}
                     <div className="mb-32">
                         <h2 className="text-2xl sm:text-3xl md:text-5xl font-light text-center mb-16 text-glow uppercase tracking-[0.15em] italic">NOS VALEURS</h2>
-                        <div className="grid grid-cols-2 md:grid-cols-5 gap-4 mb-20">
-                            {values.map((val, idx) => (
-                                <motion.button
-                                    key={idx}
-                                    onClick={() => scrollToValue(val.id)}
-                                    whileHover={{ y: -5, scale: 1.05 }}
-                                    whileTap={{ scale: 0.95 }}
-                                    className="glass p-4 sm:p-6 rounded-2xl flex flex-col items-center justify-center gap-4 border border-white/5 hover:border-primary/50 transition-all group"
-                                >
-                                    <div className={`p-3 sm:p-4 rounded-xl bg-white/5 group-hover:scale-110 transition-transform ${val.color}`}>
-                                        <val.icon className="w-6 h-6 sm:w-8 sm:h-8" />
-                                    </div>
-                                    <span className="font-light text-gray-200 text-[9px] md:text-xs tracking-[0.2em] uppercase text-center">{val.label}</span>
-                                </motion.button>
-                            ))}
-                        </div>
-
-                        {/* Values Detailed Explanations */}
-                        <div className="space-y-8">
-                            {values.map((val) => (
-                                <motion.div
-                                    key={val.id}
-                                    ref={(el) => {
-                                        const refs = valueRefs.current as Record<string, HTMLDivElement | null>;
-                                        refs[val.id] = el;
-                                    }}
-                                    initial={{ opacity: 0, y: 30 }}
-                                    whileInView={{ opacity: 1, y: 0 }}
-                                    viewport={{ once: true }}
-                                    className="glass p-6 sm:p-10 rounded-[2rem] sm:rounded-[2.5rem] border border-white/5 relative group"
-                                >
-                                    <div className={`mb-6 flex items-center gap-4 ${val.color}`}>
-                                        <val.icon className="w-8 h-8 sm:w-10 sm:h-10" />
-                                        <h3 className="text-lg sm:text-xl font-light uppercase tracking-[0.1em] italic">{val.label}</h3>
-                                    </div>
-                                    <p className="text-gray-400 text-base sm:text-lg leading-relaxed font-medium">
-                                        {val.desc}
-                                    </p>
-                                </motion.div>
-                            ))}
+                        <div className="flex flex-col gap-6 max-w-4xl mx-auto">
+                            {values.map((val, idx) => {
+                                const isExpanded = expandedValue === val.id;
+                                return (
+                                    <motion.div
+                                        key={idx}
+                                        layout
+                                        onClick={() => setExpandedValue(isExpanded ? null : val.id)}
+                                        className="glass rounded-2xl border border-white/5 overflow-hidden group cursor-pointer hover:border-primary/50 transition-colors"
+                                    >
+                                        <div className="p-6 flex flex-col items-center justify-center gap-4 text-center">
+                                            <div className={`p-4 rounded-xl bg-white/5 group-hover:scale-110 transition-transform ${val.color}`}>
+                                                <val.icon className="w-8 h-8" />
+                                            </div>
+                                            <span className="font-light text-gray-200 text-lg tracking-[0.2em] uppercase">
+                                                {val.label}
+                                            </span>
+                                            
+                                            {/* Expand Icon Indicator */}
+                                            <div className="mt-2 w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-gray-400 group-hover:text-white group-hover:border-white/30 transition-all">
+                                                <motion.span animate={{ rotate: isExpanded ? 180 : 0 }}>
+                                                    ▼
+                                                </motion.span>
+                                            </div>
+                                        </div>
+                                        
+                                        <AnimatePresence>
+                                            {isExpanded && (
+                                                <motion.div
+                                                    initial={{ height: 0, opacity: 0 }}
+                                                    animate={{ height: "auto", opacity: 1 }}
+                                                    exit={{ height: 0, opacity: 0 }}
+                                                    className="px-6 pb-8"
+                                                >
+                                                    <div className="w-full max-w-lg mx-auto h-px bg-white/10 mb-6" />
+                                                    <p className="text-gray-400 text-base sm:text-lg leading-relaxed font-light text-center max-w-3xl mx-auto">
+                                                        {val.desc}
+                                                    </p>
+                                                </motion.div>
+                                            )}
+                                        </AnimatePresence>
+                                    </motion.div>
+                                );
+                            })}
                         </div>
                     </div>
 
@@ -213,6 +214,49 @@ export default function About() {
                                     </p>
                                 </motion.div>
                             ))}
+                        </div>
+                    </div>
+                    
+                    {/* Projects Section */}
+                    <div className="mb-32 mt-32">
+                        <div className="text-center mb-16">
+                            <h2 className="text-3xl sm:text-4xl md:text-6xl font-thin text-wave uppercase tracking-[0.1em] italic mb-4">NOS PROJETS</h2>
+                            <p className="text-gray-500 font-mono tracking-[0.3em] uppercase text-xs">Les initiatives qui font la différence</p>
+                        </div>
+
+                        <div className="max-w-4xl mx-auto">
+                            <Link href="/projets/tribunal" className="block group">
+                                <motion.div
+                                    initial={{ opacity: 0, y: 50 }}
+                                    whileInView={{ opacity: 1, y: 0 }}
+                                    viewport={{ once: true }}
+                                    whileHover={{ scale: 1.02 }}
+                                    transition={{ duration: 0.5 }}
+                                    className="glass rounded-[2rem] overflow-hidden border border-white/10 group-hover:border-[#d4af37]/50 transition-colors flex flex-col md:flex-row relative bg-[#050505]/80"
+                                >
+                                    <div className="w-full md:w-2/5 aspect-[3/4] md:aspect-auto md:h-[450px] relative z-0 bg-[#120805]">
+                                        <Image 
+                                            src="/affiche-tribunal.png" 
+                                            alt="Affiche Tribunal de l'entrepreneuriat" 
+                                            fill 
+                                            className="object-contain p-4 group-hover:scale-105 group-hover:brightness-110 transition-all duration-700"
+                                        />
+                                    </div>
+
+                                    <div className="w-full md:w-3/5 p-8 md:p-12 flex flex-col justify-center relative z-20">
+                                        <h3 className="text-2xl md:text-4xl font-serif text-[#ece2d0] uppercase tracking-[0.1em] leading-tight mb-4 drop-shadow-md">
+                                            LE GRAND TRIBUNAL DE<br/><span className="text-[#d4af37]">L&apos;ENTREPRENEURIAT</span>
+                                        </h3>
+                                        <p className="text-[#cbb0a5] text-sm md:text-base leading-relaxed font-light mb-8">
+                                            Le procès spectaculaire qui remet en question le mythe de l'entrepreneuriat à l'IHEC Carthage. Un événement unique, récompensé "Meilleur Événement 2026".
+                                        </p>
+                                        <div className="inline-flex items-center gap-2 text-[#d4af37] font-serif uppercase tracking-widest text-xs group-hover:text-white transition-colors">
+                                            <span>Découvrir l'événement</span>
+                                            <span className="group-hover:translate-x-2 transition-transform">→</span>
+                                        </div>
+                                    </div>
+                                </motion.div>
+                            </Link>
                         </div>
                     </div>
                 </div>
