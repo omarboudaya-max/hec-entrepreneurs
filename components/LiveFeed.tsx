@@ -27,14 +27,14 @@ function timeAgo(timestamp: any) {
 
 export default function LiveFeed() {
     const [isOpen, setIsOpen] = useState(false);
-    const [messages, setMessages] = useState([]);
+    const [messages, setMessages] = useState<any[]>([]);
     const [input, setInput] = useState("");
-    const [replyTo, setReplyTo] = useState(null);
+    const [replyTo, setReplyTo] = useState<any>(null);
     const [username, setUsername] = useState("");
     const [askingName, setAskingName] = useState(false);
     const [pendingMessage, setPendingMessage] = useState("");
     const [isSending, setIsSending] = useState(false);
-    const messagesEndRef = useRef(null);
+    const messagesEndRef = useRef<HTMLDivElement>(null);
 
     // Load saved username
     useEffect(() => {
@@ -56,7 +56,7 @@ export default function LiveFeed() {
         if (isOpen) messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, isOpen]);
 
-    const sendMessage = async (name, content, replyTarget) => {
+    const sendMessage = async (name: string, content: string, replyTarget: any) => {
         if (!content.trim() || isSending) return;
         setIsSending(true);
         try {
@@ -78,7 +78,7 @@ export default function LiveFeed() {
         }
     };
 
-    const handleSubmit = (e) => {
+    const handleSubmit = (e: React.FormEvent) => {
         e.preventDefault();
         if (!input.trim()) return;
 
@@ -93,7 +93,7 @@ export default function LiveFeed() {
         setReplyTo(null);
     };
 
-    const handleNameSubmit = (e) => {
+    const handleNameSubmit = (e: any) => {
         e.preventDefault();
         const name = e.target.name.value.trim();
         if (!name) return;
@@ -169,7 +169,7 @@ export default function LiveFeed() {
                                     <p className="text-gray-500 text-sm">Soyez le premier à écrire !</p>
                                 </div>
                             )}
-                            {messages.map((msg) => (
+                            {messages.map((msg: any) => (
                                 <div key={msg.id} className="space-y-3">
                                     <div className="flex items-start gap-3 group">
                                         <div className="w-8 h-8 rounded-lg bg-white/5 border border-white/10 flex items-center justify-center text-secondary flex-shrink-0">
@@ -191,7 +191,7 @@ export default function LiveFeed() {
                                     </div>
 
                                     {/* Replies */}
-                                    {msg.replies?.map((reply, idx) => (
+                                    {msg.replies?.map((reply: any, idx: number) => (
                                         <div key={idx} className="ml-11 flex items-start gap-3 border-l-2 border-white/5 pl-4">
                                             <div className="flex-1">
                                                 <div className="flex items-center gap-2 mb-1">
