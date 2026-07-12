@@ -22,7 +22,10 @@ export async function POST(request: Request) {
       );
     }
 
-    if (username === 'hecentrepreneurs8' && password === 'bestevent2026') {
+    const validUsername = process.env.ADMIN_USERNAME || 'hecentrepreneurs8';
+    const validPassword = process.env.ADMIN_PASSWORD || 'bestevent2026';
+
+    if (username === validUsername && password === validPassword) {
       // Success! Clear attempts and set cookie
       attempts.delete(clientIdentifier);
       
