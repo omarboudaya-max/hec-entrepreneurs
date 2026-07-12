@@ -16,7 +16,7 @@ import {
     arrayUnion,
 } from "firebase/firestore";
 
-function timeAgo(timestamp) {
+function timeAgo(timestamp: any) {
     if (!timestamp) return "À l'instant";
     const seconds = Math.floor((Date.now() - timestamp.toMillis()) / 1000);
     if (seconds < 60) return "À l'instant";
