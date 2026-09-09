@@ -2,7 +2,7 @@
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
-import { ShoppingBag, Search, Filter, ShoppingCart, Plus, Pencil, Trash2, LogOut } from "lucide-react";
+import { ShoppingBag, Search, Filter, ShoppingCart, Plus, Pencil, Trash2, LogOut, Loader2 } from "lucide-react";
 import { useCartStore, Product } from "@/store/cartStore";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
@@ -143,88 +143,93 @@ export default function StorePage() {
 
       {/* Products Grid */}
       <section className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
-          {filteredProducts.map((product, idx) => (
-            <Link href={`/store/product/${product.id}`} key={product.id}>
-              <motion.div
-                initial={{ opacity: 0, scale: 0.95 }}
-                animate={{ opacity: 1, scale: 1 }}
-                transition={{ delay: idx * 0.1 }}
-                className="glass rounded-3xl overflow-hidden border border-white/10 hover:border-primary/50 transition-colors group flex flex-col h-full bg-black/20"
-              >
-                {/* Product Image */}
-                <div className="relative aspect-[4/5] bg-black/50 overflow-hidden border-b border-white/5">
-                  {product.discount_price && (
-                    <div className="absolute top-4 right-4 z-10 bg-red-500/90 backdrop-blur text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-red-400/50">
-                      Promo
-                    </div>
-                  )}
-                  
-                  {isAdmin && (
-                    <div className="absolute top-4 left-4 z-20 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                      <button 
-                        onClick={(e) => { 
-                          e.preventDefault(); 
-                          e.stopPropagation(); 
-                          router.push(`/admin/store/product/edit/${product.id}`);
-                        }}
-                        className="p-2 bg-black/60 backdrop-blur border border-white/20 text-white rounded-full hover:bg-primary hover:border-primary transition-colors" title="Modifier">
-                        <Pencil className="w-4 h-4" />
-                      </button>
-                      <button 
-                        onClick={(e) => handleDelete(e, product.id)}
-                        className="p-2 bg-black/60 backdrop-blur border border-white/20 text-white rounded-full hover:bg-red-500 hover:border-red-500 transition-colors" title="Supprimer">
-                        <Trash2 className="w-4 h-4" />
-                      </button>
-                    </div>
-                  )}
-                  <ProductCardImage product={product} />
-                </div>
-
-                {/* Product Info */}
-                <div className="p-6 flex flex-col flex-grow">
-                  <div className="text-xs font-medium text-primary mb-2 uppercase tracking-widest">
-                    {product.category}
-                  </div>
-                  <h3 className="text-lg font-serif text-foreground mb-2 line-clamp-2">
-                    {product.name}
-                  </h3>
-                  <p className="text-sm text-foreground/60 font-light mb-6 flex-grow line-clamp-2">
-                    {product.description}
-                  </p>
-                  
-                  <div className="flex items-end justify-between mt-auto">
-                    <div>
-                      {product.discount_price ? (
-                        <div className="flex flex-col">
-                          <span className="text-sm text-white/30 line-through">{product.price.toFixed(2)} TND</span>
-                          <span className="text-2xl font-bold text-foreground">{product.discount_price.toFixed(2)} TND</span>
-                        </div>
-                      ) : (
-                        <span className="text-2xl font-bold text-foreground">{product.price.toFixed(2)} TND</span>
-                      )}
-                    </div>
-                    <button
-                      onClick={(e) => {
-                        e.preventDefault();
-                        e.stopPropagation();
-                        addItem(product);
-                      }}
-                      className="p-3 bg-white/5 border border-white/10 text-foreground rounded-2xl hover:bg-primary hover:border-primary hover:text-white transition-all shadow-md active:scale-95 z-20 relative"
-                      title="Ajouter au panier"
-                    >
-                      <ShoppingCart className="w-5 h-5" />
-                    </button>
-                  </div>
-                </div>
-              </motion.div>
-            </Link>
-          ))}
-        </div>
-        
-        {filteredProducts.length === 0 && (
+        {isLoading ? (
+          <div className="text-center py-24 flex flex-col items-center justify-center">
+            <Loader2 className="w-10 h-10 text-primary animate-spin mb-4" />
+            <h3 className="text-lg text-foreground/80 font-light tracking-[0.2em] uppercase animate-pulse">Chargement des produits...</h3>
+          </div>
+        ) : filteredProducts.length === 0 ? (
           <div className="text-center py-20">
             <h3 className="text-xl text-foreground/50 font-light tracking-widest uppercase">Aucun produit trouvé.</h3>
+          </div>
+        ) : (
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-8">
+            {filteredProducts.map((product, idx) => (
+              <Link href={`/store/product/${product.id}`} key={product.id}>
+                <motion.div
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  transition={{ delay: idx * 0.1 }}
+                  className="glass rounded-3xl overflow-hidden border border-white/10 hover:border-primary/50 transition-colors group flex flex-col h-full bg-black/20"
+                >
+                  {/* Product Image */}
+                  <div className="relative aspect-[4/5] bg-black/50 overflow-hidden border-b border-white/5">
+                    {product.discount_price && (
+                      <div className="absolute top-4 right-4 z-10 bg-red-500/90 backdrop-blur text-white text-xs font-bold px-3 py-1 rounded-full uppercase tracking-wider border border-red-400/50">
+                        Promo
+                      </div>
+                    )}
+                    
+                    {isAdmin && (
+                      <div className="absolute top-4 left-4 z-20 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
+                        <button 
+                          onClick={(e) => { 
+                            e.preventDefault(); 
+                            e.stopPropagation(); 
+                            router.push(`/admin/store/product/edit/${product.id}`);
+                          }}
+                          className="p-2 bg-black/60 backdrop-blur border border-white/20 text-white rounded-full hover:bg-primary hover:border-primary transition-colors" title="Modifier">
+                          <Pencil className="w-4 h-4" />
+                        </button>
+                        <button 
+                          onClick={(e) => handleDelete(e, product.id)}
+                          className="p-2 bg-black/60 backdrop-blur border border-white/20 text-white rounded-full hover:bg-red-500 hover:border-red-500 transition-colors" title="Supprimer">
+                          <Trash2 className="w-4 h-4" />
+                        </button>
+                      </div>
+                    )}
+                    <ProductCardImage product={product} />
+                  </div>
+
+                  {/* Product Info */}
+                  <div className="p-6 flex flex-col flex-grow">
+                    <div className="text-xs font-medium text-primary mb-2 uppercase tracking-widest">
+                      {product.category}
+                    </div>
+                    <h3 className="text-lg font-serif text-foreground mb-2 line-clamp-2">
+                      {product.name}
+                    </h3>
+                    <p className="text-sm text-foreground/60 font-light mb-6 flex-grow line-clamp-2">
+                      {product.description}
+                    </p>
+                    
+                    <div className="flex items-end justify-between mt-auto">
+                      <div>
+                        {product.discount_price ? (
+                          <div className="flex flex-col">
+                            <span className="text-sm text-white/30 line-through">{product.price.toFixed(2)} TND</span>
+                            <span className="text-2xl font-bold text-foreground">{product.discount_price.toFixed(2)} TND</span>
+                          </div>
+                        ) : (
+                          <span className="text-2xl font-bold text-foreground">{product.price.toFixed(2)} TND</span>
+                        )}
+                      </div>
+                      <button
+                        onClick={(e) => {
+                          e.preventDefault();
+                          e.stopPropagation();
+                          addItem(product);
+                        }}
+                        className="p-3 bg-white/5 border border-white/10 text-foreground rounded-2xl hover:bg-primary hover:border-primary hover:text-white transition-all shadow-md active:scale-95 z-20 relative"
+                        title="Ajouter au panier"
+                      >
+                        <ShoppingCart className="w-5 h-5" />
+                      </button>
+                    </div>
+                  </div>
+                </motion.div>
+              </Link>
+            ))}
           </div>
         )}
       </section>
