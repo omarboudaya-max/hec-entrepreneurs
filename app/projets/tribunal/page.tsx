@@ -154,7 +154,7 @@ export default function TribunalPage() {
                                 transition={{ delay: idx * 0.1 }}
                                 className={`relative group overflow-hidden rounded-xl bg-[#1a0c07] border border-[#d4af37]/10 aspect-square ${idx === 0 || idx === 3 ? 'md:col-span-2 md:aspect-[2/1]' : ''}`}
                             >
-                                <Image src={`/gallery-tribunal-${item}.png`} alt={`Souvenir ${item}`} fill className="object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" />
+                                <Image src={`/gallery-tribunal-${item}.${(item === 4 || item === 6) ? 'jpg' : 'png'}`} alt={`Souvenir ${item}`} fill className="object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" />
                             </motion.div>
                         ))}
                     </div>
