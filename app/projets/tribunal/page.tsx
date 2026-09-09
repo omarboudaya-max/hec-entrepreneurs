@@ -145,14 +145,7 @@ export default function TribunalPage() {
                     </motion.div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-                        {[
-                          "/gallery-tribunal-1.png",
-                          "/gallery-tribunal-2.png",
-                          "/gallery-tribunal-3.png",
-                          "/gallery-tribunal-4.jpg",
-                          "/gallery-tribunal-5.png",
-                          "/gallery-tribunal-6.JPG",
-                        ].map((src, idx) => (
+                        {[1, 2, 3, 4, 5, 6].map((item, idx) => (
                             <motion.div
                                 key={idx}
                                 initial={{ opacity: 0, scale: 0.9 }}
@@ -161,7 +154,7 @@ export default function TribunalPage() {
                                 transition={{ delay: idx * 0.1 }}
                                 className={`relative group overflow-hidden rounded-xl bg-[#1a0c07] border border-[#d4af37]/10 aspect-square ${idx === 0 || idx === 3 ? 'md:col-span-2 md:aspect-[2/1]' : ''}`}
                             >
-                                <Image src={src} alt={`Souvenir ${idx + 1}`} fill className="object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" />
+                                <Image src={`/gallery-tribunal-${item}.png`} alt={`Souvenir ${item}`} fill className="object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" />
                             </motion.div>
                         ))}
                     </div>
