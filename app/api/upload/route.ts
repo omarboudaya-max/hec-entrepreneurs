@@ -24,15 +24,23 @@ export async function POST(request: Request) {
     const fileExt = file.name.split('.').pop();
     const fileName = `${uuidv4()}.${fileExt}`;
 
+    // Convert file to Buffer for Node.js server environment upload
+    const bytes = await file.arrayBuffer();
+    const buffer = Buffer.from(bytes);
+
     // Upload to Supabase Storage
     const { data, error } = await supabaseAdmin.storage
       .from("products")
-      .upload(fileName, file, {
+      .upload(fileName, buffer, {
+        contentType: file.type || "image/jpeg",
         cacheControl: "3600",
         upsert: false,
       });
 
-    if (error) throw error;
+    if (error) {
+      console.error("Supabase Storage upload error:", error);
+      return NextResponse.json({ error: error.message || "Erreur Supabase Storage" }, { status: 500 });
+    }
 
     // Get public URL
     const { data: publicUrlData } = supabaseAdmin.storage

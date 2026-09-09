@@ -53,7 +53,7 @@ export default function AdminDashboardPage() {
   const totalRevenue = orders.filter(o => o.status === 'served').reduce((acc, o) => acc + o.total_amount, 0);
 
   return (
-    <div className="bg-background min-h-screen pb-20 pt-24 text-foreground">
+    <div className="pb-20 pt-6">
       <div className="container mx-auto px-4 max-w-6xl">
         <Link href="/store" className="inline-flex items-center gap-2 text-foreground/60 hover:text-white transition-colors mb-8">
           <ArrowLeft className="w-4 h-4" /> Retour à la boutique
