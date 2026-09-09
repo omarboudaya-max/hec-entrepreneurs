@@ -4,7 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
 import { motion } from "framer-motion";
-import { ArrowLeft, CreditCard, ShoppingCart, Loader2, Save, Trash2, Edit3, X, ShieldCheck, Truck } from "lucide-react";
+import { ArrowLeft, CreditCard, ShoppingCart, Loader2, Save, Trash2, Edit3, X, ShieldCheck, Truck, ChevronLeft, ChevronRight } from "lucide-react";
 import { useCartStore, Product } from "@/store/cartStore";
 
 export default function ProductDetailsPage({ params }: { params: Promise<{ id: string }> }) {
@@ -19,9 +19,23 @@ export default function ProductDetailsPage({ params }: { params: Promise<{ id: s
   const [isUploading, setIsUploading] = useState(false);
   const [selectedSize, setSelectedSize] = useState<string>("");
   const [sizeInput, setSizeInput] = useState("");
+  const [currentImageIndex, setCurrentImageIndex] = useState(0);
 
   // Editable fields state
   const [formData, setFormData] = useState<Partial<Product>>({});
+
+  const imagesList: string[] = formData.images && formData.images.length > 0 
+    ? formData.images 
+    : (formData.image_url ? [formData.image_url] : []);
+
+  // Automatic slideshow rotation every 3.5 seconds
+  useEffect(() => {
+    if (imagesList.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentImageIndex((prev) => (prev + 1) % imagesList.length);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [imagesList.length]);
 
   useEffect(() => {
     fetch("/api/auth/session")
@@ -76,31 +90,57 @@ export default function ProductDetailsPage({ params }: { params: Promise<{ id: s
     }
   };
 
+  const handleRemoveImage = (indexToRemove: number) => {
+    const updatedImages = imagesList.filter((_, idx) => idx !== indexToRemove);
+    setFormData({
+      ...formData,
+      image_url: updatedImages[0] || "",
+      images: updatedImages,
+    });
+    if (currentImageIndex >= updatedImages.length) {
+      setCurrentImageIndex(Math.max(0, updatedImages.length - 1));
+    }
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
     setIsUploading(true);
-    const uploadData = new FormData();
-    uploadData.append("file", file);
+    const newUrls: string[] = [];
 
     try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: uploadData,
-      });
+      for (let i = 0; i < files.length; i++) {
+        const uploadData = new FormData();
+        uploadData.append("file", files[i]);
 
-      if (res.ok) {
-        const data = await res.json();
-        setFormData({ ...formData, image_url: data.url });
-      } else {
-        const errorData = await res.json();
-        alert("Erreur d'upload: " + errorData.error);
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: uploadData,
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          newUrls.push(data.url);
+        } else {
+          const errorData = await res.json();
+          alert("Erreur d'upload: " + errorData.error);
+        }
+      }
+
+      if (newUrls.length > 0) {
+        const updated = [...imagesList, ...newUrls];
+        setFormData({
+          ...formData,
+          image_url: updated[0],
+          images: updated,
+        });
       }
     } catch (error) {
       alert("Erreur réseau lors de l'upload");
     } finally {
       setIsUploading(false);
+      e.target.value = "";
     }
   };
 
@@ -149,39 +189,106 @@ export default function ProductDetailsPage({ params }: { params: Promise<{ id: s
         </div>
 
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 lg:gap-20">
-          {/* Image Section */}
-          <motion.div 
-            initial={{ opacity: 0, x: -20 }}
-            animate={{ opacity: 1, x: 0 }}
-            className="relative aspect-[4/5] rounded-3xl overflow-hidden glass border border-white/10 shadow-2xl flex flex-col"
-          >
-            {formData.discount_price && formData.discount_price > 0 && (
-              <div className="absolute top-6 right-6 z-10 bg-red-500/90 backdrop-blur text-white text-sm font-bold px-4 py-1.5 rounded-full uppercase tracking-wider border border-red-400/50">
-                Promo
+          {/* Image Section with Automated Slideshow */}
+          <div className="flex flex-col gap-4">
+            <motion.div 
+              initial={{ opacity: 0, x: -20 }}
+              animate={{ opacity: 1, x: 0 }}
+              className="relative aspect-[4/5] rounded-3xl overflow-hidden glass border border-white/10 shadow-2xl flex flex-col group"
+            >
+              {formData.discount_price && formData.discount_price > 0 && (
+                <div className="absolute top-6 right-6 z-10 bg-red-500/90 backdrop-blur text-white text-sm font-bold px-4 py-1.5 rounded-full uppercase tracking-wider border border-red-400/50">
+                  Promo
+                </div>
+              )}
+              <div className="relative flex-grow w-full">
+                <Image
+                  key={currentImageIndex}
+                  src={imagesList[currentImageIndex] || formData.image_url || "/placeholder.jpg"}
+                  alt={formData.name || "Product"}
+                  fill
+                  className="object-cover transition-all duration-500"
+                  priority
+                />
+              </div>
+
+              {/* Navigation Arrows */}
+              {imagesList.length > 1 && (
+                <>
+                  <button 
+                    onClick={() => setCurrentImageIndex((prev) => (prev - 1 + imagesList.length) % imagesList.length)}
+                    className="absolute left-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-black/80 transition-all opacity-0 group-hover:opacity-100 z-10"
+                  >
+                    <ChevronLeft className="w-5 h-5" />
+                  </button>
+                  <button 
+                    onClick={() => setCurrentImageIndex((prev) => (prev + 1) % imagesList.length)}
+                    className="absolute right-3 top-1/2 -translate-y-1/2 p-2 rounded-full bg-black/50 text-white hover:bg-black/80 transition-all opacity-0 group-hover:opacity-100 z-10"
+                  >
+                    <ChevronRight className="w-5 h-5" />
+                  </button>
+                </>
+              )}
+
+              {/* Indicator Dots */}
+              {imagesList.length > 1 && (
+                <div className="absolute bottom-4 left-1/2 -translate-x-1/2 flex gap-1.5 z-10">
+                  {imagesList.map((_, idx) => (
+                    <button
+                      key={idx}
+                      onClick={() => setCurrentImageIndex(idx)}
+                      className={`w-2 h-2 rounded-full transition-all ${
+                        idx === currentImageIndex ? "bg-primary w-5" : "bg-white/50"
+                      }`}
+                    />
+                  ))}
+                </div>
+              )}
+            </motion.div>
+
+            {/* Thumbnail Gallery Strip */}
+            {imagesList.length > 0 && (
+              <div className="flex items-center gap-3 overflow-x-auto pb-2">
+                {imagesList.map((url, idx) => (
+                  <div 
+                    key={idx} 
+                    onClick={() => setCurrentImageIndex(idx)}
+                    className={`relative w-20 h-24 flex-shrink-0 rounded-xl overflow-hidden border-2 cursor-pointer transition-all ${
+                      idx === currentImageIndex ? "border-primary scale-105" : "border-white/10 opacity-60 hover:opacity-100"
+                    }`}
+                  >
+                    <img src={url} alt={`Aperçu ${idx + 1}`} className="w-full h-full object-cover" />
+                    {isAdmin && (
+                      <button
+                        type="button"
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          handleRemoveImage(idx);
+                        }}
+                        className="absolute top-1 right-1 p-1 bg-black/80 text-white rounded-full hover:bg-red-600 transition-all z-20"
+                      >
+                        <X className="w-3 h-3" />
+                      </button>
+                    )}
+                  </div>
+                ))}
               </div>
             )}
-            <div className="relative flex-grow w-full">
-              <Image
-                src={formData.image_url || "/placeholder.jpg"}
-                alt={formData.name || "Product"}
-                fill
-                className="object-cover"
-                priority
-              />
-            </div>
+
             {isAdmin && (
-              <div className="p-4 bg-black/80 backdrop-blur">
-                <label className="text-xs text-white/50 block mb-2">Modifier l'image</label>
+              <div className="p-4 bg-black/80 backdrop-blur rounded-2xl border border-white/10">
+                <label className="text-xs text-white/50 block mb-2">Ajouter des photos au produit (Sélection multiple)</label>
                 <input 
                   type="file" 
                   accept="image/*" 
+                  multiple
                   onChange={handleFileUpload} 
                   className="w-full text-sm text-white file:mr-4 file:py-1.5 file:px-3 file:rounded-full file:border-0 file:text-xs file:font-semibold file:bg-primary/20 file:text-primary hover:file:bg-primary/30" 
                 />
                 {isUploading && <span className="text-xs text-primary animate-pulse mt-2 block">Upload en cours...</span>}
               </div>
             )}
-          </motion.div>
+          </div>
 
           {/* Details Section */}
           <motion.div 

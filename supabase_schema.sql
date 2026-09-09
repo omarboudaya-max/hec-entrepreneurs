@@ -26,6 +26,7 @@ CREATE TABLE public.products (
   is_available BOOLEAN DEFAULT true,
   status TEXT DEFAULT 'available' CHECK (status IN ('available', 'out_of_stock', 'on_order')),
   image_url TEXT,
+  images TEXT[] DEFAULT '{}',
   category TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );

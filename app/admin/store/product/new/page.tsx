@@ -10,6 +10,7 @@ export default function NewProductPage() {
   const [isUploading, setIsUploading] = useState(false);
   const [sizeInput, setSizeInput] = useState("");
   const [sizesList, setSizesList] = useState<string[]>([]);
+  const [imagesList, setImagesList] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     name: "",
     description: "",
@@ -28,6 +29,8 @@ export default function NewProductPage() {
     try {
       const dataToSubmit = {
         ...formData,
+        image_url: imagesList[0] || formData.image_url || "",
+        images: imagesList,
         discount_price: formData.discount_price > 0 ? formData.discount_price : null,
         sizes: sizesList
       };
@@ -63,31 +66,55 @@ export default function NewProductPage() {
     setSizesList(sizesList.filter(s => s !== sizeToRemove));
   };
 
+  const handleRemoveImage = (indexToRemove: number) => {
+    const updated = imagesList.filter((_, idx) => idx !== indexToRemove);
+    setImagesList(updated);
+    setFormData({
+      ...formData,
+      image_url: updated[0] || ""
+    });
+  };
+
   const handleFileUpload = async (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+    const files = e.target.files;
+    if (!files || files.length === 0) return;
 
     setIsUploading(true);
-    const uploadData = new FormData();
-    uploadData.append("file", file);
+    const newUploadedUrls: string[] = [];
 
     try {
-      const res = await fetch("/api/upload", {
-        method: "POST",
-        body: uploadData,
-      });
+      for (let i = 0; i < files.length; i++) {
+        const uploadData = new FormData();
+        uploadData.append("file", files[i]);
 
-      if (res.ok) {
-        const data = await res.json();
-        setFormData({ ...formData, image_url: data.url });
-      } else {
-        const errorData = await res.json();
-        alert("Erreur d'upload: " + errorData.error);
+        const res = await fetch("/api/upload", {
+          method: "POST",
+          body: uploadData,
+        });
+
+        if (res.ok) {
+          const data = await res.json();
+          newUploadedUrls.push(data.url);
+        } else {
+          const errorData = await res.json();
+          alert(`Erreur d'upload pour le fichier ${files[i].name}: ${errorData.error}`);
+        }
+      }
+
+      if (newUploadedUrls.length > 0) {
+        const updatedImages = [...imagesList, ...newUploadedUrls];
+        setImagesList(updatedImages);
+        setFormData(prev => ({
+          ...prev,
+          image_url: updatedImages[0]
+        }));
       }
     } catch (error) {
       alert("Erreur réseau lors de l'upload");
     } finally {
       setIsUploading(false);
+      // Reset input value to allow selecting same file again if needed
+      e.target.value = "";
     }
   };
 
@@ -168,23 +195,44 @@ export default function NewProductPage() {
             </div>
           </div>
           <div>
-            <label className="block text-sm text-foreground/70 mb-2">Image du produit</label>
+            <label className="block text-sm text-foreground/70 mb-2">Photos du produit (Vous pouvez en ajouter plusieurs)</label>
             <div className="flex flex-col gap-4">
               <input 
                 type="file" 
-                accept="image/*" 
+                accept="image/*"
+                multiple
                 onChange={handleFileUpload} 
                 className="w-full bg-black/40 border border-white/10 rounded-xl px-4 py-3 text-white focus:outline-none focus:border-primary/50 file:mr-4 file:py-2 file:px-4 file:rounded-full file:border-0 file:text-sm file:font-semibold file:bg-primary/20 file:text-primary hover:file:bg-primary/30" 
               />
-              {isUploading && <span className="text-sm text-primary animate-pulse">Upload en cours...</span>}
-              {formData.image_url && (
-                <div className="relative w-32 h-40 rounded-xl overflow-hidden border border-white/20">
-                  <img src={formData.image_url} alt="Aperçu" className="w-full h-full object-cover" />
+              {isUploading && <span className="text-sm text-primary animate-pulse">Upload des images en cours...</span>}
+              
+              {imagesList.length > 0 && (
+                <div className="space-y-2">
+                  <span className="text-xs text-foreground/60">Photos enregistrées ({imagesList.length}) : La 1ère photo sera l'image de couverture.</span>
+                  <div className="grid grid-cols-3 sm:grid-cols-4 gap-3">
+                    {imagesList.map((url, idx) => (
+                      <div key={idx} className="relative group aspect-square rounded-xl overflow-hidden border border-white/20">
+                        <img src={url} alt={`Photo ${idx + 1}`} className="w-full h-full object-cover" />
+                        {idx === 0 && (
+                          <span className="absolute top-1 left-1 bg-primary text-[10px] text-white px-1.5 py-0.5 rounded font-bold">
+                            Couverture
+                          </span>
+                        )}
+                        <button
+                          type="button"
+                          onClick={() => handleRemoveImage(idx)}
+                          className="absolute top-1 right-1 p-1 bg-black/70 text-white rounded-full opacity-80 hover:opacity-100 hover:bg-red-600 transition-all"
+                        >
+                          <X className="w-3.5 h-3.5" />
+                        </button>
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </div>
           </div>
-          <button type="submit" disabled={isSubmitting || isUploading || !formData.image_url} className="w-full bg-primary hover:bg-primary/90 text-white font-medium py-4 rounded-xl transition-all flex items-center justify-center gap-2 mt-4 disabled:opacity-50">
+          <button type="submit" disabled={isSubmitting || isUploading || imagesList.length === 0} className="w-full bg-primary hover:bg-primary/90 text-white font-medium py-4 rounded-xl transition-all flex items-center justify-center gap-2 mt-4 disabled:opacity-50">
             {isSubmitting ? "Enregistrement..." : <><Save className="w-5 h-5" /> Ajouter à la boutique</>}
           </button>
         </form>

@@ -7,6 +7,46 @@ import { useCartStore, Product } from "@/store/cartStore";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 
+function ProductCardImage({ product }: { product: Product }) {
+  const images = product.images && product.images.length > 0
+    ? product.images
+    : (product.image_url ? [product.image_url] : ["/placeholder.jpg"]);
+  
+  const [currentIdx, setCurrentIdx] = useState(0);
+
+  useEffect(() => {
+    if (images.length <= 1) return;
+    const interval = setInterval(() => {
+      setCurrentIdx((prev) => (prev + 1) % images.length);
+    }, 3500);
+    return () => clearInterval(interval);
+  }, [images.length]);
+
+  return (
+    <div className="relative w-full h-full">
+      <Image
+        key={currentIdx}
+        src={images[currentIdx] || "/placeholder.jpg"}
+        alt={product.name}
+        fill
+        className="object-cover group-hover:scale-105 transition-all duration-700 opacity-90 group-hover:opacity-100"
+      />
+      {images.length > 1 && (
+        <div className="absolute bottom-3 left-1/2 -translate-x-1/2 flex gap-1 z-10">
+          {images.map((_, idx) => (
+            <span
+              key={idx}
+              className={`h-1.5 rounded-full transition-all ${
+                idx === currentIdx ? "w-4 bg-primary" : "w-1.5 bg-white/40"
+              }`}
+            />
+          ))}
+        </div>
+      )}
+    </div>
+  );
+}
+
 export default function StorePage() {
   const { addItem, items, searchQuery } = useCartStore();
   const cartItemCount = items.reduce((acc, item) => acc + item.quantity, 0);
@@ -122,29 +162,23 @@ export default function StorePage() {
                   
                   {isAdmin && (
                     <div className="absolute top-4 left-4 z-20 flex flex-col gap-2 opacity-0 group-hover:opacity-100 transition-opacity">
-                    <button 
-                      onClick={(e) => { 
-                        e.preventDefault(); 
-                        e.stopPropagation(); 
-                        router.push(`/admin/store/product/edit/${product.id}`);
-                      }}
-                      className="p-2 bg-black/60 backdrop-blur border border-white/20 text-white rounded-full hover:bg-primary hover:border-primary transition-colors" title="Modifier">
-                      <Pencil className="w-4 h-4" />
-                    </button>
-                    <button 
-                      onClick={(e) => handleDelete(e, product.id)}
-                      className="p-2 bg-black/60 backdrop-blur border border-white/20 text-white rounded-full hover:bg-red-500 hover:border-red-500 transition-colors" title="Supprimer">
-                      <Trash2 className="w-4 h-4" />
-                    </button>
-                  </div>
+                      <button 
+                        onClick={(e) => { 
+                          e.preventDefault(); 
+                          e.stopPropagation(); 
+                          router.push(`/admin/store/product/edit/${product.id}`);
+                        }}
+                        className="p-2 bg-black/60 backdrop-blur border border-white/20 text-white rounded-full hover:bg-primary hover:border-primary transition-colors" title="Modifier">
+                        <Pencil className="w-4 h-4" />
+                      </button>
+                      <button 
+                        onClick={(e) => handleDelete(e, product.id)}
+                        className="p-2 bg-black/60 backdrop-blur border border-white/20 text-white rounded-full hover:bg-red-500 hover:border-red-500 transition-colors" title="Supprimer">
+                        <Trash2 className="w-4 h-4" />
+                      </button>
+                    </div>
                   )}
-
-                  <Image
-                    src={product.image_url}
-                    alt={product.name}
-                    fill
-                    className="object-cover group-hover:scale-105 transition-transform duration-700 opacity-90 group-hover:opacity-100"
-                  />
+                  <ProductCardImage product={product} />
                 </div>
 
                 {/* Product Info */}

@@ -4,7 +4,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import Image from "next/image";
 import { useRef } from "react";
-import { Award, Camera, Gavel, Lightbulb, TrendingUp } from "lucide-react";
+import { Award, Camera, Gavel, Lightbulb, TrendingUp, Play, Film } from "lucide-react";
 
 export default function TribunalPage() {
     const heroRef = useRef(null);
@@ -83,14 +83,8 @@ export default function TribunalPage() {
                             viewport={{ once: true, margin: "-100px" }}
                             className="relative aspect-square md:aspect-[4/5] rounded-tl-[100px] rounded-br-[100px] overflow-hidden border border-[#d4af37]/20 p-2"
                         >
-                            <div className="w-full h-full rounded-tl-[90px] rounded-br-[90px] overflow-hidden relative bg-[#1a0c07] flex items-center justify-center group">
-                                {/* PLACEHOLDER FOR PHOTO */}
-                                <Image src="/placeholder-idea.jpg" alt="Photo de l'idée" fill className="object-cover opacity-50 group-hover:opacity-80 transition-opacity duration-700" />
-                                <div className="absolute inset-0 flex flex-col items-center justify-center text-[#d4af37]/50 text-center px-6">
-                                    <Camera className="w-12 h-12 mb-4 opacity-50" />
-                                    <p className="font-serif italic text-sm">Espace réservé pour la photo de la préparation / réflexion</p>
-                                    <p className="text-xs font-mono mt-2 opacity-50">public/placeholder-idea.jpg</p>
-                                </div>
+                            <div className="w-full h-full rounded-tl-[90px] rounded-br-[90px] overflow-hidden relative bg-[#1a0c07] group">
+                                <Image src="/placeholder-idea.jpg" alt="Photo de l'idée" fill className="object-cover group-hover:scale-105 transition-all duration-700" />
                             </div>
                         </motion.div>
                     </div>
@@ -129,14 +123,8 @@ export default function TribunalPage() {
                             viewport={{ once: true, margin: "-100px" }}
                             className="relative flex-1 w-full aspect-[4/3] rounded-lg overflow-hidden border border-[#d4af37]/20 p-2"
                         >
-                            <div className="w-full h-full rounded bg-[#1a0c07] relative flex items-center justify-center group">
-                                {/* PLACEHOLDER FOR PHOTO */}
-                                <Image src="/placeholder-execution.jpg" alt="Photo de l'exécution" fill className="object-cover opacity-50 group-hover:opacity-80 transition-opacity duration-700" />
-                                <div className="absolute inset-0 flex flex-col items-center justify-center text-[#d4af37]/50 text-center px-6">
-                                    <Camera className="w-12 h-12 mb-4 opacity-50" />
-                                    <p className="font-serif italic text-sm">Espace réservé pour la photo de l&apos;événement (La Chapelle)</p>
-                                    <p className="text-xs font-mono mt-2 opacity-50">public/placeholder-execution.jpg</p>
-                                </div>
+                            <div className="w-full h-full rounded bg-[#1a0c07] relative overflow-hidden group">
+                                <Image src="/placeholder-execution.png" alt="Photo de l'exécution" fill className="object-cover group-hover:scale-105 transition-all duration-700" />
                             </div>
                         </motion.div>
                     </div>
@@ -157,7 +145,14 @@ export default function TribunalPage() {
                     </motion.div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
-                        {[1, 2, 3, 4, 5, 6].map((item, idx) => (
+                        {[
+                          "/gallery-tribunal-1.png",
+                          "/gallery-tribunal-2.png",
+                          "/gallery-tribunal-3.png",
+                          "/gallery-tribunal-4.jpg",
+                          "/gallery-tribunal-5.png",
+                          "/gallery-tribunal-6.JPG",
+                        ].map((src, idx) => (
                             <motion.div
                                 key={idx}
                                 initial={{ opacity: 0, scale: 0.9 }}
@@ -166,15 +161,48 @@ export default function TribunalPage() {
                                 transition={{ delay: idx * 0.1 }}
                                 className={`relative group overflow-hidden rounded-xl bg-[#1a0c07] border border-[#d4af37]/10 aspect-square ${idx === 0 || idx === 3 ? 'md:col-span-2 md:aspect-[2/1]' : ''}`}
                             >
-                                {/* PLACEHOLDER FOR GALLERY PHOTOS */}
-                                <Image src={`/gallery-tribunal-${item}.jpg`} alt={`Souvenir ${item}`} fill className="object-cover opacity-40 group-hover:opacity-100 group-hover:scale-110 transition-all duration-700" />
-                                <div className="absolute inset-0 flex flex-col items-center justify-center text-[#d4af37]/40 text-center p-4 bg-black/40 group-hover:bg-transparent transition-colors">
-                                    <Camera className="w-8 h-8 mb-2 opacity-50 group-hover:opacity-0 transition-opacity" />
-                                    <p className="font-mono text-xs group-hover:opacity-0 transition-opacity">gallery-tribunal-{item}.jpg</p>
-                                </div>
+                                <Image src={src} alt={`Souvenir ${idx + 1}`} fill className="object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" />
                             </motion.div>
                         ))}
                     </div>
+                </div>
+            </section>
+
+            {/* Aftermovie Section */}
+            <section className="py-24 relative bg-[#0a0402] border-t border-[#d4af37]/10">
+                <div className="container mx-auto px-4 max-w-5xl">
+                    <motion.div
+                        initial={{ opacity: 0, y: 30 }}
+                        whileInView={{ opacity: 1, y: 0 }}
+                        viewport={{ once: true }}
+                        className="text-center mb-12"
+                    >
+                        <div className="inline-flex items-center gap-2 text-[#d4af37] bg-[#d4af37]/10 px-4 py-1.5 rounded-full text-xs font-mono tracking-widest uppercase mb-4 border border-[#d4af37]/30">
+                            <Film className="w-4 h-4" /> Revivez l&apos;Événement
+                        </div>
+                        <h2 className="text-3xl md:text-5xl font-serif uppercase tracking-widest text-white mb-4">
+                            Aftermovie Officiel
+                        </h2>
+                        <p className="text-[#cbb0a5] font-light tracking-[0.2em] uppercase text-sm max-w-xl mx-auto">
+                            Plongez au cœur de l&apos;ambiance unique du Tribunal de l&apos;Entrepreneuriat
+                        </p>
+                    </motion.div>
+
+                    <motion.div
+                        initial={{ opacity: 0, scale: 0.95 }}
+                        whileInView={{ opacity: 1, scale: 1 }}
+                        viewport={{ once: true }}
+                        className="relative aspect-video rounded-3xl overflow-hidden border-2 border-[#d4af37]/30 shadow-[0_0_60px_rgba(212,175,55,0.15)] bg-black/80 group"
+                    >
+                        <video
+                            controls
+                            poster="/placeholder-execution.png"
+                            className="w-full h-full object-cover"
+                        >
+                            <source src="/aftermovie-tribunal.mp4" type="video/mp4" />
+                            Votre navigateur ne prend pas en charge la lecture vidéo.
+                        </video>
+                    </motion.div>
                 </div>
             </section>
 
@@ -193,15 +221,10 @@ export default function TribunalPage() {
                             Le Grand Tribunal de l&apos;Entrepreneuriat a été couronné &quot;Meilleur Événement de l&apos;année 2026&quot;, une reconnaissance éclatante de l&apos;effort, de l&apos;originalité et de l&apos;impact généré par l&apos;équipe HEC Entrepreneurs.
                         </p>
 
-                        {/* Trophy Image Placeholder */}
+                        {/* Trophy Image */}
                         <div className="relative w-full max-w-md mx-auto aspect-[3/4] rounded-2xl overflow-hidden border-4 border-[#d4af37]/30 shadow-[0_0_50px_rgba(212,175,55,0.15)] group p-2 bg-[#0a0503]">
-                            <div className="w-full h-full relative rounded-xl overflow-hidden bg-[#1a0c07] flex items-center justify-center">
-                                <Image src="/trophee-tribunal.jpg" alt="Trophée Meilleur Événement" fill className="object-cover opacity-60 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" />
-                                <div className="absolute inset-0 flex flex-col items-center justify-center text-[#d4af37] text-center px-6 pointer-events-none group-hover:opacity-0 transition-opacity duration-500">
-                                    <Award className="w-16 h-16 mb-4 opacity-50" />
-                                    <p className="font-serif italic text-lg">Photo du Trophée</p>
-                                    <p className="text-sm font-mono mt-2 opacity-50">public/trophee-tribunal.jpg</p>
-                                </div>
+                            <div className="w-full h-full relative rounded-xl overflow-hidden bg-[#1a0c07]">
+                                <Image src="/trophee-tribunal.jpg" alt="Trophée Meilleur Événement" fill className="object-cover group-hover:scale-105 transition-all duration-700" />
                             </div>
                         </div>
                     </motion.div>
