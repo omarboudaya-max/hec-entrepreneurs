@@ -26,11 +26,24 @@ export async function POST(request: Request) {
     }
 
     const body = await request.json();
-    const { data: product, error } = await supabaseAdmin
+    let { data: product, error } = await supabaseAdmin
       .from("products")
       .insert([body])
       .select()
       .single();
+
+    // Fallback if 'images' column is not created yet in Supabase schema cache
+    if (error && error.message?.includes("images")) {
+      const { images, ...bodyWithoutImages } = body;
+      const fallbackResult = await supabaseAdmin
+        .from("products")
+        .insert([bodyWithoutImages])
+        .select()
+        .single();
+      
+      product = fallbackResult.data;
+      error = fallbackResult.error;
+    }
 
     if (error) throw error;
     return NextResponse.json(product);
