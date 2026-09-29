@@ -20,7 +20,6 @@
     "@vercel/analytics": "^1.6.1",
     "ai": "^6.0.93",
     "clsx": "^2.1.1",
-    "firebase": "^12.9.0",
     "framer-motion": "^12.33.0",
     "html5-qrcode": "^2.3.8",
     "lucide-react": "^0.563.0",

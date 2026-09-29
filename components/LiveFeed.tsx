@@ -3,22 +3,10 @@ import { useState, useRef, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { MessageCircle, X, Send, Reply, User, Zap } from "lucide-react";
 import clsx from "clsx";
-import { db } from "@/lib/firebase";
-import {
-    collection,
-    addDoc,
-    onSnapshot,
-    query,
-    orderBy,
-    serverTimestamp,
-    updateDoc,
-    doc,
-    arrayUnion,
-} from "firebase/firestore";
-
 function timeAgo(timestamp: any) {
     if (!timestamp) return "À l'instant";
-    const seconds = Math.floor((Date.now() - timestamp.toMillis()) / 1000);
+    const date = typeof timestamp === "string" || typeof timestamp === "number" ? new Date(timestamp) : new Date();
+    const seconds = Math.floor((Date.now() - date.getTime()) / 1000);
     if (seconds < 60) return "À l'instant";
     if (seconds < 3600) return `il y a ${Math.floor(seconds / 60)} min`;
     if (seconds < 86400) return `il y a ${Math.floor(seconds / 3600)}h`;
@@ -42,16 +30,6 @@ export default function LiveFeed() {
         if (saved) setUsername(saved);
     }, []);
 
-    // Real-time Firestore listener
-    useEffect(() => {
-        const q = query(collection(db, "livefeed"), orderBy("createdAt", "asc"));
-        const unsubscribe = onSnapshot(q, { includeMetadataChanges: true }, (snapshot) => {
-            const msgs = snapshot.docs.map((doc) => ({ id: doc.id, ...doc.data() }));
-            setMessages(msgs);
-        });
-        return () => unsubscribe();
-    }, []);
-
     useEffect(() => {
         if (isOpen) messagesEndRef.current?.scrollIntoView({ behavior: "smooth" });
     }, [messages, isOpen]);
@@ -60,18 +38,30 @@ export default function LiveFeed() {
         if (!content.trim() || isSending) return;
         setIsSending(true);
         try {
+            const newMessage = {
+                id: Date.now().toString(),
+                user: name,
+                content,
+                replies: [],
+                createdAt: new Date().toISOString(),
+            };
+
             if (replyTarget) {
-                // Append reply to existing message
-                await updateDoc(doc(db, "livefeed", replyTarget.id), {
-                    replies: arrayUnion({ user: name, content, createdAt: new Date().toISOString() }),
-                });
+                setMessages((prev) =>
+                    prev.map((msg) =>
+                        msg.id === replyTarget.id
+                            ? {
+                                  ...msg,
+                                  replies: [
+                                      ...(msg.replies || []),
+                                      { user: name, content, createdAt: new Date().toISOString() },
+                                  ],
+                              }
+                            : msg
+                    )
+                );
             } else {
-                await addDoc(collection(db, "livefeed"), {
-                    user: name,
-                    content,
-                    replies: [],
-                    createdAt: serverTimestamp(),
-                });
+                setMessages((prev) => [...prev, newMessage]);
             }
         } finally {
             setIsSending(false);

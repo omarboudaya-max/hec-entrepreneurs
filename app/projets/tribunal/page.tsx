@@ -20,24 +20,24 @@ export default function TribunalPage() {
             <Navbar />
 
             {/* Hero Section */}
-            <section ref={heroRef} className="relative h-screen flex items-center justify-center overflow-hidden">
+            <section ref={heroRef} className="relative min-h-[85vh] py-20 md:py-32 md:h-screen flex items-center justify-center overflow-hidden">
                 <motion.div style={{ y, opacity }} className="absolute inset-0 z-0">
                     <div className="absolute inset-0 bg-[url('/event-tribunal.jpg')] bg-cover bg-center bg-no-repeat opacity-40 mix-blend-luminosity" />
                     <div className="absolute inset-0 bg-gradient-to-b from-[#050505] via-[#050505]/80 to-[#050505]" />
                 </motion.div>
 
-                <div className="container mx-auto px-4 z-10 relative text-center mt-20">
+                <div className="container mx-auto px-4 z-10 relative text-center mt-12 md:mt-20">
                     <motion.div
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                         transition={{ duration: 1, ease: "easeOut" }}
                     >
-                        <Gavel className="w-16 h-16 md:w-24 md:h-24 mx-auto text-[#d4af37] mb-8 opacity-80" />
-                        <h1 className="text-4xl md:text-6xl lg:text-8xl font-serif uppercase tracking-[0.15em] mb-6 drop-shadow-2xl">
+                        <Gavel className="w-12 h-12 sm:w-16 sm:h-16 md:w-24 md:h-24 mx-auto text-[#d4af37] mb-6 md:mb-8 opacity-80" />
+                        <h1 className="text-2xl sm:text-5xl lg:text-7xl font-serif uppercase tracking-normal sm:tracking-[0.15em] mb-4 sm:mb-6 drop-shadow-2xl break-words">
                             Le Grand Tribunal<br />
                             <span className="text-[#d4af37] font-light italic">de l&apos;Entrepreneuriat</span>
                         </h1>
-                        <p className="text-[#cbb0a5] text-xl md:text-2xl font-light tracking-[0.3em] uppercase max-w-2xl mx-auto">
+                        <p className="text-[#cbb0a5] text-xs sm:text-xl md:text-2xl font-light tracking-wide sm:tracking-[0.3em] uppercase max-w-2xl mx-auto break-words px-2">
                             Le procès qui a bouleversé l&apos;IHEC Carthage
                         </p>
                     </motion.div>
@@ -48,43 +48,43 @@ export default function TribunalPage() {
                     initial={{ opacity: 0 }} 
                     animate={{ opacity: 1 }} 
                     transition={{ delay: 1.5, duration: 1 }}
-                    className="absolute bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-4"
+                    className="absolute bottom-6 sm:bottom-10 left-1/2 -translate-x-1/2 flex flex-col items-center gap-2 sm:gap-4 hidden sm:flex"
                 >
                     <span className="text-[#d4af37] text-xs tracking-widest uppercase font-serif">Découvrir l&apos;histoire</span>
-                    <div className="w-px h-16 bg-gradient-to-b from-[#d4af37] to-transparent animate-pulse" />
+                    <div className="w-px h-12 sm:h-16 bg-gradient-to-b from-[#d4af37] to-transparent animate-pulse" />
                 </motion.div>
             </section>
 
             {/* Origine & But */}
-            <section className="py-32 relative">
+            <section className="py-16 md:py-32 relative">
                 <div className="container mx-auto px-4 max-w-5xl">
-                    <div className="grid md:grid-cols-2 gap-16 items-center">
+                    <div className="grid md:grid-cols-2 gap-10 md:gap-16 items-center">
                         <motion.div
-                            initial={{ opacity: 0, x: -50 }}
+                            initial={{ opacity: 0, x: -30 }}
                             whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true, margin: "-100px" }}
-                            className="space-y-8"
+                            viewport={{ once: true, margin: "-50px" }}
+                            className="space-y-6 md:space-y-8"
                         >
-                            <div className="flex items-center gap-4 text-[#d4af37]">
-                                <Lightbulb className="w-8 h-8" />
-                                <h2 className="text-2xl md:text-4xl font-serif uppercase tracking-widest">L&apos;Origine de l&apos;Idée</h2>
+                            <div className="flex items-center gap-3 md:gap-4 text-[#d4af37]">
+                                <Lightbulb className="w-6 h-6 md:w-8 md:h-8 shrink-0" />
+                                <h2 className="text-xl sm:text-3xl md:text-4xl font-serif uppercase tracking-wider sm:tracking-widest">L&apos;Origine de l&apos;Idée</h2>
                             </div>
-                            <p className="text-lg leading-relaxed font-light text-justify text-[#cbb0a5]">
+                            <p className="text-sm sm:text-lg leading-relaxed font-light text-left sm:text-justify text-[#cbb0a5]">
                                 L&apos;entrepreneuriat est souvent idéalisé. On parle de succès fulgurants, de levées de fonds et d&apos;innovation sans limites. Mais est-ce la seule voie ? Face à ce mythe omniprésent, le Club HEC Entrepreneurs a décidé de faire une pause et de poser la question ultime : et si l&apos;entrepreneuriat n&apos;était pas la panacée ?
                             </p>
-                            <p className="text-lg leading-relaxed font-light text-justify text-[#cbb0a5]">
+                            <p className="text-sm sm:text-lg leading-relaxed font-light text-left sm:text-justify text-[#cbb0a5]">
                                 De là est née l&apos;idée d&apos;un &quot;Tribunal&quot; : un format théâtral et interactif où l&apos;entrepreneuriat serait littéralement mis en procès, avec des avocats pour la défense, des procureurs pour l&apos;accusation, et un jury prêt à trancher.
                             </p>
                         </motion.div>
                         
                         <motion.div
-                            initial={{ opacity: 0, x: 50 }}
+                            initial={{ opacity: 0, x: 30 }}
                             whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true, margin: "-100px" }}
-                            className="relative aspect-square md:aspect-[4/5] rounded-tl-[100px] rounded-br-[100px] overflow-hidden border border-[#d4af37]/20 p-2"
+                            viewport={{ once: true, margin: "-50px" }}
+                            className="relative aspect-square md:aspect-[4/5] rounded-tl-[60px] sm:rounded-tl-[100px] rounded-br-[60px] sm:rounded-br-[100px] overflow-hidden border border-[#d4af37]/20 p-2"
                         >
-                            <div className="w-full h-full rounded-tl-[90px] rounded-br-[90px] overflow-hidden relative bg-[#1a0c07] group">
-                                <Image src="/placeholder-idea.jpg" alt="Photo de l'idée" fill className="object-cover group-hover:scale-105 transition-all duration-700" />
+                            <div className="w-full h-full rounded-tl-[50px] sm:rounded-tl-[90px] rounded-br-[50px] sm:rounded-br-[90px] overflow-hidden relative bg-[#1a0c07] group">
+                                <Image src="/placeholder-idea.png" alt="Photo de l'idée" fill className="object-cover group-hover:scale-105 transition-all duration-700" />
                             </div>
                         </motion.div>
                     </div>
@@ -92,35 +92,35 @@ export default function TribunalPage() {
             </section>
 
             {/* Exécution & Finalité */}
-            <section className="py-32 relative bg-[#120805] border-y border-[#d4af37]/10">
-                <div className="absolute top-0 right-0 w-[500px] h-[500px] bg-[#d4af37]/5 blur-[120px] rounded-full pointer-events-none" />
+            <section className="py-16 md:py-32 relative bg-[#120805] border-y border-[#d4af37]/10">
+                <div className="absolute top-0 right-0 w-[300px] sm:w-[500px] h-[300px] sm:h-[500px] bg-[#d4af37]/5 blur-[80px] sm:blur-[120px] rounded-full pointer-events-none" />
                 <div className="container mx-auto px-4 max-w-5xl relative z-10">
-                    <div className="flex flex-col md:flex-row-reverse gap-16 items-center">
+                    <div className="flex flex-col md:flex-row-reverse gap-10 md:gap-16 items-center">
                         <motion.div
-                            initial={{ opacity: 0, x: 50 }}
+                            initial={{ opacity: 0, x: 30 }}
                             whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true, margin: "-100px" }}
-                            className="space-y-8 flex-1"
+                            viewport={{ once: true, margin: "-50px" }}
+                            className="space-y-6 md:space-y-8 flex-1"
                         >
-                            <div className="flex items-center gap-4 text-[#d4af37]">
-                                <TrendingUp className="w-8 h-8" />
-                                <h2 className="text-2xl md:text-4xl font-serif uppercase tracking-widest">L&apos;Exécution & La Finalité</h2>
+                            <div className="flex items-center gap-3 md:gap-4 text-[#d4af37]">
+                                <TrendingUp className="w-6 h-6 md:w-8 md:h-8 shrink-0" />
+                                <h2 className="text-xl sm:text-3xl md:text-4xl font-serif uppercase tracking-wider sm:tracking-widest">L&apos;Exécution & La Finalité</h2>
                             </div>
-                            <p className="text-lg leading-relaxed font-light text-justify text-[#cbb0a5]">
+                            <p className="text-sm sm:text-lg leading-relaxed font-light text-left sm:text-justify text-[#cbb0a5]">
                                 L&apos;exécution a été un véritable spectacle. La Chapelle historique de l&apos;IHEC Carthage s&apos;est transformée en une cour de justice imposante. Les orateurs, soigneusement préparés, ont livré des plaidoiries vibrantes. L&apos;ambiance était électrique, rythmée par les objections, les témoignages surprises et un public en haleine.
                             </p>
-                            <blockquote className="border-l-4 border-[#d4af37] pl-6 italic text-xl text-[#ece2d0] my-8 font-serif">
+                            <blockquote className="border-l-4 border-[#d4af37] pl-4 sm:pl-6 italic text-base sm:text-xl text-[#ece2d0] my-6 sm:my-8 font-serif">
                                 &quot;L&apos;entrepreneuriat n&apos;est pas un conte de fées, c&apos;est une arène. Et aujourd&apos;hui, nous avons regardé la bête dans les yeux.&quot;
                             </blockquote>
-                            <p className="text-lg leading-relaxed font-light text-justify text-[#cbb0a5]">
+                            <p className="text-sm sm:text-lg leading-relaxed font-light text-left sm:text-justify text-[#cbb0a5]">
                                 La finalité n&apos;était pas de condamner ou d&apos;absoudre l&apos;entrepreneuriat, mais de forcer l&apos;audience à développer un esprit critique. Le verdict final a laissé une empreinte indélébile sur les étudiants, redéfinissant la vision de l&apos;innovation à l&apos;IHEC.
                             </p>
                         </motion.div>
                         
                         <motion.div
-                            initial={{ opacity: 0, x: -50 }}
+                            initial={{ opacity: 0, x: -30 }}
                             whileInView={{ opacity: 1, x: 0 }}
-                            viewport={{ once: true, margin: "-100px" }}
+                            viewport={{ once: true, margin: "-50px" }}
                             className="relative flex-1 w-full aspect-[4/3] rounded-lg overflow-hidden border border-[#d4af37]/20 p-2"
                         >
                             <div className="w-full h-full rounded bg-[#1a0c07] relative overflow-hidden group">
@@ -132,16 +132,16 @@ export default function TribunalPage() {
             </section>
 
             {/* Galerie Souvenirs */}
-            <section className="py-32 relative">
+            <section className="py-16 md:py-32 relative">
                 <div className="container mx-auto px-4 max-w-6xl">
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-center mb-16"
+                        className="text-center mb-10 md:mb-16"
                     >
-                        <h2 className="text-3xl md:text-5xl font-serif uppercase tracking-widest text-[#d4af37] mb-4">Galerie Souvenirs</h2>
-                        <p className="text-[#cbb0a5] font-light tracking-[0.2em] uppercase text-sm">Les moments inoubliables du procès</p>
+                        <h2 className="text-2xl sm:text-4xl md:text-5xl font-serif uppercase tracking-wider sm:tracking-widest text-[#d4af37] mb-3">Galerie Souvenirs</h2>
+                        <p className="text-[#cbb0a5] font-light tracking-[0.15em] sm:tracking-[0.2em] uppercase text-xs sm:text-sm">Les moments inoubliables du procès</p>
                     </motion.div>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4 md:gap-6">
@@ -151,7 +151,7 @@ export default function TribunalPage() {
                                 initial={{ opacity: 0, scale: 0.9 }}
                                 whileInView={{ opacity: 1, scale: 1 }}
                                 viewport={{ once: true }}
-                                transition={{ delay: idx * 0.1 }}
+                                transition={{ delay: idx * 0.08 }}
                                 className={`relative group overflow-hidden rounded-xl bg-[#1a0c07] border border-[#d4af37]/10 aspect-square ${idx === 0 || idx === 3 ? 'md:col-span-2 md:aspect-[2/1]' : ''}`}
                             >
                                 <Image src={`/gallery-tribunal-${item}.${item === 6 ? 'JPG' : (item === 4 ? 'jpg' : 'png')}`} alt={`Souvenir ${item}`} fill className="object-cover opacity-90 group-hover:opacity-100 group-hover:scale-105 transition-all duration-700" />
@@ -162,21 +162,21 @@ export default function TribunalPage() {
             </section>
 
             {/* Aftermovie Section */}
-            <section className="py-24 relative bg-[#0a0402] border-t border-[#d4af37]/10">
+            <section className="py-16 md:py-24 relative bg-[#0a0402] border-t border-[#d4af37]/10">
                 <div className="container mx-auto px-4 max-w-5xl">
                     <motion.div
                         initial={{ opacity: 0, y: 30 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
-                        className="text-center mb-12"
+                        className="text-center mb-8 md:mb-12"
                     >
-                        <div className="inline-flex items-center gap-2 text-[#d4af37] bg-[#d4af37]/10 px-4 py-1.5 rounded-full text-xs font-mono tracking-widest uppercase mb-4 border border-[#d4af37]/30">
-                            <Film className="w-4 h-4" /> Revivez l&apos;Événement
+                        <div className="inline-flex items-center gap-2 text-[#d4af37] bg-[#d4af37]/10 px-4 py-1.5 rounded-full text-[10px] sm:text-xs font-mono tracking-widest uppercase mb-4 border border-[#d4af37]/30">
+                            <Film className="w-3.5 h-3.5" /> Revivez l&apos;Événement
                         </div>
-                        <h2 className="text-3xl md:text-5xl font-serif uppercase tracking-widest text-white mb-4">
+                        <h2 className="text-2xl sm:text-4xl md:text-5xl font-serif uppercase tracking-wider sm:tracking-widest text-white mb-3">
                             Aftermovie Officiel
                         </h2>
-                        <p className="text-[#cbb0a5] font-light tracking-[0.2em] uppercase text-sm max-w-xl mx-auto">
+                        <p className="text-[#cbb0a5] font-light tracking-wide sm:tracking-[0.2em] uppercase text-xs sm:text-sm max-w-xl mx-auto px-2">
                             Plongez au cœur de l&apos;ambiance unique du Tribunal de l&apos;Entrepreneuriat
                         </p>
                     </motion.div>
@@ -185,7 +185,7 @@ export default function TribunalPage() {
                         initial={{ opacity: 0, scale: 0.95 }}
                         whileInView={{ opacity: 1, scale: 1 }}
                         viewport={{ once: true }}
-                        className="relative aspect-video rounded-3xl overflow-hidden border-2 border-[#d4af37]/30 shadow-[0_0_60px_rgba(212,175,55,0.15)] bg-black/80 group"
+                        className="relative aspect-video rounded-2xl sm:rounded-3xl overflow-hidden border border-sm sm:border-2 border-[#d4af37]/30 shadow-[0_0_60px_rgba(212,175,55,0.15)] bg-black/80 group"
                     >
                         <video
                             controls
@@ -200,22 +200,22 @@ export default function TribunalPage() {
             </section>
 
             {/* Award Section */}
-            <section className="py-32 relative bg-gradient-to-b from-[#050505] to-[#1a0c07] border-t border-[#d4af37]/20">
+            <section className="py-16 md:py-32 relative bg-gradient-to-b from-[#050505] to-[#1a0c07] border-t border-[#d4af37]/20">
                 <div className="container mx-auto px-4 max-w-4xl text-center relative z-10">
                     <motion.div
-                        initial={{ opacity: 0, y: 50 }}
+                        initial={{ opacity: 0, y: 30 }}
                         whileInView={{ opacity: 1, y: 0 }}
                         viewport={{ once: true }}
                         transition={{ duration: 0.8 }}
                     >
-                        <Award className="w-20 h-20 md:w-32 md:h-32 mx-auto text-[#d4af37] mb-8" />
-                        <h2 className="text-3xl md:text-5xl font-serif uppercase tracking-widest text-white mb-6">Meilleur Événement 2026</h2>
-                        <p className="text-[#cbb0a5] text-lg md:text-xl font-light leading-relaxed max-w-2xl mx-auto mb-16">
+                        <Award className="w-14 h-14 sm:w-20 sm:h-20 md:w-32 md:h-32 mx-auto text-[#d4af37] mb-6 md:mb-8" />
+                        <h2 className="text-2xl sm:text-4xl md:text-5xl font-serif uppercase tracking-wider sm:tracking-widest text-white mb-4 sm:mb-6">Meilleur Événement 2026</h2>
+                        <p className="text-[#cbb0a5] text-sm sm:text-lg md:text-xl font-light leading-relaxed max-w-2xl mx-auto mb-10 md:mb-16 px-2">
                             Le Grand Tribunal de l&apos;Entrepreneuriat a été couronné &quot;Meilleur Événement de l&apos;année 2026&quot;, une reconnaissance éclatante de l&apos;effort, de l&apos;originalité et de l&apos;impact généré par l&apos;équipe HEC Entrepreneurs.
                         </p>
 
                         {/* Trophy Image */}
-                        <div className="relative w-full max-w-md mx-auto aspect-[3/4] rounded-2xl overflow-hidden border-4 border-[#d4af37]/30 shadow-[0_0_50px_rgba(212,175,55,0.15)] group p-2 bg-[#0a0503]">
+                        <div className="relative w-full max-w-xs sm:max-w-md mx-auto aspect-[3/4] rounded-2xl overflow-hidden border-2 sm:border-4 border-[#d4af37]/30 shadow-[0_0_50px_rgba(212,175,55,0.15)] group p-2 bg-[#0a0503]">
                             <div className="w-full h-full relative rounded-xl overflow-hidden bg-[#1a0c07]">
                                 <Image src="/trophee-tribunal.jpg" alt="Trophée Meilleur Événement" fill className="object-cover group-hover:scale-105 transition-all duration-700" />
                             </div>

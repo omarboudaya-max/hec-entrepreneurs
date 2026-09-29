@@ -1,7 +1,7 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
-import { Zap, Heart, Star, Target, Users, Rocket, Globe, Lightbulb } from "lucide-react";
+import { Zap, Heart, Star, Target, Users, Rocket, Globe, Lightbulb, Crown, Shield } from "lucide-react";
 import { useRef, useState } from "react";
 import Footer from "@/components/Footer";
 import Link from "next/link";
@@ -46,15 +46,52 @@ const values = [
     },
 ];
 
-const team = [
+interface TeamMember {
+    name: string;
+    role: string;
+    image?: string | null;
+}
+
+const bureauExecutif: TeamMember[] = [
     { name: "Youssef Drira", role: "Président", image: "/team/youssef.JPG" },
-    { name: "Yassmin Zghal", role: "Secrétaire Général", image: "/team/yassmin.jpg" },
+    { name: "Yassmin Zghal", role: "Secrétaire Générale", image: "/team/yassmin.jpg" },
     { name: "Melek Kammoun", role: "Trésorier", image: "/team/melek.jpg" },
-    { name: "Nourhene Ben Amor", role: "Vice-Président chargé des Adhérents (VPA)", image: "/team/nourhene.jpg" },
-    { name: "Omar Boudaya", role: "Vice-Président chargé des Relations (VPR)", image: "/team/omar.jpg" },
-    { name: "Eya Cherif", role: "Vice-Président chargé de la Communication (VPCOM)", image: "/team/eya.jpg" },
-    { name: "Jihed Hersi", role: "Responsable Marketing et design", image: "/team/jihed.jpg" },
-    { name: "Noura Derbel", role: "Adjointe Secrétaire Général", image: "/team/noura.jpg" },
+    { name: "Nourhene Ben Amor", role: "Vice-Présidente chargée des Adhérents", image: "/team/nourhene.jpg" },
+    { name: "Noura Derbel", role: "Vice-Présidente chargée des Relations Extérieures", image: "/team/noura.jpg" },
+    { name: "Ines Trabelsi", role: "Vice-Présidente chargée de la Communication", image: null },
+];
+
+const responsables: TeamMember[] = [
+    { name: "Edam Guermazi", role: "Responsable Événements & Projets", image: null },
+    { name: "Rihem Abbessi", role: "Responsable Développement & Innovation", image: null },
+    { name: "Trésorier Adjoint", role: "Trésorier Adjoint", image: null },
+    { name: "Khadija Houidi", role: "Responsable Intégration & Expérience Membre", image: null },
+    { name: "Achref Jenni", role: "Responsable Protocole Interne", image: null },
+    { name: "Adem Awedi", role: "Responsable Sponsoring", image: null },
+    { name: "Tesnim Mehdi", role: "Responsable Protocole Externe", image: null },
+    { name: "Omar Boudaya", role: "Responsable IT & Développement Web", image: "/team/omar.jpg" },
+    { name: "Eya Cherif", role: "Responsable Planification & Diffusion", image: "/team/eya.jpg" },
+    { name: "Maryem Khelifi", role: "Responsable Création de Contenu", image: null },
+];
+
+const membres: string[] = [
+    "Adem Kammoun",
+    "Ahmed Lachiheb",
+    "Anis Ayedi",
+    "Asma Hamda",
+    "Dhia Ourir",
+    "Eya Ferjani",
+    "Faten Kalia",
+    "Ghadine Swalhia",
+    "Ibtihel Haddaoui",
+    "Jamila Msallem",
+    "Jassim Abrougui",
+    "Laameri Touka",
+    "Mariem Chaouachi",
+    "Mariem Khamassi",
+    "Ons Cherni",
+    "Tasnim Daadoucha",
+    "Ziada Moslem",
 ];
 
 export default function About() {
@@ -179,41 +216,128 @@ export default function About() {
 
                     {/* Team Section */}
                     <div className="mb-32">
-                        <div className="text-center mb-20">
+                        <div className="text-center mb-16">
                             <h2 className="text-3xl sm:text-4xl md:text-6xl font-thin text-wave uppercase tracking-[0.1em] italic mb-4">NOTRE ÉQUIPE</h2>
-                            <p className="text-gray-500 font-mono tracking-[0.3em] uppercase text-xs">Bureau Exécutif 2025-2026</p>
+                            <p className="text-gray-500 font-mono tracking-[0.3em] uppercase text-xs">Mandat 2026 - 2027</p>
                         </div>
 
-                        <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
-                            {team.map((member, idx) => (
-                                <motion.div
-                                    key={idx}
-                                    initial={{ opacity: 0, scale: 0.9 }}
-                                    whileInView={{ opacity: 1, scale: 1 }}
-                                    viewport={{ once: true }}
-                                    transition={{ delay: idx * 0.05 }}
-                                    className="glass p-8 rounded-[2rem] border border-white/5 hover:border-primary/30 transition-all text-center group"
-                                >
-                                    <div className="w-24 h-24 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full mx-auto mb-6 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform overflow-hidden shadow-xl shadow-primary/10">
-                                        {member.image ? (
-                                            <img
-                                                src={member.image}
-                                                alt={member.name}
-                                                className={clsx(
-                                                    "w-full h-full object-cover transition-transform duration-500",
-                                                    member.name === "Omar Boudaya" && "scale-[1.4] object-center"
+                        {/* Bureau Exécutif */}
+                        <div className="mb-20">
+                            <div className="flex items-center gap-4 mb-10">
+                                <div className="h-px bg-gradient-to-r from-transparent via-primary/40 to-primary/40 flex-1" />
+                                <h3 className="text-xl sm:text-2xl font-light text-primary uppercase tracking-[0.2em] italic text-center px-4">
+                                    Bureau Exécutif 2026 / 2027
+                                </h3>
+                                <div className="h-px bg-gradient-to-l from-transparent via-primary/40 to-primary/40 flex-1" />
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
+                                {bureauExecutif.map((member, idx) => (
+                                    <motion.div
+                                        key={idx}
+                                        initial={{ opacity: 0, scale: 0.9 }}
+                                        whileInView={{ opacity: 1, scale: 1 }}
+                                        viewport={{ once: true }}
+                                        transition={{ delay: idx * 0.05 }}
+                                        className="glass p-8 rounded-[2rem] border border-white/5 hover:border-primary/30 transition-all text-center group"
+                                    >
+                                        <div className="w-24 h-24 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full mx-auto mb-6 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform overflow-hidden shadow-xl shadow-primary/10">
+                                            {member.image ? (
+                                                <img
+                                                    src={member.image}
+                                                    alt={member.name}
+                                                    className={clsx(
+                                                        "w-full h-full object-cover transition-transform duration-500",
+                                                        member.name === "Omar Boudaya" && "scale-[1.4] object-center"
+                                                    )}
+                                                />
+                                            ) : (
+                                                <Crown className="w-10 h-10 text-primary/70" />
+                                            )}
+                                        </div>
+                                        <h4 className="text-lg font-light text-white uppercase tracking-[0.05em] mb-2 italic">{member.name}</h4>
+                                        <p className="text-primary text-[11px] font-medium uppercase tracking-[0.15em] leading-tight opacity-90">
+                                            {member.role}
+                                        </p>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Les Responsables */}
+                        <div className="mb-20">
+                            <div className="flex items-center gap-4 mb-10">
+                                <div className="h-px bg-gradient-to-r from-transparent via-secondary/40 to-secondary/40 flex-1" />
+                                <h3 className="text-xl sm:text-2xl font-light text-secondary uppercase tracking-[0.2em] italic text-center px-4">
+                                    Les Responsables
+                                </h3>
+                                <div className="h-px bg-gradient-to-l from-transparent via-secondary/40 to-secondary/40 flex-1" />
+                            </div>
+
+                            <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
+                                {responsables.map((member, idx) => (
+                                    <motion.div
+                                        key={idx}
+                                        initial={{ opacity: 0, scale: 0.9 }}
+                                        whileInView={{ opacity: 1, scale: 1 }}
+                                        viewport={{ once: true }}
+                                        transition={{ delay: idx * 0.04 }}
+                                        className="glass p-6 rounded-[2rem] border border-white/5 hover:border-secondary/30 transition-all text-center group flex flex-col justify-between"
+                                    >
+                                        <div>
+                                            <div className="w-20 h-20 bg-gradient-to-br from-secondary/20 to-primary/10 rounded-full mx-auto mb-5 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform overflow-hidden shadow-lg shadow-secondary/10">
+                                                {member.image ? (
+                                                    <img
+                                                        src={member.image}
+                                                        alt={member.name}
+                                                        className={clsx(
+                                                            "w-full h-full object-cover transition-transform duration-500",
+                                                            member.name === "Omar Boudaya" && "scale-[1.4] object-center"
+                                                        )}
+                                                    />
+                                                ) : (
+                                                    <Shield className="w-8 h-8 text-secondary/70" />
                                                 )}
-                                            />
-                                        ) : (
-                                            <Users className="w-10 h-10 text-white/50" />
-                                        )}
-                                    </div>
-                                    <h4 className="text-lg font-light text-white uppercase tracking-[0.05em] mb-2 italic">{member.name}</h4>
-                                    <p className="text-primary text-[10px] font-medium uppercase tracking-[0.15em] leading-tight opacity-80">
-                                        {member.role}
-                                    </p>
-                                </motion.div>
-                            ))}
+                                            </div>
+                                            <h4 className="text-base font-light text-white uppercase tracking-[0.05em] mb-2 italic">{member.name}</h4>
+                                        </div>
+                                        <p className="text-secondary text-[10px] font-medium uppercase tracking-[0.15em] leading-tight opacity-80 mt-2">
+                                            {member.role}
+                                        </p>
+                                    </motion.div>
+                                ))}
+                            </div>
+                        </div>
+
+                        {/* Les Membres */}
+                        <div>
+                            <div className="flex items-center gap-4 mb-10">
+                                <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-white/20 flex-1" />
+                                <h3 className="text-xl sm:text-2xl font-light text-gray-300 uppercase tracking-[0.2em] italic text-center px-4">
+                                    Les Membres
+                                </h3>
+                                <div className="h-px bg-gradient-to-l from-transparent via-white/20 to-white/20 flex-1" />
+                            </div>
+
+                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
+                                {membres.map((name, idx) => (
+                                    <motion.div
+                                        key={idx}
+                                        initial={{ opacity: 0, y: 15 }}
+                                        whileInView={{ opacity: 1, y: 0 }}
+                                        viewport={{ once: true }}
+                                        transition={{ delay: idx * 0.03 }}
+                                        className="glass p-4 rounded-2xl border border-white/5 hover:border-white/20 transition-all text-center group flex flex-col items-center justify-center gap-2"
+                                    >
+                                        <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xs font-semibold text-gray-300 group-hover:scale-110 group-hover:bg-primary/20 group-hover:border-primary/40 group-hover:text-primary transition-all">
+                                            {name.split(" ").map(n => n[0]).join("").slice(0, 2)}
+                                        </div>
+                                        <span className="text-xs font-light text-gray-200 capitalize tracking-wide leading-tight">
+                                            {name}
+                                        </span>
+                                    </motion.div>
+                                ))}
+                            </div>
                         </div>
                     </div>
                     

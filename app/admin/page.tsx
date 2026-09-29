@@ -3,15 +3,13 @@ import { useState, useEffect, useRef } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import { useRouter } from "next/navigation";
 import { Html5QrcodeScanner } from "html5-qrcode";
-import { db } from "@/lib/firebase";
-import { doc, getDoc, updateDoc, serverTimestamp } from "firebase/firestore";
 import { Shield, CheckCircle, XCircle, Camera, LogOut, Users, Zap } from "lucide-react";
 
 export default function AdminDashboard() {
   const [isAuthenticated, setIsAuthenticated] = useState(false);
   const [scanResult, setScanResult] = useState<{ success: boolean; message: string; data?: any } | null>(null);
   const [isScanning, setIsScanning] = useState(true);
-  const [stats, setStats] = useState({ total: 0, present: 0 }); // Future: Real stats from Firestore
+  const [stats, setStats] = useState({ total: 0, present: 0 });
   const router = useRouter();
   const scannerRef = useRef<Html5QrcodeScanner | null>(null);
 
@@ -61,61 +59,34 @@ export default function AdminDashboard() {
     setScanResult({ success: true, message: "Identification en cours...", data: null });
 
     try {
-      // 1. Fetch from Firestore
-      const docRef = doc(db, "participants", decodedText);
-      const docSnap = await getDoc(docRef);
-
-      if (docSnap.exists()) {
-        const attendeeData = docSnap.data();
-        
-        if (attendeeData.attended) {
-            setScanResult({ 
-                success: false, 
-                message: `${attendeeData.firstName} ${attendeeData.lastName} est déjà marqué présent !`,
-                data: attendeeData 
-            });
-        } else {
-            // 2. Mark as Present in Firebase
-            await updateDoc(docRef, { 
-                attended: true, 
-                attendedAt: serverTimestamp() 
-            });
-
-            // 3. Mark as Present in Google Sheets
-            const sheetsUrl = process.env.NEXT_PUBLIC_SHEETS_SCRIPT_URL;
-            console.log("Tentative de mise à jour Sheets...", { email: attendeeData.email, url: sheetsUrl ? "Configurée" : "Manquante" });
-            
-            if (sheetsUrl) {
-                try {
-                    // On envoie en POST mais on s'assure que le contenu est propre
-                    const payload = {
-                        action: "checkin",
-                        email: attendeeData.email,
-                        firstName: attendeeData.firstName,
-                        lastName: attendeeData.lastName || ""
-                    };
-                    
-                    await fetch(sheetsUrl, {
-                        method: "POST",
-                        mode: "no-cors",
-                        headers: { "Content-Type": "text/plain" },
-                        body: JSON.stringify(payload)
-                    });
-                    console.log("Requête Sheets envoyée avec succès (no-cors).");
-                } catch (e) {
-                    console.error("Échec de la synchronisation Sheets :", e);
-                }
-            }
-
-            setScanResult({ 
-                success: true, 
-                message: `Bienvenue, ${attendeeData.firstName} ${attendeeData.lastName} ! Présence enregistrée.`,
-                data: attendeeData 
-            });
+      // Mark as Present in Google Sheets
+      const sheetsUrl = process.env.NEXT_PUBLIC_SHEETS_SCRIPT_URL;
+      
+      if (sheetsUrl) {
+        try {
+          const payload = {
+            action: "checkin",
+            email: decodedText,
+            identifier: decodedText
+          };
+          
+          await fetch(sheetsUrl, {
+            method: "POST",
+            mode: "no-cors",
+            headers: { "Content-Type": "text/plain" },
+            body: JSON.stringify(payload)
+          });
+          console.log("Requête Sheets envoyée avec succès.");
+        } catch (e) {
+          console.error("Échec de la synchronisation Sheets :", e);
         }
-      } else {
-        setScanResult({ success: false, message: "Code invalide. Participant non trouvé dans la base." });
       }
+
+      setScanResult({ 
+        success: true, 
+        message: `Présence enregistrée pour : ${decodedText}`,
+        data: { identifier: decodedText } 
+      });
     } catch (error) {
       console.error("Scan processing error:", error);
       setScanResult({ success: false, message: "Erreur technique lors de la vérification." });
