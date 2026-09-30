@@ -58,7 +58,7 @@ const bureauExecutif: TeamMember[] = [
     { name: "Melek Kammoun", role: "Trésorier", image: "/team/melek.jpg" },
     { name: "Nourhene Ben Amor", role: "Vice-Présidente chargée des Adhérents", image: "/team/nourhene.jpg" },
     { name: "Noura Derbel", role: "Vice-Présidente chargée des Relations Extérieures", image: "/team/noura.jpg" },
-    { name: "Ines Trabelsi", role: "Vice-Présidente chargée de la Communication", image: null },
+    { name: "Ines Trabelsi", role: "Vice-Présidente chargée de la Communication", image: "/team/ines.jpg" },
 ];
 
 const responsables: TeamMember[] = [
