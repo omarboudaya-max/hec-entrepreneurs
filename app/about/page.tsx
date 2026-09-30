@@ -296,9 +296,9 @@ export default function About() {
                         <motion.h1
                             initial={{ opacity: 0, scale: 0.9 }}
                             animate={{ opacity: 1, scale: 1 }}
-                            className="text-3xl sm:text-5xl md:text-7xl font-thin mb-8 text-wave uppercase tracking-[0.1em] sm:tracking-[0.2em]"
+                            className="text-3xl sm:text-5xl md:text-7xl font-thin mb-8 uppercase tracking-[0.1em] sm:tracking-[0.2em]"
                         >
-                            QUI SOMMES-NOUS
+                            <span className="text-wave">QUI SOMMES-NOUS</span>
                         </motion.h1>
                     </div>
 
@@ -399,18 +399,20 @@ export default function About() {
                     {/* Team Section */}
                     <div className="mb-32">
                         <div className="text-center mb-16">
-                            <h2 className="text-3xl sm:text-4xl md:text-6xl font-thin text-wave uppercase tracking-[0.1em] italic mb-4">NOTRE ÉQUIPE</h2>
+                            <h2 className="text-3xl sm:text-4xl md:text-6xl font-thin uppercase tracking-[0.1em] italic mb-4">
+                                <span className="text-wave">NOTRE ÉQUIPE</span>
+                            </h2>
                             <p className="text-gray-500 font-mono tracking-[0.3em] uppercase text-xs">Mandat 2026 - 2027</p>
                         </div>
 
                         {/* Bureau Exécutif */}
                         <div className="mb-20">
-                            <div className="flex items-center gap-4 mb-10">
-                                <div className="h-px bg-gradient-to-r from-transparent via-primary/40 to-primary/40 flex-1" />
-                                <h3 className="text-xl sm:text-2xl font-light text-primary uppercase tracking-[0.2em] italic text-center px-4">
+                            <div className="flex items-center justify-center gap-2 sm:gap-4 mb-10">
+                                <div className="h-px bg-gradient-to-r from-transparent via-primary/40 to-primary/40 flex-1 hidden sm:block" />
+                                <h3 className="text-base sm:text-2xl font-light text-primary uppercase tracking-[0.1em] sm:tracking-[0.2em] italic text-center px-2 sm:px-4">
                                     Bureau Exécutif 2026 / 2027
                                 </h3>
-                                <div className="h-px bg-gradient-to-l from-transparent via-primary/40 to-primary/40 flex-1" />
+                                <div className="h-px bg-gradient-to-l from-transparent via-primary/40 to-primary/40 flex-1 hidden sm:block" />
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
@@ -422,26 +424,28 @@ export default function About() {
                                         viewport={{ once: true }}
                                         transition={{ delay: idx * 0.05 }}
                                         onClick={() => setSelectedStoryMember(getMemberBio(member))}
-                                        className="glass p-8 rounded-[2rem] border border-white/5 hover:border-primary/40 hover:bg-white/10 transition-all text-center group cursor-pointer relative overflow-hidden shadow-lg hover:shadow-primary/20"
+                                        className="glass p-5 sm:p-8 rounded-[2rem] border border-white/5 hover:border-primary/40 hover:bg-white/10 transition-all text-center group cursor-pointer relative overflow-hidden shadow-lg hover:shadow-primary/20 flex flex-col justify-between"
                                     >
-                                        <div className="w-24 h-24 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full mx-auto mb-6 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform overflow-hidden shadow-xl shadow-primary/10">
-                                            {member.image ? (
-                                                <img
-                                                    src={member.image}
-                                                    alt={member.name}
-                                                    className={clsx(
-                                                        "w-full h-full object-cover transition-transform duration-500",
-                                                        member.name === "Omar Boudaya" && "scale-[1.4] object-center"
-                                                    )}
-                                                />
-                                            ) : (
-                                                <Crown className="w-10 h-10 text-primary/70" />
-                                            )}
+                                        <div>
+                                            <div className="w-20 h-20 sm:w-24 sm:h-24 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full mx-auto mb-4 sm:mb-6 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform overflow-hidden shadow-xl shadow-primary/10">
+                                                {member.image ? (
+                                                    <img
+                                                        src={member.image}
+                                                        alt={member.name}
+                                                        className={clsx(
+                                                            "w-full h-full object-cover transition-transform duration-500",
+                                                            member.name === "Omar Boudaya" && "scale-[1.2] object-center"
+                                                        )}
+                                                    />
+                                                ) : (
+                                                    <Crown className="w-8 h-8 sm:w-10 sm:h-10 text-primary/70" />
+                                                )}
+                                            </div>
+                                            <h4 className="text-sm sm:text-lg font-light text-white uppercase tracking-[0.05em] mb-2 italic">{member.name}</h4>
+                                            <p className="text-primary text-[10px] sm:text-[11px] font-medium uppercase tracking-wide sm:tracking-[0.15em] leading-tight opacity-90 mb-3 sm:mb-4 min-h-[44px] flex items-center justify-center text-center px-1">
+                                                {member.role}
+                                            </p>
                                         </div>
-                                        <h4 className="text-lg font-light text-white uppercase tracking-[0.05em] mb-2 italic">{member.name}</h4>
-                                        <p className="text-primary text-[11px] font-medium uppercase tracking-[0.15em] leading-tight opacity-90 mb-4">
-                                            {member.role}
-                                        </p>
                                         <div className="pt-3 border-t border-white/5 flex items-center justify-center gap-1.5 text-[10px] text-primary/70 font-semibold uppercase tracking-wider group-hover:text-primary transition-colors">
                                             <Sparkles className="w-3.5 h-3.5 text-secondary animate-pulse" />
                                             <span>Découvrir le parcours</span>
@@ -453,12 +457,12 @@ export default function About() {
 
                         {/* Les Responsables */}
                         <div className="mb-20">
-                            <div className="flex items-center gap-4 mb-10">
-                                <div className="h-px bg-gradient-to-r from-transparent via-secondary/40 to-secondary/40 flex-1" />
-                                <h3 className="text-xl sm:text-2xl font-light text-secondary uppercase tracking-[0.2em] italic text-center px-4">
+                            <div className="flex items-center justify-center gap-2 sm:gap-4 mb-10">
+                                <div className="h-px bg-gradient-to-r from-transparent via-secondary/40 to-secondary/40 flex-1 hidden sm:block" />
+                                <h3 className="text-base sm:text-2xl font-light text-secondary uppercase tracking-[0.1em] sm:tracking-[0.2em] italic text-center px-2 sm:px-4">
                                     Les Responsables
                                 </h3>
-                                <div className="h-px bg-gradient-to-l from-transparent via-secondary/40 to-secondary/40 flex-1" />
+                                <div className="h-px bg-gradient-to-l from-transparent via-secondary/40 to-secondary/40 flex-1 hidden sm:block" />
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
@@ -470,27 +474,27 @@ export default function About() {
                                         viewport={{ once: true }}
                                         transition={{ delay: idx * 0.04 }}
                                         onClick={() => setSelectedStoryMember(getMemberBio(member))}
-                                        className="glass p-6 rounded-[2rem] border border-white/5 hover:border-secondary/40 hover:bg-white/10 transition-all text-center group flex flex-col justify-between cursor-pointer shadow-lg hover:shadow-secondary/20"
+                                        className="glass p-4 sm:p-6 rounded-[2rem] border border-white/5 hover:border-secondary/40 hover:bg-white/10 transition-all text-center group flex flex-col justify-between cursor-pointer shadow-lg hover:shadow-secondary/20"
                                     >
                                         <div>
-                                            <div className="w-20 h-20 bg-gradient-to-br from-secondary/20 to-primary/10 rounded-full mx-auto mb-5 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform overflow-hidden shadow-lg shadow-secondary/10">
+                                            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-br from-secondary/20 to-primary/10 rounded-full mx-auto mb-3 sm:mb-5 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform overflow-hidden shadow-lg shadow-secondary/10">
                                                 {member.image ? (
                                                     <img
                                                         src={member.image}
                                                         alt={member.name}
                                                         className={clsx(
                                                             "w-full h-full object-cover transition-transform duration-500",
-                                                            member.name === "Omar Boudaya" && "scale-[1.4] object-center"
+                                                            member.name === "Omar Boudaya" && "scale-[1.25] object-center"
                                                         )}
                                                     />
                                                 ) : (
-                                                    <Shield className="w-8 h-8 text-secondary/70" />
+                                                    <Shield className="w-6 h-6 sm:w-8 sm:h-8 text-secondary/70" />
                                                 )}
                                             </div>
-                                            <h4 className="text-base font-light text-white uppercase tracking-[0.05em] mb-2 italic">{member.name}</h4>
+                                            <h4 className="text-xs sm:text-base font-light text-white uppercase tracking-[0.05em] mb-1 italic">{member.name}</h4>
                                         </div>
                                         <div>
-                                            <p className="text-secondary text-[10px] font-medium uppercase tracking-[0.15em] leading-tight opacity-80 mt-2 mb-3">
+                                            <p className="text-secondary text-[10px] font-medium uppercase tracking-wide sm:tracking-[0.15em] leading-tight opacity-80 mt-1 mb-2 sm:mb-3 min-h-[40px] flex items-center justify-center text-center px-1">
                                                 {member.role}
                                             </p>
                                             <div className="pt-2 border-t border-white/5 flex items-center justify-center gap-1 text-[9px] text-secondary/70 font-semibold uppercase tracking-wider group-hover:text-secondary transition-colors">
@@ -505,12 +509,12 @@ export default function About() {
 
                         {/* Les Membres */}
                         <div>
-                            <div className="flex items-center gap-4 mb-10">
-                                <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-white/20 flex-1" />
-                                <h3 className="text-xl sm:text-2xl font-light text-gray-300 uppercase tracking-[0.2em] italic text-center px-4">
+                            <div className="flex items-center justify-center gap-2 sm:gap-4 mb-10">
+                                <div className="h-px bg-gradient-to-r from-transparent via-white/20 to-white/20 flex-1 hidden sm:block" />
+                                <h3 className="text-base sm:text-2xl font-light text-gray-300 uppercase tracking-[0.1em] sm:tracking-[0.2em] italic text-center px-2 sm:px-4">
                                     Les Membres
                                 </h3>
-                                <div className="h-px bg-gradient-to-l from-transparent via-white/20 to-white/20 flex-1" />
+                                <div className="h-px bg-gradient-to-l from-transparent via-white/20 to-white/20 flex-1 hidden sm:block" />
                             </div>
 
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
@@ -539,7 +543,9 @@ export default function About() {
                     {/* Projects Section */}
                     <div className="mb-32 mt-32">
                         <div className="text-center mb-16">
-                            <h2 className="text-3xl sm:text-4xl md:text-6xl font-thin text-wave uppercase tracking-[0.1em] italic mb-4">NOS PROJETS</h2>
+                            <h2 className="text-3xl sm:text-4xl md:text-6xl font-thin uppercase tracking-[0.1em] italic mb-4">
+                                <span className="text-wave">NOS PROJETS</span>
+                            </h2>
                             <p className="text-gray-500 font-mono tracking-[0.3em] uppercase text-xs">Les initiatives qui font la différence</p>
                         </div>
 

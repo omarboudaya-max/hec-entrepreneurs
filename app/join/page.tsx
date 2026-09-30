@@ -308,8 +308,8 @@ export default function Join() {
                         <header className="text-center mb-10">
                             <motion.div variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}>
                                 <Sparkles className="w-10 h-10 text-primary mx-auto mb-3 animate-float" />
-                                <h1 className="text-2xl sm:text-4xl md:text-5xl font-thin mb-3 text-wave uppercase tracking-[0.2em] px-2">
-                                    REJOIGNEZ LE CLUB
+                                <h1 className="text-2xl sm:text-4xl md:text-5xl font-thin mb-3 uppercase tracking-[0.1em] sm:tracking-[0.2em] px-2">
+                                    <span className="text-wave">REJOIGNEZ LE CLUB</span>
                                 </h1>
                                 <p className="text-gray-400 font-mono tracking-widest text-xs uppercase mb-8">Formulaire de Recrutement 2026/2027</p>
                                 

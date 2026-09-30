@@ -61,7 +61,9 @@ export default function TeamUp() {
                         initial={{ opacity: 0, scale: 0.9 }}
                         animate={{ opacity: 1, scale: 1 }}
                     >
-                        <h1 className="text-4xl sm:text-5xl md:text-7xl font-thin mb-6 text-wave tracking-[0.1em] sm:tracking-[0.3em] uppercase">TEAM UP</h1>
+                        <h1 className="text-3xl sm:text-5xl md:text-7xl font-thin mb-6 tracking-[0.1em] sm:tracking-[0.3em] uppercase">
+                            <span className="text-wave">TEAM UP</span>
+                        </h1>
                         <p className="text-lg md:text-xl text-gray-400 max-w-2xl mx-auto leading-relaxed px-4">
                             Trouvez votre co-fondateur, rejoignez un projet ou bâtissez votre équipe de rêve.
                         </p>

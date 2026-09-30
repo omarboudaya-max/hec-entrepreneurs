@@ -55,12 +55,12 @@ export default function Hero() {
                 >
                     <motion.h1
                         style={{ y: yTitle }}
-                        className="text-4xl sm:text-5xl md:text-7xl font-bold mb-8 tracking-[0.1em] text-wave leading-tight uppercase"
+                        className="text-3xl sm:text-5xl md:text-7xl font-bold mb-8 tracking-[0.05em] sm:tracking-[0.1em] leading-tight uppercase"
                         initial={{ filter: "blur(10px)", opacity: 0 }}
                         animate={{ filter: "blur(0px)", opacity: 1 }}
                         transition={{ duration: 1 }}
                     >
-                        HEC ENTREPRENEURS
+                        <span className="text-wave">HEC ENTREPRENEURS</span>
                     </motion.h1>
 
                     <motion.h2

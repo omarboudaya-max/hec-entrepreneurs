@@ -24,9 +24,9 @@ export default function DifferentiatorsSection() {
           initial={{ opacity: 0, x: -50 }}
           whileInView={{ opacity: 1, x: 0 }}
           viewport={{ once: true }}
-          className="text-3xl md:text-5xl font-light text-center mb-20 text-wave uppercase tracking-[0.1em]"
+          className="text-2xl sm:text-3xl md:text-5xl font-light text-center mb-20 uppercase tracking-[0.05em] sm:tracking-[0.1em]"
         >
-          POURQUOI NOUS SOMMES DIFFÉRENTS
+          <span className="text-wave">POURQUOI NOUS SOMMES DIFFÉRENTS</span>
         </motion.h2>
 
         <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">

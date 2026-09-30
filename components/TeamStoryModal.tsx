@@ -146,50 +146,50 @@ export default function TeamStoryModal({ member, onClose }: TeamStoryModalProps)
                         </div>
 
                         {/* Profile Bar */}
-                        <div className="flex items-center justify-between">
-                            <div className="flex items-center gap-3">
-                                <div className="w-12 h-12 rounded-full border-2 border-primary/60 p-0.5 overflow-hidden shadow-md">
+                        <div className="flex items-center justify-between gap-2">
+                            <div className="flex items-center gap-2.5 min-w-0">
+                                <div className="w-10 h-10 sm:w-12 sm:h-12 rounded-full border-2 border-primary/60 p-0.5 overflow-hidden shadow-md shrink-0">
                                     {member.image ? (
                                         <img src={member.image} alt={member.name} className="w-full h-full object-cover rounded-full" />
                                     ) : (
-                                        <div className="w-full h-full bg-primary/20 flex items-center justify-center text-primary font-bold">
+                                        <div className="w-full h-full bg-primary/20 flex items-center justify-center text-primary font-bold text-xs sm:text-base">
                                             {member.name.charAt(0)}
                                         </div>
                                     )}
                                 </div>
-                                <div>
-                                    <h3 className="text-white text-base font-medium tracking-wide flex items-center gap-2">
-                                        {member.name}
+                                <div className="min-w-0 flex-1">
+                                    <h3 className="text-white text-xs sm:text-base font-medium tracking-wide flex flex-wrap items-center gap-1.5 truncate">
+                                        <span className="truncate">{member.name}</span>
                                         {currentSlide.badge && (
-                                            <span className="text-[10px] bg-primary/20 text-primary border border-primary/40 px-2 py-0.5 rounded-full font-mono font-semibold">
+                                            <span className="text-[9px] sm:text-[10px] bg-primary/20 text-primary border border-primary/40 px-1.5 py-0.5 rounded-full font-mono font-semibold shrink-0">
                                                 {currentSlide.badge}
                                             </span>
                                         )}
                                     </h3>
-                                    <p className="text-gray-400 text-xs font-mono">{member.role}</p>
+                                    <p className="text-gray-400 text-[10px] sm:text-xs font-mono truncate">{member.role}</p>
                                 </div>
                             </div>
 
-                            <div className="flex items-center gap-2">
+                            <div className="flex items-center gap-1.5 shrink-0">
                                 <button
                                     onClick={() => setIsPaused(!isPaused)}
-                                    className="p-2 rounded-full bg-white/5 border border-white/10 text-gray-300 hover:text-white transition-all"
+                                    className="p-1.5 sm:p-2 rounded-full bg-white/5 border border-white/10 text-gray-300 hover:text-white transition-all"
                                     title={isPaused ? "Reprendre" : "Pause"}
                                 >
-                                    {isPaused ? <Play size={16} /> : <Pause size={16} />}
+                                    {isPaused ? <Play size={14} /> : <Pause size={14} />}
                                 </button>
                                 <button
                                     onClick={onClose}
-                                    className="p-2 rounded-full bg-white/5 border border-white/10 text-gray-300 hover:text-white hover:border-white/30 transition-all"
+                                    className="p-1.5 sm:p-2 rounded-full bg-white/5 border border-white/10 text-gray-300 hover:text-white hover:border-white/30 transition-all"
                                 >
-                                    <X size={18} />
+                                    <X size={16} />
                                 </button>
                             </div>
                         </div>
                     </div>
 
                     {/* MAIN SLIDE CONTENT */}
-                    <div className="relative z-10 flex-1 px-6 sm:px-8 py-4 flex flex-col justify-center overflow-y-auto">
+                    <div className="relative z-10 flex-1 px-4 sm:px-8 py-3 sm:py-4 flex flex-col justify-center overflow-y-auto">
                         <AnimatePresence mode="wait">
                             <motion.div
                                 key={currentSlideIndex}
@@ -197,18 +197,18 @@ export default function TeamStoryModal({ member, onClose }: TeamStoryModalProps)
                                 animate={{ opacity: 1, x: 0 }}
                                 exit={{ opacity: 0, x: -40 }}
                                 transition={{ duration: 0.3 }}
-                                className="space-y-6"
+                                className="space-y-4 sm:space-y-6"
                             >
                                 {/* Category Icon & Subtitle */}
-                                <div className="space-y-2">
-                                    <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-xl bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30 text-primary text-xs font-semibold uppercase tracking-wider">
-                                        <SlideIcon className="w-4 h-4 text-primary" />
+                                <div className="space-y-1.5 sm:space-y-2">
+                                    <div className="inline-flex items-center gap-2 px-3 py-1 sm:px-3.5 sm:py-1.5 rounded-xl bg-gradient-to-r from-primary/20 to-secondary/20 border border-primary/30 text-primary text-[10px] sm:text-xs font-semibold uppercase tracking-wider">
+                                        <SlideIcon className="w-3.5 h-3.5 text-primary" />
                                         <span>{currentSlide.subtitle}</span>
                                     </div>
-                                    <h2 className="text-2xl sm:text-3xl font-light text-white tracking-wide uppercase italic">
+                                    <h2 className="text-xl sm:text-3xl font-light text-white tracking-wide uppercase italic leading-tight">
                                         {currentSlide.title}
                                     </h2>
-                                    <p className="text-sm text-secondary italic font-light">
+                                    <p className="text-xs sm:text-sm text-secondary italic font-light">
                                         &quot;{currentSlide.tagline}&quot;
                                     </p>
                                 </div>
