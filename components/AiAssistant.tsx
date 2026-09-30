@@ -61,7 +61,7 @@ export default function AiAssistant() {
             initial={{ opacity: 0, y: 20, scale: 0.95 }}
             animate={{ opacity: 1, y: 0, scale: 1 }}
             exit={{ opacity: 0, y: 20, scale: 0.95 }}
-            className="fixed bottom-24 right-4 left-4 md:left-auto md:right-6 md:w-96 h-[500px] glass rounded-2xl overflow-hidden z-50 flex flex-col border border-primary/30 shadow-2xl shadow-primary/10"
+            className="fixed bottom-24 right-4 left-4 md:left-auto md:right-6 md:w-96 h-[500px] glass rounded-2xl overflow-hidden z-50 flex flex-col border border-primary/30 shadow-2xl shadow-primary/10 ai-assistant-widget"
           >
             {/* Header */}
             <div className="bg-gradient-to-r from-primary/20 to-secondary/20 p-4 border-b border-white/10 flex justify-between items-center backdrop-blur-md">
@@ -143,7 +143,7 @@ export default function AiAssistant() {
         whileHover={{ scale: 1.1 }}
         whileTap={{ scale: 0.95 }}
         onClick={() => setIsOpen(!isOpen)}
-        className="fixed bottom-8 right-8 w-16 h-16 rounded-full z-50 group pointer-events-auto"
+        className="fixed bottom-8 right-8 w-16 h-16 rounded-full z-50 group pointer-events-auto ai-assistant-widget"
       >
         <div className="absolute inset-0 bg-gradient-to-tr from-primary to-secondary rounded-full animate-pulse-slow blur-md opacity-70 group-hover:opacity-100 transition-opacity" />
         <div className="relative w-full h-full bg-black rounded-full border border-white/20 flex items-center justify-center overflow-hidden">

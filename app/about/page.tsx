@@ -1,12 +1,13 @@
 "use client";
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
-import { Zap, Heart, Star, Target, Users, Rocket, Globe, Lightbulb, Crown, Shield } from "lucide-react";
+import { Zap, Heart, Star, Target, Users, Rocket, Globe, Lightbulb, Crown, Shield, Sparkles } from "lucide-react";
 import { useRef, useState } from "react";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import Image from "next/image";
 import clsx from "clsx";
+import TeamStoryModal, { TeamMemberBio } from "@/components/TeamStoryModal";
 
 const values = [
     {
@@ -64,7 +65,7 @@ const bureauExecutif: TeamMember[] = [
 const responsables: TeamMember[] = [
     { name: "Edam Guermazi", role: "Responsable Événements & Projets", image: null },
     { name: "Rihem Abbessi", role: "Responsable Développement & Innovation", image: null },
-    { name: "Trésorier Adjoint", role: "Trésorier Adjoint", image: null },
+    { name: "Mohamed Hammemi", role: "Trésorier Adjoint", image: null },
     { name: "Khadija Houidi", role: "Responsable Intégration & Expérience Membre", image: null },
     { name: "Achref Jenni", role: "Responsable Protocole Interne", image: null },
     { name: "Adem Awedi", role: "Responsable Sponsoring", image: null },
@@ -94,8 +95,189 @@ const membres: string[] = [
     "Ziada Moslem",
 ];
 
+const teamMemberBios: Record<string, TeamMemberBio> = {
+    "Youssef Drira": {
+        name: "Youssef Drira",
+        role: "Président (Mandat 2026-2027)",
+        image: "/team/youssef.JPG",
+        stories: [
+            {
+                title: "Excellence Académique",
+                subtitle: "Diplôme & Master",
+                tagline: "Un parcours ancré dans la gestion d'entreprise et le management stratégique",
+                badge: "Master 2 Entrepreneuriat",
+                highlights: [
+                    "Diplômé d’une Licence en Sciences de Gestion, spécialité Management",
+                    "En 2ᵉ année de Master Professionnel en Entrepreneuriat"
+                ]
+            },
+            {
+                title: "Transmission & Pédagogie",
+                subtitle: "Formateur Homologué",
+                tagline: "Impulser l'esprit d'initiative et développer le potentiel des membres",
+                badge: "Youth CLUBs",
+                bigStat: { number: "800+", label: "Heures de formation dispensées avec succès" },
+                highlights: [
+                    "Formateur homologué par l’Association Youth CLUBs",
+                    "Plus de 800 heures d'ateliers dispensées en leadership et management"
+                ]
+            },
+            {
+                title: "Vision Entrepreneuriale",
+                subtitle: "Incubation & Conseil",
+                tagline: "De l'idée à la création de valeur concrète et mesurable",
+                badge: "Pôle Sfax 2024",
+                highlights: [
+                    "Étudiant-entrepreneur au Pôle de l’Étudiant Entrepreneur de Sfax (2024)",
+                    "Freelance spécialisé en conseil, management stratégique et gestion de projets"
+                ]
+            }
+        ]
+    },
+    "Omar Boudaya": {
+        name: "Omar Boudaya",
+        role: "Responsable IT & Développement Web",
+        image: "/team/omar.jpg",
+        stories: [
+            {
+                title: "Expertise Tech & IA",
+                subtitle: "Web Dev & IA Automation",
+                tagline: "Développer les plateformes numériques et automatiser les processus intelligents",
+                badge: "Freelance Web & IA",
+                bigStat: { number: "5 ans", label: "D'expérience et stage au cabinet Rayon Consult" },
+                highlights: [
+                    "Freelance en Développement Web et Automatisations d'Intelligence Artificielle",
+                    "5 ans de stage pratique au sein du cabinet de conseil Rayon Consult"
+                ]
+            },
+            {
+                title: "Leadership Associatif",
+                subtitle: "Présidence & Trésorerie",
+                tagline: "Une expérience solide en gestion d'équipes et gouvernance financière",
+                badge: "Ex-Président LPM8",
+                highlights: [
+                    "Président du LPM8 Youth Club (Mandat 2022/2023)",
+                    "Trésorier de Health Keepers (Mandat 2022/2023)",
+                    "Membre du Conseil de Supervision du LPM8 Youth Club (Mandat 2023/2024)"
+                ]
+            },
+            {
+                title: "Gouvernance & Juridique",
+                subtitle: "Conseil & Supervision",
+                tagline: "Régularité statutaire et animation des instances décisionnelles",
+                badge: "Conseil Juridique",
+                bigStat: { number: "90+", label: "Assemblées locales supervisées" },
+                highlights: [
+                    "Conseil juridique local avec participation active à plus de 90 assemblées locales",
+                    "Garant de la conformité réglementaire et de l'organisation des débats"
+                ]
+            }
+        ]
+    },
+    "Achref Jenni": {
+        name: "Achref Jenni",
+        role: "Responsable Protocole Interne",
+        image: null,
+        stories: [
+            {
+                title: "Engagement Associatif",
+                subtitle: "Lions Club International",
+                tagline: "Une implication humaine au service du développement collectif",
+                badge: "Lions Club",
+                highlights: [
+                    "Membre du Lions Club IHEC Carthage (Oct. 2024 – Fév. 2026) au département RH",
+                    "Membre actif du Lions Club Tunis ISG depuis Février 2025"
+                ]
+            },
+            {
+                title: "Responsable RH & Médias",
+                subtitle: "IHEC News",
+                tagline: "Gestion des talents et structuration des équipes de communication",
+                badge: "Ex-Responsable RH",
+                highlights: [
+                    "Responsable des Ressources Humaines au sein d’IHEC News (Sept. 2025 – Déc. 2025)",
+                    "Implication dans les départements RH et Communication d'IHEC News"
+                ]
+            },
+            {
+                title: "Chef de Projet & Protocole",
+                subtitle: "HEC Entrepreneurs",
+                tagline: "Conduite d'initiatives à fort impact citoyen et protocole d'excellence",
+                badge: "Chef de Projet",
+                highlights: [
+                    "Membre de HEC Entrepreneurs depuis Février 2025",
+                    "Chef de Projet de l'initiative éco-citoyenne 'Carthage Tnadhef'",
+                    "Responsable Protocole Interne pour le Mandat 2026/2027"
+                ]
+            }
+        ]
+    },
+    "Noura Derbel": {
+        name: "Noura Derbel",
+        role: "Vice-Présidente chargée des Relations Extérieures",
+        image: "/team/noura.jpg",
+        stories: [
+            {
+                title: "Relations Extérieures",
+                subtitle: "HEC Entrepreneurs",
+                tagline: "Rayonnement institutionnel, partenariats stratégiques et suivi administratif",
+                badge: "Vice-Présidente",
+                highlights: [
+                    "Vice-Présidente chargée des Relations Extérieures chez HEC Entrepreneurs",
+                    "Coordination des activités, organisation des événements majeurs & suivi administratif"
+                ]
+            },
+            {
+                title: "Fondation & Gestion Financière",
+                subtitle: "Sustainfinity Club",
+                tagline: "Co-création d'un club dédié à la durabilité et à la finance responsable",
+                badge: "Membre Fondateur",
+                highlights: [
+                    "Membre du bureau fondateur du Sustainfinity Club",
+                    "Trésorière générale responsable de la gestion financière et de l'organisation interne"
+                ]
+            },
+            {
+                title: "Parcours Associatif & Impact",
+                subtitle: "Enactus ESCS",
+                tagline: "Un engagement continu dès les premières années universitaires",
+                badge: "Enactus Alumni",
+                highlights: [
+                    "Membre engagée d'Enactus à l'ESCS (Mandat 2022-2023) avec participation aux projets associatifs",
+                    "Développement continu des compétences universitaires et d'analyse stratégique"
+                ]
+            }
+        ]
+    }
+};
+
+const getMemberBio = (member: TeamMember): TeamMemberBio => {
+    if (teamMemberBios[member.name]) {
+        return teamMemberBios[member.name];
+    }
+    return {
+        name: member.name,
+        role: member.role,
+        image: member.image,
+        stories: [
+            {
+                title: "Engagement Associatif",
+                subtitle: "Mandat 2026 - 2027",
+                tagline: "Acteur engagé du Club HEC Entrepreneurs",
+                badge: "Équipe 26/27",
+                highlights: [
+                    `Poste : ${member.role}`,
+                    "Développement et promotion de la culture entrepreneuriale à l'IHEC Carthage",
+                    "Organisation d'événements majeurs et accompagnement des nouveaux adhérents"
+                ]
+            }
+        ]
+    };
+};
+
 export default function About() {
     const [expandedValue, setExpandedValue] = useState<string | null>(null);
+    const [selectedStoryMember, setSelectedStoryMember] = useState<TeamMemberBio | null>(null);
 
     return (
         <main className="min-h-screen bg-background text-foreground pb-20 relative overflow-hidden">
@@ -239,7 +421,8 @@ export default function About() {
                                         whileInView={{ opacity: 1, scale: 1 }}
                                         viewport={{ once: true }}
                                         transition={{ delay: idx * 0.05 }}
-                                        className="glass p-8 rounded-[2rem] border border-white/5 hover:border-primary/30 transition-all text-center group"
+                                        onClick={() => setSelectedStoryMember(getMemberBio(member))}
+                                        className="glass p-8 rounded-[2rem] border border-white/5 hover:border-primary/40 hover:bg-white/10 transition-all text-center group cursor-pointer relative overflow-hidden shadow-lg hover:shadow-primary/20"
                                     >
                                         <div className="w-24 h-24 bg-gradient-to-br from-primary/20 to-secondary/20 rounded-full mx-auto mb-6 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform overflow-hidden shadow-xl shadow-primary/10">
                                             {member.image ? (
@@ -256,9 +439,13 @@ export default function About() {
                                             )}
                                         </div>
                                         <h4 className="text-lg font-light text-white uppercase tracking-[0.05em] mb-2 italic">{member.name}</h4>
-                                        <p className="text-primary text-[11px] font-medium uppercase tracking-[0.15em] leading-tight opacity-90">
+                                        <p className="text-primary text-[11px] font-medium uppercase tracking-[0.15em] leading-tight opacity-90 mb-4">
                                             {member.role}
                                         </p>
+                                        <div className="pt-3 border-t border-white/5 flex items-center justify-center gap-1.5 text-[10px] text-primary/70 font-semibold uppercase tracking-wider group-hover:text-primary transition-colors">
+                                            <Sparkles className="w-3.5 h-3.5 text-secondary animate-pulse" />
+                                            <span>Découvrir le parcours</span>
+                                        </div>
                                     </motion.div>
                                 ))}
                             </div>
@@ -282,7 +469,8 @@ export default function About() {
                                         whileInView={{ opacity: 1, scale: 1 }}
                                         viewport={{ once: true }}
                                         transition={{ delay: idx * 0.04 }}
-                                        className="glass p-6 rounded-[2rem] border border-white/5 hover:border-secondary/30 transition-all text-center group flex flex-col justify-between"
+                                        onClick={() => setSelectedStoryMember(getMemberBio(member))}
+                                        className="glass p-6 rounded-[2rem] border border-white/5 hover:border-secondary/40 hover:bg-white/10 transition-all text-center group flex flex-col justify-between cursor-pointer shadow-lg hover:shadow-secondary/20"
                                     >
                                         <div>
                                             <div className="w-20 h-20 bg-gradient-to-br from-secondary/20 to-primary/10 rounded-full mx-auto mb-5 flex items-center justify-center border border-white/10 group-hover:scale-110 transition-transform overflow-hidden shadow-lg shadow-secondary/10">
@@ -301,9 +489,15 @@ export default function About() {
                                             </div>
                                             <h4 className="text-base font-light text-white uppercase tracking-[0.05em] mb-2 italic">{member.name}</h4>
                                         </div>
-                                        <p className="text-secondary text-[10px] font-medium uppercase tracking-[0.15em] leading-tight opacity-80 mt-2">
-                                            {member.role}
-                                        </p>
+                                        <div>
+                                            <p className="text-secondary text-[10px] font-medium uppercase tracking-[0.15em] leading-tight opacity-80 mt-2 mb-3">
+                                                {member.role}
+                                            </p>
+                                            <div className="pt-2 border-t border-white/5 flex items-center justify-center gap-1 text-[9px] text-secondary/70 font-semibold uppercase tracking-wider group-hover:text-secondary transition-colors">
+                                                <Sparkles className="w-3 h-3 text-primary animate-pulse" />
+                                                <span>Découvrir le parcours</span>
+                                            </div>
+                                        </div>
                                     </motion.div>
                                 ))}
                             </div>
@@ -327,7 +521,8 @@ export default function About() {
                                         whileInView={{ opacity: 1, y: 0 }}
                                         viewport={{ once: true }}
                                         transition={{ delay: idx * 0.03 }}
-                                        className="glass p-4 rounded-2xl border border-white/5 hover:border-white/20 transition-all text-center group flex flex-col items-center justify-center gap-2"
+                                        onClick={() => setSelectedStoryMember(getMemberBio({ name, role: "Membre du Club", image: null }))}
+                                        className="glass p-4 rounded-2xl border border-white/5 hover:border-primary/40 hover:bg-white/10 transition-all text-center group flex flex-col items-center justify-center gap-2 cursor-pointer shadow-sm hover:shadow-primary/20"
                                     >
                                         <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xs font-semibold text-gray-300 group-hover:scale-110 group-hover:bg-primary/20 group-hover:border-primary/40 group-hover:text-primary transition-all">
                                             {name.split(" ").map(n => n[0]).join("").slice(0, 2)}
@@ -387,6 +582,7 @@ export default function About() {
             </div>
 
             <Footer />
+            <TeamStoryModal member={selectedStoryMember} onClose={() => setSelectedStoryMember(null)} />
         </main>
     );
 }

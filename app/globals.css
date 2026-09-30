@@ -154,3 +154,12 @@ body::before {
 .animate-float {
   animation: float 6s ease-in-out infinite;
 }
+
+/* Hide floating AI assistant & widgets when member Story Modal is open */
+body.story-modal-open .ai-assistant-widget,
+body.story-modal-open button.fixed,
+body.story-modal-open .live-feed-widget {
+  display: none !important;
+  opacity: 0 !important;
+  pointer-events: none !important;
+}
