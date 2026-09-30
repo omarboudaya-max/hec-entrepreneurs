@@ -77,15 +77,37 @@ export async function POST(req: NextRequest) {
                 })),
         ];
 
-        const completion = await openai.chat.completions.create({
-            model: "llama-3.3-70b-versatile",
-            messages: openaiMessages,
-            max_tokens: 500,
-            temperature: 0.7,
-        });
+        const candidateModels = [
+            "openai/gpt-oss-120b",
+            "openai/gpt-oss-20b",
+            "qwen/qwen3.8-27b"
+        ];
 
-        const response = completion.choices[0].message.content;
-        return NextResponse.json({ message: response });
+        let responseText = "";
+        let lastError = null;
+
+        for (const model of candidateModels) {
+            try {
+                const completion = await openai.chat.completions.create({
+                    model,
+                    messages: openaiMessages,
+                    max_tokens: 600,
+                    temperature: 0.7,
+                });
+
+                responseText = completion.choices[0]?.message?.content || "";
+                if (responseText) break;
+            } catch (err) {
+                console.warn(`Model ${model} failed, trying next fallback...`);
+                lastError = err;
+            }
+        }
+
+        if (!responseText) {
+            throw lastError || new Error("No response generated from Groq models");
+        }
+
+        return NextResponse.json({ message: responseText });
     } catch (error) {
         console.error("AI API error:", error);
         return NextResponse.json(
