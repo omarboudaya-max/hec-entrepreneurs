@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { motion, AnimatePresence } from "framer-motion";
@@ -79,6 +79,17 @@ interface SlotAvailability {
 
 export default function Join() {
     const [step, setStep] = useState(1);
+    const formTopRef = useRef<HTMLDivElement>(null);
+
+    useEffect(() => {
+        if (formTopRef.current) {
+            const yOffset = -100;
+            const element = formTopRef.current;
+            const y = element.getBoundingClientRect().top + window.pageYOffset + yOffset;
+            window.scrollTo({ top: Math.max(0, y), behavior: "smooth" });
+        }
+    }, [step]);
+
     const [formData, setFormData] = useState({
         // Section 1. Identité
         fullName: "",
@@ -305,7 +316,7 @@ export default function Join() {
                     className="w-full max-w-3xl"
                 >
                     {!submitted && (
-                        <header className="text-center mb-10">
+                        <header ref={formTopRef} className="text-center mb-10">
                             <motion.div variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}>
                                 <Sparkles className="w-10 h-10 text-primary mx-auto mb-3 animate-float" />
                                 <h1 className="text-2xl sm:text-4xl md:text-5xl font-thin mb-3 uppercase tracking-[0.1em] sm:tracking-[0.2em] px-2">
