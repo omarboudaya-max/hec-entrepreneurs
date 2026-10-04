@@ -14,6 +14,7 @@ import { supabase } from "@/lib/supabase";
 
 // Scheduling constants
 const DATES = ["05/10/2026", "06/10/2026", "07/10/2026", "08/10/2026", "09/10/2026"];
+const FULL_DATES = ["05/10/2026"]; // Lundi is full all day
 const DATE_LABELS: Record<string, string> = {
     "05/10/2026": "Lundi 05/10",
     "06/10/2026": "Mardi 06/10",
@@ -868,28 +869,38 @@ export default function Join() {
                                             <label className="text-sm font-medium text-white block">
                                                 Choisissez la date de votre entretien d'intégration :
                                             </label>
-                                            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3">
-                                                {DATES.map((date) => (
-                                                    <button
-                                                        key={date}
-                                                        type="button"
-                                                        onClick={() => setFormData(p => ({ ...p, interviewDate: date, interviewTime: "" }))}
-                                                        className={`py-3.5 px-2 rounded-xl border transition-all text-xs font-semibold ${formData.interviewDate === date ? 'bg-primary border-primary text-white shadow-md' : 'bg-white/5 border-white/10 text-gray-400 hover:border-primary/50'}`}
-                                                    >
-                                                        {DATE_LABELS[date] || date}
-                                                    </button>
-                                                ))}
-                                                <button
-                                                    type="button"
-                                                    onClick={() => setFormData(p => ({ ...p, interviewDate: "Autre", interviewTime: "CONTACT DIRECT" }))}
-                                                    className={`py-3.5 px-2 rounded-xl border transition-all text-xs font-semibold ${formData.interviewDate === "Autre" ? 'bg-primary border-primary text-white shadow-md' : 'bg-white/5 border-white/10 text-gray-400 hover:border-primary/50'}`}
-                                                >
-                                                    Autre
-                                                </button>
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                                                {DATES.map((date) => {
+                                                    const isFull = FULL_DATES.includes(date);
+                                                    if (isFull) {
+                                                        return (
+                                                            <div
+                                                                key={date}
+                                                                className="py-3 px-2 rounded-xl border border-white/5 bg-white/5 text-gray-500 text-xs font-semibold cursor-not-allowed flex flex-col items-center justify-center gap-1 opacity-60 select-none"
+                                                                title="Cette journée est complète"
+                                                            >
+                                                                <span className="line-through">{DATE_LABELS[date] || date}</span>
+                                                                <span className="text-[10px] text-red-400 font-bold uppercase tracking-wider bg-red-500/10 px-1.5 py-0.5 rounded border border-red-500/20">
+                                                                    Complet
+                                                                </span>
+                                                            </div>
+                                                        );
+                                                    }
+                                                    return (
+                                                        <button
+                                                            key={date}
+                                                            type="button"
+                                                            onClick={() => setFormData(p => ({ ...p, interviewDate: date, interviewTime: "" }))}
+                                                            className={`py-3.5 px-2 rounded-xl border transition-all text-xs font-semibold ${formData.interviewDate === date ? 'bg-primary border-primary text-white shadow-md' : 'bg-white/5 border-white/10 text-gray-400 hover:border-primary/50'}`}
+                                                        >
+                                                            {DATE_LABELS[date] || date}
+                                                        </button>
+                                                    );
+                                                })}
                                             </div>
                                         </div>
 
-                                        {formData.interviewDate && formData.interviewDate !== "Autre" && (
+                                        {formData.interviewDate && (
                                             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                                                 <div className="flex items-center gap-2 text-white">
                                                     <Clock className="text-secondary w-4 h-4" />
