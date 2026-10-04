@@ -78,6 +78,13 @@ interface SlotAvailability {
     [key: string]: number;
 }
 
+const getSlotLimit = (time: string): number => {
+    if (time === "13:00" || time === "13:30") {
+        return 10;
+    }
+    return 5;
+};
+
 export default function Join() {
     const [step, setStep] = useState(1);
     const formTopRef = useRef<HTMLDivElement>(null);
@@ -132,6 +139,24 @@ export default function Join() {
     const [isSubmitting, setIsSubmitting] = useState(false);
     const [submitted, setSubmitted] = useState(false);
     const [availability, setAvailability] = useState<SlotAvailability>({});
+
+    useEffect(() => {
+        const fetchAvailability = async () => {
+            try {
+                const res = await fetch("/api/recruitment/slots", { cache: "no-store" });
+                if (res.ok) {
+                    const data = await res.json();
+                    if (data.counts) {
+                        setAvailability(data.counts);
+                    }
+                }
+            } catch (err) {
+                console.error("Error fetching slot availability:", err);
+            }
+        };
+
+        fetchAvailability();
+    }, [step]);
 
     const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
         const { name, value } = e.target;
@@ -201,6 +226,14 @@ export default function Join() {
     const handleSubmit = async () => {
         if (!formData.interviewDate || !formData.interviewTime) {
             alert("Veuillez choisir la date et l'heure de votre entretien.");
+            return;
+        }
+
+        const slotKey = `${formData.interviewDate}_${formData.interviewTime}`;
+        const bookedCount = availability[slotKey] || 0;
+        const limit = getSlotLimit(formData.interviewTime);
+        if (bookedCount >= limit) {
+            alert("Désolé, ce créneau horaire est désormais complet. Veuillez sélectionner un autre horaire disponible.");
             return;
         }
 
@@ -902,21 +935,57 @@ export default function Join() {
 
                                         {formData.interviewDate && (
                                             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
-                                                <div className="flex items-center gap-2 text-white">
-                                                    <Clock className="text-secondary w-4 h-4" />
-                                                    <label className="text-sm font-medium text-white block">Choisissez l'heure de l'entretien (9h - 15h30) :</label>
+                                                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-white">
+                                                    <div className="flex items-center gap-2">
+                                                        <Clock className="text-secondary w-4 h-4" />
+                                                        <label className="text-sm font-medium text-white block">Choisissez l'heure de l'entretien (9h - 15h30) :</label>
+                                                    </div>
+                                                    <span className="text-[10px] text-gray-400 font-mono">
+                                                        Limité à 5 personnes (10 à 13h & 13h30)
+                                                    </span>
                                                 </div>
-                                                <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5">
-                                                    {TIMES.map((time) => (
-                                                        <button
-                                                            key={time}
-                                                            type="button"
-                                                            onClick={() => setFormData(p => ({ ...p, interviewTime: time }))}
-                                                            className={`py-3 rounded-xl border transition-all text-xs font-semibold ${formData.interviewTime === time ? 'bg-secondary border-secondary text-white shadow-md shadow-secondary/30 scale-105' : 'bg-white/5 border-white/10 text-gray-400 hover:border-secondary/50'}`}
-                                                        >
-                                                            {time}
-                                                        </button>
-                                                    ))}
+                                                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2.5">
+                                                    {TIMES.map((time) => {
+                                                        const slotKey = `${formData.interviewDate}_${time}`;
+                                                        const bookedCount = availability[slotKey] || 0;
+                                                        const slotLimit = getSlotLimit(time);
+                                                        const isFull = bookedCount >= slotLimit;
+                                                        const remaining = Math.max(0, slotLimit - bookedCount);
+                                                        const isSelected = formData.interviewTime === time;
+
+                                                        if (isFull) {
+                                                            return (
+                                                                <div
+                                                                    key={time}
+                                                                    className="py-2.5 px-2 rounded-xl border border-white/5 bg-white/5 text-gray-500 text-xs font-semibold cursor-not-allowed flex flex-col items-center justify-center gap-0.5 opacity-50 select-none"
+                                                                    title="Créneau complet"
+                                                                >
+                                                                    <span className="line-through text-xs">{time}</span>
+                                                                    <span className="text-[9px] text-red-400 font-bold uppercase tracking-wider bg-red-500/10 px-1 py-0.2 rounded border border-red-500/20">
+                                                                        Complet
+                                                                    </span>
+                                                                </div>
+                                                            );
+                                                        }
+
+                                                        return (
+                                                            <button
+                                                                key={time}
+                                                                type="button"
+                                                                onClick={() => setFormData(p => ({ ...p, interviewTime: time }))}
+                                                                className={`py-2 px-2 rounded-xl border transition-all text-xs font-semibold flex flex-col items-center justify-center gap-0.5 ${
+                                                                    isSelected
+                                                                        ? 'bg-secondary border-secondary text-white shadow-md shadow-secondary/30 scale-105'
+                                                                        : 'bg-white/5 border-white/10 text-gray-300 hover:border-secondary/50 hover:bg-white/10'
+                                                                }`}
+                                                            >
+                                                                <span className="font-medium text-xs">{time}</span>
+                                                                <span className={`text-[9px] font-mono tracking-tight ${isSelected ? 'text-white/90' : remaining <= 2 ? 'text-amber-400 font-bold' : 'text-gray-400'}`}>
+                                                                    {remaining} {remaining === 1 ? 'place' : 'places'}
+                                                                </span>
+                                                            </button>
+                                                        );
+                                                    })}
                                                 </div>
                                             </motion.div>
                                         )}
