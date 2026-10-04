@@ -25,7 +25,7 @@ const TIMES = [
     "09:00", "09:30", "10:00", "10:30",
     "11:00", "11:30", "12:00", "12:30",
     "13:00", "13:30", "14:00", "14:30",
-    "15:00", "15:30", "16:00"
+    "15:00", "15:30"
 ];
 
 // Question Options Definition
@@ -159,8 +159,8 @@ export default function Join() {
 
     const validateStep = (currentStep: number): boolean => {
         if (currentStep === 1) {
-            if (!formData.fullName || !formData.education || !formData.phone || !formData.email) {
-                alert("Veuillez remplir tous les champs obligatoires de la section Identité.");
+            if (!formData.fullName || !formData.education || !formData.phone || !formData.email || !formData.facebook?.trim()) {
+                alert("Veuillez remplir tous les champs obligatoires de la section Identité (y compris le lien Facebook / réseaux sociaux).");
                 return false;
             }
         } else if (currentStep === 2) {
@@ -391,9 +391,9 @@ export default function Join() {
 
                                         <div className="space-y-2">
                                             <label className="text-xs font-medium text-gray-300 uppercase tracking-wider flex items-center gap-2">
-                                                <Facebook className="w-4 h-4 text-blue-400" /> Lien profil Facebook / réseaux sociaux
+                                                <Facebook className="w-4 h-4 text-blue-400" /> Lien profil Facebook / réseaux sociaux *
                                             </label>
-                                            <input type="url" name="facebook" value={formData.facebook} onChange={handleChange} placeholder="https://facebook.com/votre.profil" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 focus:outline-none focus:border-primary/50 transition-all text-white text-sm" />
+                                            <input required type="url" name="facebook" value={formData.facebook} onChange={handleChange} placeholder="https://facebook.com/votre.profil" className="w-full bg-white/5 border border-white/10 rounded-xl px-4 py-3.5 focus:outline-none focus:border-primary/50 transition-all text-white text-sm" />
                                         </div>
 
                                         <button type="submit" className="w-full py-4 mt-6 rounded-xl bg-gradient-to-r from-primary to-accent text-white font-bold text-sm uppercase tracking-widest hover:shadow-lg transition-all flex items-center justify-center gap-2">
@@ -893,7 +893,7 @@ export default function Join() {
                                             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                                                 <div className="flex items-center gap-2 text-white">
                                                     <Clock className="text-secondary w-4 h-4" />
-                                                    <label className="text-sm font-medium text-white block">Choisissez l'heure de l'entretien (9h - 16h) :</label>
+                                                    <label className="text-sm font-medium text-white block">Choisissez l'heure de l'entretien (9h - 15h30) :</label>
                                                 </div>
                                                 <div className="grid grid-cols-3 sm:grid-cols-5 gap-2.5">
                                                     {TIMES.map((time) => (
