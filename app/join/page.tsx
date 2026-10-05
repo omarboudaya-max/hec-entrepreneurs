@@ -14,7 +14,7 @@ import { supabase } from "@/lib/supabase";
 
 // Scheduling constants
 const DATES = ["05/10/2026", "06/10/2026", "07/10/2026", "08/10/2026", "09/10/2026"];
-const FULL_DATES = ["05/10/2026"]; // Lundi is full all day
+const FULL_DATES = ["05/10/2026", "06/10/2026"]; // Lundi & Mardi are full all day
 const DATE_LABELS: Record<string, string> = {
     "05/10/2026": "Lundi 05/10",
     "06/10/2026": "Mardi 06/10",
@@ -226,6 +226,11 @@ export default function Join() {
     const handleSubmit = async () => {
         if (!formData.interviewDate || !formData.interviewTime) {
             alert("Veuillez choisir la date et l'heure de votre entretien.");
+            return;
+        }
+
+        if (FULL_DATES.includes(formData.interviewDate)) {
+            alert("Désolé, cette journée est complète. Veuillez sélectionner une autre date.");
             return;
         }
 
