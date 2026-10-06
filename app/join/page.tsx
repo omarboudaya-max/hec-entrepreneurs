@@ -13,7 +13,7 @@ import {
 import { supabase } from "@/lib/supabase";
 
 // Scheduling constants
-const DATES = ["05/10/2026", "06/10/2026", "07/10/2026", "08/10/2026", "09/10/2026"];
+const DATES = ["05/10/2026", "06/10/2026", "07/10/2026", "08/10/2026", "09/10/2026", "10/10/2026"];
 const FULL_DATES = ["05/10/2026", "06/10/2026", "07/10/2026"]; // Lundi, Mardi & Mercredi are full all day
 const DATE_LABELS: Record<string, string> = {
     "05/10/2026": "Lundi 05/10",
@@ -21,6 +21,7 @@ const DATE_LABELS: Record<string, string> = {
     "07/10/2026": "Mercredi 07/10",
     "08/10/2026": "Jeudi 08/10",
     "09/10/2026": "Vendredi 09/10",
+    "10/10/2026": "Samedi 10/10",
 };
 const TIMES = [
     "09:00", "09:30", "10:00", "10:30",
@@ -907,7 +908,7 @@ export default function Join() {
                                             <label className="text-sm font-medium text-white block">
                                                 Choisissez la date de votre entretien d'intégration :
                                             </label>
-                                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 gap-3">
+                                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
                                                 {DATES.map((date) => {
                                                     const isFull = FULL_DATES.includes(date);
                                                     if (isFull) {
@@ -943,14 +944,16 @@ export default function Join() {
                                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-white">
                                                     <div className="flex items-center gap-2">
                                                         <Clock className="text-secondary w-4 h-4" />
-                                                        <label className="text-sm font-medium text-white block">Choisissez l'heure de l'entretien (9h - 15h30) :</label>
+                                                        <label className="text-sm font-medium text-white block">
+                                                            Choisissez l'heure de l'entretien {formData.interviewDate === "10/10/2026" ? "(9h - 12h30)" : "(9h - 15h30)"} :
+                                                        </label>
                                                     </div>
                                                     <span className="text-[10px] text-gray-400 font-mono">
                                                         Limité à 5 personnes (10 à 13h & 13h30)
                                                     </span>
                                                 </div>
                                                 <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2.5">
-                                                    {TIMES.map((time) => {
+                                                    {(formData.interviewDate === "10/10/2026" ? TIMES.filter(t => t <= "12:30") : TIMES).map((time) => {
                                                         const slotKey = `${formData.interviewDate}_${time}`;
                                                         const bookedCount = availability[slotKey] || 0;
                                                         const slotLimit = getSlotLimit(time);
