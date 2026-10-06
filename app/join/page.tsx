@@ -14,7 +14,7 @@ import { supabase } from "@/lib/supabase";
 
 // Scheduling constants
 const DATES = ["05/10/2026", "06/10/2026", "07/10/2026", "08/10/2026", "09/10/2026"];
-const FULL_DATES = ["05/10/2026", "06/10/2026"]; // Lundi & Mardi are full all day
+const FULL_DATES = ["05/10/2026", "06/10/2026", "07/10/2026"]; // Lundi, Mardi & Mercredi are full all day
 const DATE_LABELS: Record<string, string> = {
     "05/10/2026": "Lundi 05/10",
     "06/10/2026": "Mardi 06/10",
