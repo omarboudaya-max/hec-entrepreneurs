@@ -13,7 +13,7 @@ import {
 import { supabase } from "@/lib/supabase";
 
 // Scheduling constants
-const DATES = ["05/10/2026", "06/10/2026", "07/10/2026", "08/10/2026", "09/10/2026", "10/10/2026"];
+const DATES = ["05/10/2026", "06/10/2026", "07/10/2026", "08/10/2026", "09/10/2026", "10/10/2026", "Autre"];
 const FULL_DATES = ["05/10/2026", "06/10/2026", "07/10/2026", "08/10/2026"]; // Lundi, Mardi, Mercredi & Jeudi are full all day
 const DATE_LABELS: Record<string, string> = {
     "05/10/2026": "Lundi 05/10",
@@ -22,12 +22,14 @@ const DATE_LABELS: Record<string, string> = {
     "08/10/2026": "Jeudi 08/10",
     "09/10/2026": "Vendredi 09/10",
     "10/10/2026": "Samedi 10/10",
+    "Autre": "Autre date",
 };
 const TIMES = [
     "09:00", "09:30", "10:00", "10:30",
     "11:00", "11:30", "12:00", "12:30",
     "13:00", "13:30", "14:00", "14:30",
-    "15:00", "15:30"
+    "15:00", "15:30", "16:00", "16:30",
+    "Autre"
 ];
 
 // Question Options Definition
@@ -35,7 +37,7 @@ const Q_DISPO_TIME = ["Moins de 3h", "3 à 5h", "Plus de 5h"];
 const Q_DISPO_EXAMS = ["Oui", "Partiellement", "Non"];
 const Q_DISPO_ENGAGEMENTS = ["Aucun", "Un autre club", "Stage ou job", "Autre"];
 
-const Q_EXP_ASSOCIATIVE = ["Aucune", "Membre d'un club", "Responsable / membre du bureau"];
+const Q_EXP_ASSOCIATIVE = ["Aucune", "Membre d'un club", "Responsable / membre du bureau", "Autre"];
 const Q_EXP_PROJECT = ["J'ai organisé un projet", "J'ai contribué à un projet", "Ni l'un ni l'autre"];
 const Q_EXP_SPONSORS = ["Jamais", "J'ai contacté", "J'ai négocié", "J'ai obtenu un partenariat"];
 const Q_EXP_CERTIFS = ["Aucune", "Leadership / management", "Entrepreneuriat", "Communication", "Autre"];
@@ -48,17 +50,17 @@ const Q_SKILLS = [
 
 const Q_WHY_JOIN = [
     "Lancer des projets", "Développer mon leadership", "Élargir mon réseau",
-    "Apprendre l'entrepreneuriat", "Organiser des événements", "Enrichir mon CV", "Faire partie d'une équipe"
+    "Apprendre l'entrepreneuriat", "Organiser des événements", "Enrichir mon CV", "Faire partie d'une équipe", "Autre"
 ];
 
 const Q_STRATEGIC_AXIS = [
     "Esprit entrepreneurial", "Compétences et leadership",
-    "Impact responsable", "Connexion et réseau", "Rayonnement et visibilité"
+    "Impact responsable", "Connexion et réseau", "Rayonnement et visibilité", "Autre"
 ];
 
 const Q_CONTRIBUTION_DOMAINS = [
     "Organisation d'événements", "Communication / médias",
-    "Partenariats / sponsoring", "Ressources humaines", "Formation", "Projets à impact"
+    "Partenariats / sponsoring", "Ressources humaines", "Formation", "Projets à impact", "Autre"
 ];
 
 const Q_FIRST_PROJECT = [
@@ -66,7 +68,8 @@ const Q_FIRST_PROJECT = [
     "Ouverture de la Semaine mondiale de l'entrepreneuriat",
     "Clôture de la Semaine mondiale de l'entrepreneuriat",
     "Formations",
-    "Un nouveau projet"
+    "Un nouveau projet",
+    "Autre"
 ];
 
 const Q_HOW_KNOW = [
@@ -908,7 +911,7 @@ export default function Join() {
                                             <label className="text-sm font-medium text-white block">
                                                 Choisissez la date de votre entretien d'intégration :
                                             </label>
-                                            <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-6 gap-3">
+                                            <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-7 gap-2.5">
                                                 {DATES.map((date) => {
                                                     const isFull = FULL_DATES.includes(date);
                                                     if (isFull) {
@@ -929,7 +932,7 @@ export default function Join() {
                                                         <button
                                                             key={date}
                                                             type="button"
-                                                            onClick={() => setFormData(p => ({ ...p, interviewDate: date, interviewTime: "" }))}
+                                                            onClick={() => setFormData(p => ({ ...p, interviewDate: date, interviewTime: date === "Autre" ? "Sur rendez-vous" : "" }))}
                                                             className={`py-3.5 px-2 rounded-xl border transition-all text-xs font-semibold ${formData.interviewDate === date ? 'bg-primary border-primary text-white shadow-md' : 'bg-white/5 border-white/10 text-gray-400 hover:border-primary/50'}`}
                                                         >
                                                             {DATE_LABELS[date] || date}
@@ -939,21 +942,49 @@ export default function Join() {
                                             </div>
                                         </div>
 
-                                        {formData.interviewDate && (
+                                        {formData.interviewDate === "Autre" ? (
+                                            <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="p-4 rounded-2xl bg-primary/10 border border-primary/30 text-white text-xs space-y-1">
+                                                <p className="font-bold text-primary text-sm flex items-center gap-2">
+                                                    <Clock className="w-4 h-4 text-primary" /> Autre date / Sur rendez-vous
+                                                </p>
+                                                <p className="text-gray-300">
+                                                    L'équipe du bureau vous contactera directement par téléphone ou WhatsApp pour convenir d'une date et d'un horaire adaptés.
+                                                </p>
+                                            </motion.div>
+                                        ) : formData.interviewDate ? (
                                             <motion.div initial={{ opacity: 0, y: 10 }} animate={{ opacity: 1, y: 0 }} className="space-y-4">
                                                 <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 text-white">
                                                     <div className="flex items-center gap-2">
                                                         <Clock className="text-secondary w-4 h-4" />
                                                         <label className="text-sm font-medium text-white block">
-                                                            Choisissez l'heure de l'entretien {formData.interviewDate === "10/10/2026" ? "(9h - 12h30)" : "(9h - 15h30)"} :
+                                                            Choisissez l'heure de l'entretien {formData.interviewDate === "10/10/2026" ? "(9h - 12h30)" : "(9h - 16h30)"} :
                                                         </label>
                                                     </div>
                                                     <span className="text-[10px] text-gray-400 font-mono">
                                                         Limité à 5 personnes (10 à 13h & 13h30)
                                                     </span>
                                                 </div>
-                                                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-5 gap-2.5">
-                                                    {(formData.interviewDate === "10/10/2026" ? TIMES.filter(t => t <= "12:30") : TIMES).map((time) => {
+                                                <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2.5">
+                                                    {(formData.interviewDate === "10/10/2026" ? TIMES.filter(t => t <= "12:30" || t === "Autre") : TIMES).map((time) => {
+                                                        if (time === "Autre") {
+                                                            const isSelected = formData.interviewTime === "Autre";
+                                                            return (
+                                                                <button
+                                                                    key={time}
+                                                                    type="button"
+                                                                    onClick={() => setFormData(p => ({ ...p, interviewTime: "Autre" }))}
+                                                                    className={`py-2 px-2 rounded-xl border transition-all text-xs font-semibold flex flex-col items-center justify-center gap-0.5 ${
+                                                                        isSelected
+                                                                            ? 'bg-secondary border-secondary text-white shadow-md shadow-secondary/30 scale-105'
+                                                                            : 'bg-white/5 border-white/10 text-gray-300 hover:border-secondary/50 hover:bg-white/10'
+                                                                    }`}
+                                                                >
+                                                                    <span className="font-medium text-xs">Autre horaire</span>
+                                                                    <span className="text-[9px] text-gray-400 font-mono">Sur RDV</span>
+                                                                </button>
+                                                            );
+                                                        }
+
                                                         const slotKey = `${formData.interviewDate}_${time}`;
                                                         const bookedCount = availability[slotKey] || 0;
                                                         const slotLimit = getSlotLimit(time);
@@ -996,7 +1027,7 @@ export default function Join() {
                                                     })}
                                                 </div>
                                             </motion.div>
-                                        )}
+                                        ) : null}
 
                                         <div className="flex flex-col sm:flex-row gap-4 pt-6">
                                             <button type="button" onClick={prevStep} className="w-full sm:flex-1 py-4 rounded-xl border border-white/10 text-white font-medium hover:bg-white/5 transition-all text-xs uppercase tracking-widest flex items-center justify-center gap-2 order-2 sm:order-1">
