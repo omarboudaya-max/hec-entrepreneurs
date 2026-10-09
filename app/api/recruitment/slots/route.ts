@@ -30,6 +30,7 @@ export async function GET() {
         default: 5,
         "13:00": 10,
         "13:30": 10,
+        "Autre": null,
       },
     });
   } catch (err: any) {

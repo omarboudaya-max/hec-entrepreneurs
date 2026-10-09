@@ -83,6 +83,9 @@ interface SlotAvailability {
 }
 
 const getSlotLimit = (time: string): number => {
+    if (time === "Autre" || time === "Sur rendez-vous") {
+        return Infinity;
+    }
     if (time === "13:00" || time === "13:30") {
         return 10;
     }
@@ -238,12 +241,14 @@ export default function Join() {
             return;
         }
 
-        const slotKey = `${formData.interviewDate}_${formData.interviewTime}`;
-        const bookedCount = availability[slotKey] || 0;
-        const limit = getSlotLimit(formData.interviewTime);
-        if (bookedCount >= limit) {
-            alert("Désolé, ce créneau horaire est désormais complet. Veuillez sélectionner un autre horaire disponible.");
-            return;
+        if (formData.interviewTime !== "Autre" && formData.interviewTime !== "Sur rendez-vous") {
+            const slotKey = `${formData.interviewDate}_${formData.interviewTime}`;
+            const bookedCount = availability[slotKey] || 0;
+            const limit = getSlotLimit(formData.interviewTime);
+            if (bookedCount >= limit) {
+                alert("Désolé, ce créneau horaire est désormais complet. Veuillez sélectionner un autre horaire disponible.");
+                return;
+            }
         }
 
         setIsSubmitting(true);
