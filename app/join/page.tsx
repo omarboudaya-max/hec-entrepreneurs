@@ -970,7 +970,7 @@ export default function Join() {
                                                     </span>
                                                 </div>
                                                 <div className="grid grid-cols-2 sm:grid-cols-4 md:grid-cols-6 gap-2.5">
-                                                    {(formData.interviewDate === "10/10/2026" ? TIMES.filter(t => t <= "12:30" || t === "Autre") : TIMES).map((time) => {
+                                                    {(formData.interviewDate === "10/10/2026" ? TIMES.filter(t => t <= "12:30") : TIMES).map((time) => {
                                                         if (time === "Autre") {
                                                             const isSelected = formData.interviewTime === "Autre";
                                                             return (
