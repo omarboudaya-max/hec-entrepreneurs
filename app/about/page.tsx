@@ -2,12 +2,12 @@
 import { motion, AnimatePresence } from "framer-motion";
 import Navbar from "@/components/Navbar";
 import { Zap, Heart, Star, Target, Users, Rocket, Globe, Lightbulb, Crown, Shield, Sparkles } from "lucide-react";
-import { useRef, useState } from "react";
+import { useRef, useState, useEffect } from "react";
 import Footer from "@/components/Footer";
 import Link from "next/link";
 import Image from "next/image";
 import clsx from "clsx";
-import TeamStoryModal, { TeamMemberBio } from "@/components/TeamStoryModal";
+import TeamStoryModal, { TeamMemberBio, StorySlide } from "@/components/TeamStoryModal";
 
 const values = [
     {
@@ -48,9 +48,13 @@ const values = [
 ];
 
 interface TeamMember {
+    id?: string;
     name: string;
     role: string;
     image?: string | null;
+    bio?: string | null;
+    career?: string | null;
+    stories?: StorySlide[];
 }
 
 const bureauExecutif: TeamMember[] = [
@@ -252,8 +256,20 @@ const teamMemberBios: Record<string, TeamMemberBio> = {
 };
 
 const getMemberBio = (member: TeamMember): TeamMemberBio => {
+    if (member.stories && member.stories.length > 0) {
+        return {
+            name: member.name,
+            role: member.role,
+            image: member.image,
+            stories: member.stories
+        };
+    }
     if (teamMemberBios[member.name]) {
-        return teamMemberBios[member.name];
+        return {
+            ...teamMemberBios[member.name],
+            image: member.image || teamMemberBios[member.name].image,
+            role: member.role || teamMemberBios[member.name].role,
+        };
     }
     return {
         name: member.name,
@@ -263,7 +279,7 @@ const getMemberBio = (member: TeamMember): TeamMemberBio => {
             {
                 title: "Engagement Associatif",
                 subtitle: "Mandat 2026 - 2027",
-                tagline: "Acteur engagé du Club HEC Entrepreneurs",
+                tagline: member.bio || "Acteur engagé du Club HEC Entrepreneurs",
                 badge: "Équipe 26/27",
                 highlights: [
                     `Poste : ${member.role}`,
@@ -278,6 +294,39 @@ const getMemberBio = (member: TeamMember): TeamMemberBio => {
 export default function About() {
     const [expandedValue, setExpandedValue] = useState<string | null>(null);
     const [selectedStoryMember, setSelectedStoryMember] = useState<TeamMemberBio | null>(null);
+
+    const [bureauList, setBureauList] = useState<TeamMember[]>(bureauExecutif);
+    const [responsablesList, setResponsablesList] = useState<TeamMember[]>(responsables);
+    const [membresList, setMembresList] = useState<TeamMember[]>(
+        membres.map(name => ({ name, role: "Membre du Club", image: null }))
+    );
+
+    useEffect(() => {
+        let isMounted = true;
+        async function fetchLiveTeam() {
+            try {
+                const res = await fetch("/api/team", { cache: "no-store" });
+                if (!res.ok) return;
+                const data = await res.json();
+                if (!isMounted) return;
+
+                if (data.bureau && Array.isArray(data.bureau) && data.bureau.length > 0) {
+                    setBureauList(data.bureau);
+                }
+                if (data.responsables && Array.isArray(data.responsables) && data.responsables.length > 0) {
+                    setResponsablesList(data.responsables);
+                }
+                if (data.membres && Array.isArray(data.membres) && data.membres.length > 0) {
+                    setMembresList(data.membres);
+                }
+            } catch (err) {
+                console.error("Failed to load synchronized team from intranet:", err);
+            }
+        }
+
+        fetchLiveTeam();
+        return () => { isMounted = false; };
+    }, []);
 
     return (
         <main className="min-h-screen bg-background text-foreground pb-20 relative overflow-hidden">
@@ -416,9 +465,9 @@ export default function About() {
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6">
-                                {bureauExecutif.map((member, idx) => (
+                                {bureauList.map((member, idx) => (
                                     <motion.div
-                                        key={idx}
+                                        key={member.id || idx}
                                         initial={{ opacity: 0, scale: 0.9 }}
                                         whileInView={{ opacity: 1, scale: 1 }}
                                         viewport={{ once: true }}
@@ -466,9 +515,9 @@ export default function About() {
                             </div>
 
                             <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6">
-                                {responsables.map((member, idx) => (
+                                {responsablesList.map((member, idx) => (
                                     <motion.div
-                                        key={idx}
+                                        key={member.id || idx}
                                         initial={{ opacity: 0, scale: 0.9 }}
                                         whileInView={{ opacity: 1, scale: 1 }}
                                         viewport={{ once: true }}
@@ -498,7 +547,7 @@ export default function About() {
                                                 {member.role}
                                             </p>
                                             <div className="pt-2 border-t border-white/5 flex items-center justify-center gap-1 text-[9px] text-secondary/70 font-semibold uppercase tracking-wider group-hover:text-secondary transition-colors">
-                                                <Sparkles className="w-3 h-3 text-primary animate-pulse" />
+                                                <Sparkles className="w-3.5 h-3.5 text-primary animate-pulse" />
                                                 <span>Découvrir le parcours</span>
                                             </div>
                                         </div>
@@ -518,21 +567,25 @@ export default function About() {
                             </div>
 
                             <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-6 gap-4">
-                                {membres.map((name, idx) => (
+                                {membresList.map((member, idx) => (
                                     <motion.div
-                                        key={idx}
+                                        key={member.id || idx}
                                         initial={{ opacity: 0, y: 15 }}
                                         whileInView={{ opacity: 1, y: 0 }}
                                         viewport={{ once: true }}
                                         transition={{ delay: idx * 0.03 }}
-                                        onClick={() => setSelectedStoryMember(getMemberBio({ name, role: "Membre du Club", image: null }))}
+                                        onClick={() => setSelectedStoryMember(getMemberBio(member))}
                                         className="glass p-4 rounded-2xl border border-white/5 hover:border-primary/40 hover:bg-white/10 transition-all text-center group flex flex-col items-center justify-center gap-2 cursor-pointer shadow-sm hover:shadow-primary/20"
                                     >
-                                        <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xs font-semibold text-gray-300 group-hover:scale-110 group-hover:bg-primary/20 group-hover:border-primary/40 group-hover:text-primary transition-all">
-                                            {name.split(" ").map(n => n[0]).join("").slice(0, 2)}
+                                        <div className="w-10 h-10 rounded-full bg-white/5 border border-white/10 flex items-center justify-center text-xs font-semibold text-gray-300 group-hover:scale-110 group-hover:bg-primary/20 group-hover:border-primary/40 group-hover:text-primary transition-all overflow-hidden shadow-sm">
+                                            {member.image ? (
+                                                <img src={member.image} alt={member.name} className="w-full h-full object-cover" />
+                                            ) : (
+                                                member.name.split(" ").map(n => n[0]).join("").slice(0, 2)
+                                            )}
                                         </div>
                                         <span className="text-xs font-light text-gray-200 capitalize tracking-wide leading-tight">
-                                            {name}
+                                            {member.name}
                                         </span>
                                     </motion.div>
                                 ))}

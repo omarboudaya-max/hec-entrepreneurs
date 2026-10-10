@@ -100,7 +100,7 @@ function PortailShell({ children }: { children: React.ReactNode }) {
       label: "Gestion Membres",
       href: "/portail/gestion-membres",
       icon: Lock,
-      show: isDeveloper, // Developer only
+      show: isBureau, // Bureau (RH) + Dev
     },
   ];
 

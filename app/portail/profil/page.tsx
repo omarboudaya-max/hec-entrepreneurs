@@ -2,7 +2,7 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { User, Mail, Phone, Briefcase, GraduationCap, Camera, Save, Lock, CheckCircle2, AlertCircle } from "lucide-react";
+import { User, Mail, Phone, Briefcase, GraduationCap, Camera, Save, Lock, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
 import { usePortailAuth } from "@/contexts/PortailAuthContext";
 import { supabase } from "@/lib/supabase";
 
@@ -105,13 +105,21 @@ export default function ProfilPage() {
   return (
     <div className="max-w-3xl mx-auto px-4 py-8">
       {/* Header */}
-      <div className="mb-8">
+      <div className="mb-6">
         <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
           Mon Profil Membre
         </h1>
         <p className="text-sm text-gray-400 mt-1">
           Gérez vos informations personnelles, votre parcours et vos contacts au sein du club.
         </p>
+      </div>
+
+      {/* Sync Banner */}
+      <div className="mb-6 p-4 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-purple-200 text-xs sm:text-sm flex items-center gap-3">
+        <Sparkles className="w-5 h-5 text-purple-400 shrink-0" />
+        <span>
+          <strong>Synchronisation en direct :</strong> Votre photo de profil (PDP), votre bio et votre feuille de route (parcours) sont automatiquement synchronisées avec votre fiche dans la section <strong>&quot;Notre Équipe&quot;</strong> du site officiel.
+        </span>
       </div>
 
       {message && (

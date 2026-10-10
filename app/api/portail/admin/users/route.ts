@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
 
-// Verify that requester is developer (omarboudaya1@gmail.com)
-async function verifyDeveloper(req: NextRequest) {
+// Verify that requester is developer or bureau (RH / Bureau Exécutif)
+async function verifyAdminOrBureau(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
   if (!authHeader) return false;
 
@@ -18,18 +18,24 @@ async function verifyDeveloper(req: NextRequest) {
     .eq("id", user.id)
     .single();
 
-  return profile?.role === "developpeur";
+  return profile?.role === "developpeur" || profile?.role === "bureau";
 }
 
 // GET /api/portail/admin/users - List all club members
 export async function GET(req: NextRequest) {
   try {
-    const isDev = await verifyDeveloper(req);
-    // Allow both bureau and dev to list members
     const authHeader = req.headers.get("authorization");
     if (!authHeader) {
       return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
     }
+
+    const token = authHeader.replace("Bearer ", "");
+    const { data: { user }, error: authError } = await supabaseAdmin.auth.getUser(token);
+    if (authError || !user) {
+      return NextResponse.json({ error: "Non autorisé" }, { status: 401 });
+    }
+
+    const isAuthorized = await verifyAdminOrBureau(req);
 
     const { data: profiles, error } = await supabaseAdmin
       .from("club_profiles")
@@ -40,22 +46,22 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
-    return NextResponse.json({ profiles, isDev });
+    return NextResponse.json({ profiles, isDev: isAuthorized });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
 }
 
-// POST /api/portail/admin/users - Fast user creation (Developer only)
+// POST /api/portail/admin/users - Fast user creation (Bureau & Developer)
 export async function POST(req: NextRequest) {
   try {
-    const isDev = await verifyDeveloper(req);
-    if (!isDev) {
-      return NextResponse.json({ error: "Accès réservé au développeur" }, { status: 403 });
+    const isAuthorized = await verifyAdminOrBureau(req);
+    if (!isAuthorized) {
+      return NextResponse.json({ error: "Accès réservé au Bureau / RH et Développeur" }, { status: 403 });
     }
 
     const body = await req.json();
-    const { email, password, full_name, role = "membre", poste = "Membre" } = body;
+    const { email, password, full_name, role = "membre", poste = "Membre", avatar_url, bio, career } = body;
 
     if (!email || !password || !full_name) {
       return NextResponse.json(
@@ -88,6 +94,9 @@ export async function POST(req: NextRequest) {
         full_name,
         role,
         poste,
+        avatar_url: avatar_url || null,
+        bio: bio || null,
+        career: career || null,
       })
       .select()
       .single();
@@ -102,16 +111,16 @@ export async function POST(req: NextRequest) {
   }
 }
 
-// PATCH /api/portail/admin/users - Update member role, poste (Developer only)
+// PATCH /api/portail/admin/users - Update member role, poste, bio, career (Bureau & Developer)
 export async function PATCH(req: NextRequest) {
   try {
-    const isDev = await verifyDeveloper(req);
-    if (!isDev) {
-      return NextResponse.json({ error: "Accès réservé au développeur" }, { status: 403 });
+    const isAuthorized = await verifyAdminOrBureau(req);
+    if (!isAuthorized) {
+      return NextResponse.json({ error: "Accès réservé au Bureau / RH et Développeur" }, { status: 403 });
     }
 
     const body = await req.json();
-    const { userId, role, poste, password } = body;
+    const { userId, role, poste, password, full_name, bio, career, avatar_url } = body;
 
     if (!userId) {
       return NextResponse.json({ error: "ID utilisateur requis" }, { status: 400 });
@@ -119,7 +128,11 @@ export async function PATCH(req: NextRequest) {
 
     const updates: Record<string, any> = {};
     if (role) updates.role = role;
-    if (poste) updates.poste = poste;
+    if (poste !== undefined) updates.poste = poste;
+    if (full_name) updates.full_name = full_name;
+    if (bio !== undefined) updates.bio = bio;
+    if (career !== undefined) updates.career = career;
+    if (avatar_url !== undefined) updates.avatar_url = avatar_url;
 
     if (Object.keys(updates).length > 0) {
       const { error: profileError } = await supabaseAdmin
@@ -147,12 +160,12 @@ export async function PATCH(req: NextRequest) {
   }
 }
 
-// DELETE /api/portail/admin/users - Delete member (Developer only)
+// DELETE /api/portail/admin/users - Expulse / Delete member (Bureau & Developer)
 export async function DELETE(req: NextRequest) {
   try {
-    const isDev = await verifyDeveloper(req);
-    if (!isDev) {
-      return NextResponse.json({ error: "Accès réservé au développeur" }, { status: 403 });
+    const isAuthorized = await verifyAdminOrBureau(req);
+    if (!isAuthorized) {
+      return NextResponse.json({ error: "Accès réservé au Bureau / RH et Développeur" }, { status: 403 });
     }
 
     const { searchParams } = new URL(req.url);
@@ -164,6 +177,10 @@ export async function DELETE(req: NextRequest) {
 
     // Delete from auth (cascades to profiles)
     const { error: authError } = await supabaseAdmin.auth.admin.deleteUser(userId);
+    
+    // Explicitly delete from club_profiles in case cascade is not automatic
+    await supabaseAdmin.from("club_profiles").delete().eq("id", userId);
+
     if (authError) {
       return NextResponse.json({ error: authError.message }, { status: 400 });
     }
