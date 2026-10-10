@@ -297,8 +297,18 @@ CREATE TABLE IF NOT EXISTS public.club_events (
   end_time TIME WITHOUT TIME ZONE,
   event_type TEXT NOT NULL DEFAULT 'reunion' CHECK (event_type IN ('reunion', 'ag', 'workshop', 'deadline', 'teambuilding')),
   created_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  pv_content TEXT,
+  pv_author_name TEXT,
+  pv_decisions TEXT,
+  pv_updated_at TIMESTAMP WITH TIME ZONE,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- In case table already existed, add columns safely
+ALTER TABLE public.club_events ADD COLUMN IF NOT EXISTS pv_content TEXT;
+ALTER TABLE public.club_events ADD COLUMN IF NOT EXISTS pv_author_name TEXT;
+ALTER TABLE public.club_events ADD COLUMN IF NOT EXISTS pv_decisions TEXT;
+ALTER TABLE public.club_events ADD COLUMN IF NOT EXISTS pv_updated_at TIMESTAMP WITH TIME ZONE;
 
 ALTER TABLE public.club_events ENABLE ROW LEVEL SECURITY;
 
@@ -316,6 +326,23 @@ CREATE POLICY "Bureau and responsables can create events"
     EXISTS (
       SELECT 1 FROM public.club_profiles 
       WHERE id = auth.uid() AND role IN ('bureau', 'responsable', 'developpeur')
+    )
+  );
+
+DROP POLICY IF EXISTS "Bureau and dev can update events" ON public.club_events;
+CREATE POLICY "Bureau and dev can update events" 
+  ON public.club_events FOR UPDATE 
+  TO authenticated 
+  USING (
+    EXISTS (
+      SELECT 1 FROM public.club_profiles 
+      WHERE id = auth.uid() AND role IN ('bureau', 'developpeur')
+    )
+  )
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.club_profiles 
+      WHERE id = auth.uid() AND role IN ('bureau', 'developpeur')
     )
   );
 

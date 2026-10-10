@@ -6,6 +6,7 @@ import { motion, AnimatePresence } from "framer-motion";
 import { Menu, X, Search, Filter, ShoppingCart, ShoppingBag, Shield } from "lucide-react";
 import clsx from "clsx";
 import { useCartStore } from "@/store/cartStore";
+import ThemeToggle from "@/components/ThemeToggle";
 
 const links = [
     { href: "/", label: "Accueil" },
@@ -114,6 +115,8 @@ export default function Navbar() {
 
                 {/* Right Column: Cart & Filters & Espace Membre */}
                 <div className="flex justify-end items-center z-20 gap-2.5">
+                    <ThemeToggle />
+                    
                     <Link
                         href="/portail"
                         className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold tracking-wider uppercase bg-gradient-to-r from-purple-600/25 to-indigo-600/25 hover:from-purple-600/45 hover:to-indigo-600/45 border border-purple-500/40 text-purple-200 hover:text-white transition-all shadow-lg shadow-purple-900/20 backdrop-blur-md"
@@ -147,8 +150,13 @@ export default function Navbar() {
                             initial={{ opacity: 0, scale: 0.95, y: 10, x: "-50%" }}
                             animate={{ opacity: 1, scale: 1, y: 0, x: "-50%" }}
                             exit={{ opacity: 0, scale: 0.95, y: 10, x: "-50%" }}
-                            className="absolute top-full left-1/2 mt-4 p-2 glass rounded-[2rem] border border-primary/20 md:hidden flex flex-col gap-1 w-[280px] shadow-2xl z-40"
+                            className="absolute top-full left-1/2 mt-4 p-3 glass rounded-[2rem] border border-primary/20 md:hidden flex flex-col gap-1 w-[280px] shadow-2xl z-40"
                         >
+                            <div className="flex items-center justify-between px-3 py-1.5 mb-2 rounded-xl bg-white/[0.03] border border-white/5">
+                                <span className="text-xs font-semibold text-gray-400">Mode d&apos;affichage</span>
+                                <ThemeToggle />
+                            </div>
+
                             <Link
                                 href="/portail"
                                 onClick={() => setIsOpen(false)}

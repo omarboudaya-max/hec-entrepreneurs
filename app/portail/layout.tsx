@@ -9,15 +9,12 @@ import {
   LogOut, Menu, X, Sparkles, ChevronRight, Lock, Calendar, CheckSquare
 } from "lucide-react";
 import { PortailAuthProvider, usePortailAuth } from "@/contexts/PortailAuthContext";
+import ThemeToggle from "@/components/ThemeToggle";
 
 function RoleBadge({ role }: { role: string }) {
-  switch (role) {
-    case "developpeur":
-      return (
-        <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-red-500/20 text-red-400 border border-red-500/30 flex items-center gap-1">
-          <ShieldCheck size={12} /> Développeur
-        </span>
-      );
+  // Display override: developers are displayed as Responsable to members
+  const effectiveRole = role === "developpeur" ? "responsable" : role;
+  switch (effectiveRole) {
     case "bureau":
       return (
         <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/30 flex items-center gap-1">
@@ -130,16 +127,19 @@ function PortailShell({ children }: { children: React.ReactNode }) {
             HEC
           </div>
           <div>
-            <div className="font-bold text-sm text-white tracking-wide">PORTAIL INTERNAT</div>
+            <div className="font-bold text-sm text-white tracking-wide">PORTAIL INTERNE</div>
             <div className="text-[10px] text-gray-400">HEC Entrepreneurs</div>
           </div>
         </Link>
-        <button
-          onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
-          className="p-2 rounded-lg bg-white/5 text-gray-300 hover:text-white"
-        >
-          {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
-        </button>
+        <div className="flex items-center gap-2">
+          <ThemeToggle />
+          <button
+            onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
+            className="p-2 rounded-lg bg-white/5 text-gray-300 hover:text-white"
+          >
+            {mobileMenuOpen ? <X size={20} /> : <Menu size={20} />}
+          </button>
+        </div>
       </div>
 
       {/* Sidebar for Desktop */}
@@ -155,10 +155,13 @@ function PortailShell({ children }: { children: React.ReactNode }) {
               HEC
             </div>
             <div>
-              <div className="font-extrabold text-sm text-white tracking-wider">ESPACE INTERNAT</div>
+              <div className="font-extrabold text-sm text-white tracking-wider">ESPACE INTERNE</div>
               <div className="text-[11px] text-purple-400 font-medium">HEC Entrepreneurs</div>
             </div>
           </Link>
+          <div className="hidden md:block">
+            <ThemeToggle />
+          </div>
         </div>
 
         {/* User Card */}
@@ -174,7 +177,11 @@ function PortailShell({ children }: { children: React.ReactNode }) {
               </div>
               <div className="flex-1 min-w-0">
                 <div className="font-semibold text-sm text-white truncate">{profile.full_name}</div>
-                <div className="text-xs text-gray-400 truncate mb-1">{profile.poste || "Membre"}</div>
+                <div className="text-xs text-gray-400 truncate mb-1">
+                  {profile.role === "developpeur" || profile.email?.toLowerCase().includes("omarboudaya")
+                    ? "Responsable IT & Dev Web"
+                    : (profile.poste || "Membre")}
+                </div>
                 <RoleBadge role={profile.role} />
               </div>
             </div>

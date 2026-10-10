@@ -12,32 +12,71 @@ async function getAuthUser(req: NextRequest) {
 }
 
 // In-memory fallback if SQL table hasn't been run in Supabase yet
-let memoryEvents: any[] = [
-  {
-    id: "evt-default-1",
-    title: "Réunion Hebdomadaire & Bilan des Pôles",
-    description: "Point d'avancement sur les projets en cours, coordination entre pôles et calendrier des actions du mandat.",
-    location: "Salle de réunion IHEC Carthage / Salle Club",
-    event_date: "2026-10-14",
-    start_time: "13:30",
-    end_time: "15:00",
-    event_type: "reunion",
-    created_at: new Date().toISOString(),
-    rsvps: []
-  },
-  {
-    id: "evt-default-2",
-    title: "Workshop : Stratégie Sponsoring & Partenariats",
-    description: "Atelier pratique pour finaliser les dossiers de sponsoring et les approches des partenaires officiels 2026/2027.",
-    location: "Amphi IHEC Carthage",
-    event_date: "2026-10-21",
-    start_time: "14:00",
-    end_time: "16:30",
-    event_type: "workshop",
-    created_at: new Date().toISOString(),
-    rsvps: []
-  }
-];
+declare global {
+  var __memoryEvents: any[] | undefined;
+}
+
+if (!global.__memoryEvents) {
+  global.__memoryEvents = [
+    {
+      id: "evt-past-ag",
+      title: "Assemblée Générale Ordinaire de Rentrée 2026",
+      description: "Présentation des bilans, élection et investiture des nouveaux responsables de pôles, vote des orientations stratégiques du mandat 2026/2027.",
+      location: "Grand Amphi IHEC Carthage",
+      event_date: "2026-10-02",
+      start_time: "14:00",
+      end_time: "17:00",
+      event_type: "ag",
+      created_at: new Date(Date.now() - 86400000 * 8).toISOString(),
+      pv_content: `L'an deux mille vingt-six et le 2 octobre à quatorze heures, s'est tenue l'Assemblée Générale Ordinaire de rentrée du Club HEC Entrepreneurs au Grand Amphi de l'IHEC Carthage.
+
+1. ORDRE DU JOUR :
+- Bilan moral et d'activités du mandat précédent.
+- Présentation de la feuille de route du mandat 2026/2027.
+- Validation des pôles et nomination des nouveaux responsables.
+- Budget prévisionnel et stratégie de sponsoring.
+
+2. DÉROULEMENT DES DÉBATS :
+La séance a débuté par l'allocution d'ouverture de la Présidence rappelant les valeurs d'innovation et d'impact du club. Les responsables des pôles (Événementiel, Sponsoring, Com & Médias, RH, IT) ont successivement exposé leurs objectifs trimestriels.
+Le pôle IT & Dev a présenté la refonte du site officiel et le nouveau Portail Interne avec annuaire dynamique et agenda partagé.
+
+3. DÉLIBÉRATIONS ET DÉCISIONS ADOPTÉES :
+- Adoption du bilan moral à l'unanimité des membres présents.
+- Validation du budget prévisionnel pour les événements majeurs (Hackathon, Startup Weekend, Formations).
+- Clôture de l'Assemblée à 17h00.`,
+      pv_author_name: "Yasmine (Secrétariat Général HEC)",
+      pv_decisions: "1. Validation unanime du calendrier événementiel 2026/2027.\n2. Lancement immédiat de la campagne de prospection de sponsoring.\n3. Déploiement officiel de l'Intranet Membre pour le suivi des tâches et des réunions.",
+      pv_updated_at: new Date(Date.now() - 86400000 * 7).toISOString(),
+      rsvps: []
+    },
+    {
+      id: "evt-default-1",
+      title: "Réunion Hebdomadaire & Bilan des Pôles",
+      description: "Point d'avancement sur les projets en cours, coordination entre pôles et calendrier des actions du mandat.",
+      location: "Salle de réunion IHEC Carthage / Salle Club",
+      event_date: "2026-10-14",
+      start_time: "13:30",
+      end_time: "15:00",
+      event_type: "reunion",
+      created_at: new Date().toISOString(),
+      rsvps: []
+    },
+    {
+      id: "evt-default-2",
+      title: "Workshop : Stratégie Sponsoring & Partenariats",
+      description: "Atelier pratique pour finaliser les dossiers de sponsoring et les approches des partenaires officiels 2026/2027.",
+      location: "Amphi IHEC Carthage",
+      event_date: "2026-10-21",
+      start_time: "14:00",
+      end_time: "16:30",
+      event_type: "workshop",
+      created_at: new Date().toISOString(),
+      rsvps: []
+    }
+  ];
+}
+
+const getMemoryEvents = () => global.__memoryEvents!;
 
 // GET /api/portail/events
 export async function GET(req: NextRequest) {
@@ -56,7 +95,7 @@ export async function GET(req: NextRequest) {
     if (error || !events) {
       // Return memory fallback if table not yet migrated
       return NextResponse.json({
-        events: memoryEvents.map((evt) => ({
+        events: (global.__memoryEvents || []).map((evt) => ({
           ...evt,
           userRsvp: evt.rsvps?.find((r: any) => r.user_id === user.id)?.status || null,
           presentCount: evt.rsvps?.filter((r: any) => r.status === "present").length || 0,
@@ -181,7 +220,9 @@ export async function POST(req: NextRequest) {
         created_at: new Date().toISOString(),
         rsvps: []
       };
-      memoryEvents.unshift(createdEvent);
+      if (global.__memoryEvents) {
+        global.__memoryEvents.unshift(createdEvent);
+      }
     } else {
       createdEvent = data;
     }
@@ -248,7 +289,9 @@ export async function DELETE(req: NextRequest) {
     // Delete from DB
     await supabaseAdmin.from("club_events").delete().eq("id", id);
     // Delete from memory if present
-    memoryEvents = memoryEvents.filter((e) => e.id !== id);
+    if (global.__memoryEvents) {
+      global.__memoryEvents = global.__memoryEvents.filter((e) => e.id !== id);
+    }
 
     return NextResponse.json({ success: true });
   } catch (err: any) {

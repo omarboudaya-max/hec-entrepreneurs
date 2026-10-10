@@ -8,13 +8,9 @@ import { supabase } from "@/lib/supabase";
 import { ClubProfile } from "@/types/portail";
 
 function RoleBadge({ role }: { role: string }) {
-  switch (role) {
-    case "developpeur":
-      return (
-        <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-red-500/20 text-red-400 border border-red-500/30">
-          Développeur
-        </span>
-      );
+  // Display override: Developer is shown as Responsable in the member directory
+  const effectiveRole = role === "developpeur" ? "responsable" : role;
+  switch (effectiveRole) {
     case "bureau":
       return (
         <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/30">
@@ -69,12 +65,18 @@ export default function MembresPage() {
   }, []);
 
   const filteredMembers = members.filter((m) => {
+    const isOmar = m.email?.toLowerCase().includes("omarboudaya") || m.role === "developpeur";
+    const effectivePoste = isOmar ? "Responsable IT & Développement Web" : (m.poste || "");
+
     const matchesSearch =
       m.full_name?.toLowerCase().includes(search.toLowerCase()) ||
       m.email?.toLowerCase().includes(search.toLowerCase()) ||
-      m.poste?.toLowerCase().includes(search.toLowerCase());
+      effectivePoste.toLowerCase().includes(search.toLowerCase());
 
-    const matchesRole = roleFilter === "all" || m.role === roleFilter;
+    const matchesRole =
+      roleFilter === "all" ||
+      m.role === roleFilter ||
+      (roleFilter === "responsable" && m.role === "developpeur");
 
     return matchesSearch && matchesRole;
   });
@@ -95,7 +97,7 @@ export default function MembresPage() {
       </div>
 
       {/* Search & Filters */}
-      <div className="p-4 rounded-2xl bg-[#121217] border border-white/10 mb-8 flex flex-col sm:flex-row gap-3 items-center justify-between">
+      <div className="p-4 rounded-2xl bg-[#121217] border border-white/10 mb-8 flex flex-col sm:flex-row gap-3 items-stretch sm:items-center justify-between">
         <div className="relative w-full sm:w-80">
           <Search className="absolute left-3.5 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4" />
           <input
@@ -107,18 +109,23 @@ export default function MembresPage() {
           />
         </div>
 
-        <div className="flex items-center gap-2 overflow-x-auto w-full sm:w-auto">
-          {["all", "developpeur", "bureau", "responsable", "membre"].map((role) => (
+        <div className="flex items-center gap-2 overflow-x-auto pb-1 sm:pb-0 w-full sm:w-auto">
+          {[
+            { key: "all", label: "Tous" },
+            { key: "bureau", label: "Bureau" },
+            { key: "responsable", label: "Responsables" },
+            { key: "membre", label: "Membres" },
+          ].map((item) => (
             <button
-              key={role}
-              onClick={() => setRoleFilter(role)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors ${
-                roleFilter === role
+              key={item.key}
+              onClick={() => setRoleFilter(item.key)}
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold uppercase tracking-wider transition-colors whitespace-nowrap shrink-0 ${
+                roleFilter === item.key
                   ? "bg-purple-600 text-white"
                   : "bg-white/[0.04] text-gray-400 hover:text-white"
               }`}
             >
-              {role === "all" ? "Tous" : role}
+              {item.label}
             </button>
           ))}
         </div>
@@ -137,56 +144,61 @@ export default function MembresPage() {
         </div>
       ) : (
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
-          {filteredMembers.map((member) => (
-            <div
-              key={member.id}
-              className="p-6 rounded-3xl bg-[#121217] border border-white/10 shadow-lg flex flex-col justify-between space-y-4 hover:border-purple-500/30 transition-all"
-            >
-              <div>
-                <div className="flex items-start justify-between gap-3 mb-3">
-                  <div className="w-14 h-14 rounded-2xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-xl font-bold text-purple-300 overflow-hidden relative flex-shrink-0">
-                    {member.avatar_url ? (
-                      <Image src={member.avatar_url} alt={member.full_name} fill className="object-cover" />
-                    ) : (
-                      member.full_name?.charAt(0).toUpperCase() || "M"
-                    )}
+          {filteredMembers.map((member) => {
+            const isOmar = member.email?.toLowerCase().includes("omarboudaya") || member.role === "developpeur";
+            const displayPoste = isOmar ? "Responsable IT & Développement Web" : (member.poste || "Membre");
+
+            return (
+              <div
+                key={member.id}
+                className="p-6 rounded-3xl bg-[#121217] border border-white/10 shadow-lg flex flex-col justify-between space-y-4 hover:border-purple-500/30 transition-all"
+              >
+                <div>
+                  <div className="flex items-start justify-between gap-3 mb-3">
+                    <div className="w-14 h-14 rounded-2xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-xl font-bold text-purple-300 overflow-hidden relative flex-shrink-0">
+                      {member.avatar_url ? (
+                        <Image src={member.avatar_url} alt={member.full_name} fill className="object-cover" />
+                      ) : (
+                        member.full_name?.charAt(0).toUpperCase() || "M"
+                      )}
+                    </div>
+                    <RoleBadge role={member.role} />
                   </div>
-                  <RoleBadge role={member.role} />
+
+                  <h3 className="text-base font-bold text-white">{member.full_name}</h3>
+                  <div className="text-xs text-purple-400 font-medium mb-2">{displayPoste}</div>
+
+                  {member.bio && (
+                    <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed mb-3">{member.bio}</p>
+                  )}
+
+                  {member.career && (
+                    <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 text-[11px] text-gray-300 flex items-start gap-2">
+                      <GraduationCap size={14} className="text-purple-400 flex-shrink-0 mt-0.5" />
+                      <span className="line-clamp-2">{member.career}</span>
+                    </div>
+                  )}
                 </div>
 
-                <h3 className="text-base font-bold text-white">{member.full_name}</h3>
-                <div className="text-xs text-purple-400 font-medium mb-2">{member.poste || "Membre"}</div>
-
-                {member.bio && (
-                  <p className="text-xs text-gray-400 line-clamp-2 leading-relaxed mb-3">{member.bio}</p>
-                )}
-
-                {member.career && (
-                  <div className="p-2.5 rounded-xl bg-white/[0.02] border border-white/5 text-[11px] text-gray-300 flex items-start gap-2">
-                    <GraduationCap size={14} className="text-purple-400 flex-shrink-0 mt-0.5" />
-                    <span className="line-clamp-2">{member.career}</span>
-                  </div>
-                )}
-              </div>
-
-              {/* Contact footer */}
-              <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs text-gray-400">
-                <a
-                  href={`mailto:${member.email}`}
-                  className="hover:text-purple-400 flex items-center gap-1.5 truncate max-w-[180px]"
-                >
-                  <Mail size={13} />
-                  <span className="truncate">{member.email}</span>
-                </a>
-                {member.phone && (
-                  <a href={`tel:${member.phone}`} className="hover:text-emerald-400 flex items-center gap-1">
-                    <Phone size={13} />
-                    <span>{member.phone}</span>
+                {/* Contact footer */}
+                <div className="pt-3 border-t border-white/5 flex items-center justify-between text-xs text-gray-400">
+                  <a
+                    href={`mailto:${member.email}`}
+                    className="hover:text-purple-400 flex items-center gap-1.5 truncate max-w-[180px]"
+                  >
+                    <Mail size={13} />
+                    <span className="truncate">{member.email}</span>
                   </a>
-                )}
+                  {member.phone && (
+                    <a href={`tel:${member.phone}`} className="hover:text-emerald-400 flex items-center gap-1">
+                      <Phone size={13} />
+                      <span>{member.phone}</span>
+                    </a>
+                  )}
+                </div>
               </div>
-            </div>
-          ))}
+            );
+          })}
         </div>
       )}
     </div>

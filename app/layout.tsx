@@ -4,6 +4,7 @@ import "./globals.css";
 import AiAssistant from "@/components/AiAssistant";
 import LiveFeed from "@/components/LiveFeed";
 import { Analytics } from "@vercel/analytics/next";
+import { ThemeProvider } from "@/contexts/ThemeContext";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -55,14 +56,16 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr">
+    <html lang="fr" suppressHydrationWarning>
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        {children}
-        <AiAssistant />
-        <LiveFeed />
-        <Analytics />
+        <ThemeProvider>
+          {children}
+          <AiAssistant />
+          <LiveFeed />
+          <Analytics />
+        </ThemeProvider>
       </body>
     </html>
   );

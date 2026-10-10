@@ -232,12 +232,12 @@ export default function TachesPage() {
       {/* Filters Bar */}
       <div className="p-4 rounded-2xl bg-[#121217] border border-white/10 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
         {/* Pole Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto">
+        <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1.5 md:pb-0">
           {POLES.map((pole) => (
             <button
               key={pole}
               onClick={() => setSelectedPole(pole)}
-              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors ${
+              className={`px-3 py-1.5 rounded-xl text-xs font-semibold whitespace-nowrap transition-colors shrink-0 ${
                 selectedPole === pole
                   ? "bg-purple-600 text-white"
                   : "bg-white/[0.04] text-gray-400 hover:text-white"
