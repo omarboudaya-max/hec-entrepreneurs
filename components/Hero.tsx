@@ -84,8 +84,9 @@ export default function Hero() {
                             </button>
                         </Link>
                         <Link href="/join" className="w-full sm:w-auto">
-                            <button className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[#7c3aed] hover:bg-[#8b5cf6] text-white font-normal text-base transition-all hover:shadow-[0_0_30px_rgba(124,58,237,0.4)] tracking-[0.15em] uppercase">
-                                Rejoindre le Club
+                            <button className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[#7c3aed]/20 hover:bg-[#7c3aed]/35 border border-[#7c3aed]/50 text-white font-normal text-base transition-all hover:shadow-[0_0_30px_rgba(124,58,237,0.3)] tracking-[0.15em] uppercase flex items-center justify-center gap-3">
+                                <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
+                                <span>Recrutement Clôturé</span>
                             </button>
                         </Link>
                     </div>

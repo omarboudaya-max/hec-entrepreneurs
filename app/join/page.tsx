@@ -4,13 +4,18 @@ import { useState, useEffect, useRef } from "react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 import { motion, AnimatePresence } from "framer-motion";
+import Link from "next/link";
 import {
     Send, User, GraduationCap, Mail, Phone,
     Facebook, Rocket, Sparkles, Calendar, Clock,
     ChevronLeft, ChevronRight, CheckCircle2, Briefcase,
-    Award, HeartHandshake, Link as LinkIcon, Star, Target, Compass
+    Award, HeartHandshake, Link as LinkIcon, Star, Target, Compass,
+    Instagram, Linkedin
 } from "lucide-react";
 import { supabase } from "@/lib/supabase";
+
+// Statut de la campagne de recrutement (basculer à true si une nouvelle vague est ouverte)
+const IS_RECRUITMENT_OPEN = false;
 
 // Scheduling constants
 const DATES = ["05/10/2026", "06/10/2026", "07/10/2026", "08/10/2026", "09/10/2026", "10/10/2026", "Autre"];
@@ -231,6 +236,11 @@ export default function Join() {
     };
 
     const handleSubmit = async () => {
+        if (!IS_RECRUITMENT_OPEN) {
+            alert("Les recrutements pour la session actuelle sont désormais clôturés.");
+            return;
+        }
+
         if (!formData.interviewDate || !formData.interviewTime) {
             alert("Veuillez choisir la date et l'heure de votre entretien.");
             return;
@@ -357,12 +367,168 @@ export default function Join() {
             <div className="absolute bottom-1/4 -right-20 w-80 h-80 bg-secondary/10 rounded-full blur-[100px] pointer-events-none" />
 
             <div className="z-10 container mx-auto px-3 sm:px-4 py-16 md:py-28 flex flex-col items-center">
-                <motion.div
-                    initial="hidden"
-                    animate="visible"
-                    variants={containerVariants}
-                    className="w-full max-w-3xl"
-                >
+                {!IS_RECRUITMENT_OPEN ? (
+                    <motion.div
+                        initial="hidden"
+                        animate="visible"
+                        variants={containerVariants}
+                        className="w-full max-w-4xl space-y-10"
+                    >
+                        {/* Header Section */}
+                        <div className="text-center">
+                            <motion.div
+                                initial={{ scale: 0.8, opacity: 0 }}
+                                animate={{ scale: 1, opacity: 1 }}
+                                transition={{ duration: 0.5 }}
+                                className="inline-flex items-center gap-2.5 px-5 py-2 rounded-full bg-amber-500/10 border border-amber-500/30 text-amber-300 text-xs font-mono uppercase tracking-widest mb-6 shadow-[0_0_25px_rgba(245,158,11,0.2)]"
+                            >
+                                <span className="relative flex h-2.5 w-2.5">
+                                    <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-amber-400 opacity-75" />
+                                    <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-amber-500" />
+                                </span>
+                                <span>Session 2026/2027 • Recrutements Clôturés</span>
+                            </motion.div>
+
+                            <h1 className="text-3xl sm:text-5xl md:text-6xl font-thin mb-4 uppercase tracking-[0.1em] sm:tracking-[0.2em] px-2">
+                                <span className="text-wave">RECRUTEMENT CLÔTURÉ</span>
+                            </h1>
+                            <p className="text-gray-400 font-mono tracking-widest text-xs uppercase mb-6">
+                                Club HEC Entrepreneurs — IHEC Carthage
+                            </p>
+                            <p className="text-gray-300 text-base sm:text-lg max-w-2xl mx-auto font-light leading-relaxed">
+                                La période de dépôt des candidatures pour rejoindre la promotion 2026/2027 est désormais officiellement terminée. Un grand merci aux centaines d&apos;étudiants ayant soumis leur dossier et partagé leur passion !
+                            </p>
+                        </div>
+
+                        {/* Info Cards Grid */}
+                        <div className="grid grid-cols-1 md:grid-cols-3 gap-5">
+                            <motion.div
+                                variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
+                                className="glass p-6 sm:p-7 rounded-3xl border border-white/10 relative overflow-hidden group hover:border-primary/40 transition-all flex flex-col justify-between"
+                            >
+                                <div className="space-y-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-primary/20 border border-primary/30 flex items-center justify-center text-primary group-hover:scale-110 transition-transform">
+                                        <Calendar className="w-6 h-6" />
+                                    </div>
+                                    <h3 className="text-base font-medium text-white uppercase tracking-wider">
+                                        Entretiens en cours
+                                    </h3>
+                                    <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">
+                                        Pour les candidats ayant réservé leur créneau, les entretiens se déroulent selon le calendrier convenu. Veuillez surveiller votre boîte e-mail pour toute communication.
+                                    </p>
+                                </div>
+                                <div className="pt-4 border-t border-white/5 mt-4">
+                                    <span className="text-[11px] font-mono text-primary/80 uppercase">Planning maintenu</span>
+                                </div>
+                            </motion.div>
+
+                            <motion.div
+                                variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
+                                className="glass p-6 sm:p-7 rounded-3xl border border-white/10 relative overflow-hidden group hover:border-secondary/40 transition-all flex flex-col justify-between"
+                            >
+                                <div className="space-y-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-secondary/20 border border-secondary/30 flex items-center justify-center text-secondary group-hover:scale-110 transition-transform">
+                                        <Award className="w-6 h-6" />
+                                    </div>
+                                    <h3 className="text-base font-medium text-white uppercase tracking-wider">
+                                        Délibérations & Intégration
+                                    </h3>
+                                    <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">
+                                        Les résultats finaux et les détails de l&apos;intégration des nouveaux membres seront annoncés directement par le bureau après l&apos;ensemble des entrevues.
+                                    </p>
+                                </div>
+                                <div className="pt-4 border-t border-white/5 mt-4">
+                                    <span className="text-[11px] font-mono text-secondary/80 uppercase">Retours personnalisés</span>
+                                </div>
+                            </motion.div>
+
+                            <motion.div
+                                variants={{ hidden: { opacity: 0, y: 20 }, visible: { opacity: 1, y: 0 } }}
+                                className="glass p-6 sm:p-7 rounded-3xl border border-white/10 relative overflow-hidden group hover:border-purple-400/40 transition-all flex flex-col justify-between"
+                            >
+                                <div className="space-y-4">
+                                    <div className="w-12 h-12 rounded-2xl bg-purple-500/20 border border-purple-500/30 flex items-center justify-center text-purple-400 group-hover:scale-110 transition-transform">
+                                        <Rocket className="w-6 h-6" />
+                                    </div>
+                                    <h3 className="text-base font-medium text-white uppercase tracking-wider">
+                                        Participez à nos projets
+                                    </h3>
+                                    <p className="text-gray-400 text-xs sm:text-sm leading-relaxed">
+                                        Même sans être membre du bureau, toutes nos conférences publiques, workshops et le prestigieux Tribunal de l&apos;Entrepreneuriat restent ouverts à tous les étudiants.
+                                    </p>
+                                </div>
+                                <div className="pt-4 border-t border-white/5 mt-4">
+                                    <span className="text-[11px] font-mono text-purple-400/80 uppercase">Événements ouverts</span>
+                                </div>
+                            </motion.div>
+                        </div>
+
+                        {/* Action Buttons & Social Connections */}
+                        <div className="glass p-8 sm:p-10 rounded-3xl border border-white/10 text-center space-y-6">
+                            <h3 className="text-lg font-light text-white uppercase tracking-widest">
+                                Restez connectés avec HEC Entrepreneurs
+                            </h3>
+                            <p className="text-gray-400 text-sm max-w-xl mx-auto font-light">
+                                Suivez nos actualités en temps réel pour ne rien manquer de nos prochains événements, annonces et projets à venir.
+                            </p>
+
+                            <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
+                                <Link
+                                    href="/entrepreuneuriat"
+                                    className="px-8 py-3.5 rounded-2xl bg-primary hover:bg-primary/90 text-white font-medium text-xs uppercase tracking-widest transition-all shadow-lg shadow-primary/20 hover:scale-105"
+                                >
+                                    Découvrir nos projets
+                                </Link>
+                                <Link
+                                    href="/store"
+                                    className="px-8 py-3.5 rounded-2xl bg-white/10 hover:bg-white/20 text-white font-medium text-xs uppercase tracking-widest transition-all border border-white/20 hover:scale-105"
+                                >
+                                    IHEC Store
+                                </Link>
+                                <Link
+                                    href="/"
+                                    className="px-8 py-3.5 rounded-2xl bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white font-medium text-xs uppercase tracking-widest transition-all border border-white/10"
+                                >
+                                    Retour à l&apos;accueil
+                                </Link>
+                            </div>
+
+                            <div className="pt-6 border-t border-white/10 flex flex-wrap items-center justify-center gap-6 text-xs text-gray-400">
+                                <a
+                                    href="https://www.instagram.com/hec_entrepreneurs?igsh=MTdsOW4xOHVnbDdsYw=="
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-2 hover:text-primary transition-colors"
+                                >
+                                    <Instagram className="w-4 h-4 text-pink-400" />
+                                    <span>Instagram Officiel</span>
+                                </a>
+                                <a
+                                    href="https://www.linkedin.com/in/hec-entrepreneurs-ab35773b2/"
+                                    target="_blank"
+                                    rel="noopener noreferrer"
+                                    className="flex items-center gap-2 hover:text-primary transition-colors"
+                                >
+                                    <Linkedin className="w-4 h-4 text-blue-400" />
+                                    <span>LinkedIn</span>
+                                </a>
+                                <a
+                                    href="mailto:hecentrepreneurs8@gmail.com"
+                                    className="flex items-center gap-2 hover:text-primary transition-colors"
+                                >
+                                    <Mail className="w-4 h-4 text-amber-400" />
+                                    <span>hecentrepreneurs8@gmail.com</span>
+                                </a>
+                            </div>
+                        </div>
+                    </motion.div>
+                ) : (
+                    <motion.div
+                        initial="hidden"
+                        animate="visible"
+                        variants={containerVariants}
+                        className="w-full max-w-3xl"
+                    >
                     {!submitted && (
                         <header ref={formTopRef} className="text-center mb-10">
                             <motion.div variants={{ hidden: { opacity: 0 }, visible: { opacity: 1 } }}>
@@ -1090,6 +1256,7 @@ export default function Join() {
                         )}
                     </AnimatePresence>
                 </motion.div>
+                )}
             </div>
 
             <Footer />
