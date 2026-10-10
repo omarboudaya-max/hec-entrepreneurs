@@ -30,7 +30,8 @@ const Footer = () => {
                                 { label: "À Propos", href: "/about" },
                                 { label: "Entrepreneuriat", href: "/entrepreuneuriat" },
                                 { label: "Ressources", href: "/resources" },
-                                { label: "Team Up", href: "/team-up" }
+                                { label: "Team Up", href: "/team-up" },
+                                { label: "Espace Membre (Intranet)", href: "/portail" }
                             ].map((link, idx) => (
                                 <li key={idx}>
                                     <Link href={link.href} className="text-gray-400 hover:text-primary transition-colors text-sm font-medium">

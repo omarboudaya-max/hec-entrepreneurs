@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   Bell, FileText, User, Users, ShoppingBag, ShieldCheck,
-  LogOut, Menu, X, Sparkles, ChevronRight, Lock
+  LogOut, Menu, X, Sparkles, ChevronRight, Lock, Calendar, CheckSquare
 } from "lucide-react";
 import { PortailAuthProvider, usePortailAuth } from "@/contexts/PortailAuthContext";
 
@@ -73,6 +73,24 @@ function PortailShell({ children }: { children: React.ReactNode }) {
       show: true,
     },
     {
+      label: "Calendrier & Réunions",
+      href: "/portail/calendrier",
+      icon: Calendar,
+      show: true,
+    },
+    {
+      label: "Tâches par Pôle",
+      href: "/portail/taches",
+      icon: CheckSquare,
+      show: true,
+    },
+    {
+      label: "Annuaire Membres",
+      href: "/portail/membres",
+      icon: Users,
+      show: true,
+    },
+    {
       label: "Documents Officiels",
       href: "/portail/documents",
       icon: FileText,
@@ -85,22 +103,16 @@ function PortailShell({ children }: { children: React.ReactNode }) {
       show: true,
     },
     {
-      label: "Annuaire Membres",
-      href: "/portail/membres",
-      icon: Users,
-      show: isBureau, // Bureau + Dev
+      label: "Gestion Membres",
+      href: "/portail/gestion-membres",
+      icon: Lock,
+      show: isBureau, // Bureau (RH) + Dev
     },
     {
       label: "IHEC Store",
       href: "/portail/store",
       icon: ShoppingBag,
       show: isBureau, // Bureau + Dev
-    },
-    {
-      label: "Gestion Membres",
-      href: "/portail/gestion-membres",
-      icon: Lock,
-      show: isBureau, // Bureau (RH) + Dev
     },
   ];
 

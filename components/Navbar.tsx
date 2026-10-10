@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { usePathname, useRouter } from "next/navigation";
 import { motion, AnimatePresence } from "framer-motion";
-import { Menu, X, Search, Filter, ShoppingCart, ShoppingBag } from "lucide-react";
+import { Menu, X, Search, Filter, ShoppingCart, ShoppingBag, Shield } from "lucide-react";
 import clsx from "clsx";
 import { useCartStore } from "@/store/cartStore";
 
@@ -112,8 +112,16 @@ export default function Navbar() {
                     </div>
                 </div>
 
-                {/* Right Column: Cart & Filters */}
-                <div className="flex justify-end items-center z-20">
+                {/* Right Column: Cart & Filters & Espace Membre */}
+                <div className="flex justify-end items-center z-20 gap-2.5">
+                    <Link
+                        href="/portail"
+                        className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold tracking-wider uppercase bg-gradient-to-r from-purple-600/25 to-indigo-600/25 hover:from-purple-600/45 hover:to-indigo-600/45 border border-purple-500/40 text-purple-200 hover:text-white transition-all shadow-lg shadow-purple-900/20 backdrop-blur-md"
+                    >
+                        <Shield className="w-3.5 h-3.5 text-purple-400" />
+                        <span>Espace Membre</span>
+                    </Link>
+
                     {isStore && (
                         <div className="hidden lg:flex items-center gap-2">
                             <button className="glass px-4 py-2 rounded-full text-[#cbb0a5] hover:text-white transition-colors flex items-center gap-2 text-sm backdrop-blur-md border border-white/10 hover:bg-white/5 whitespace-nowrap">
@@ -141,6 +149,14 @@ export default function Navbar() {
                             exit={{ opacity: 0, scale: 0.95, y: 10, x: "-50%" }}
                             className="absolute top-full left-1/2 mt-4 p-2 glass rounded-[2rem] border border-primary/20 md:hidden flex flex-col gap-1 w-[280px] shadow-2xl z-40"
                         >
+                            <Link
+                                href="/portail"
+                                onClick={() => setIsOpen(false)}
+                                className="px-6 py-3 rounded-2xl text-xs font-bold uppercase tracking-[0.1em] transition-all text-center bg-gradient-to-r from-purple-600/30 to-indigo-600/30 text-purple-200 border border-purple-500/40 flex items-center justify-center gap-2 mb-1"
+                            >
+                                <Shield className="w-3.5 h-3.5 text-purple-400" />
+                                <span>Espace Membre</span>
+                            </Link>
                             {isStore && (
                                 <div className="p-2 mb-2 border-b border-white/10">
                                     <input

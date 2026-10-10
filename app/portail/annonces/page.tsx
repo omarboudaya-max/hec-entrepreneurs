@@ -80,6 +80,7 @@ export default function AnnoncesPage() {
   const [imageFile, setImageFile] = useState<File | null>(null);
   const [imagePreview, setImagePreview] = useState<string | null>(null);
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [broadcastEmail, setBroadcastEmail] = useState(false);
 
   // Lightbox Modal
   const [activeImage, setActiveImage] = useState<string | null>(null);
@@ -170,6 +171,7 @@ export default function AnnoncesPage() {
           image_url: uploadedImageUrl,
           link_url: linkUrl.trim() || null,
           link_title: linkTitle.trim() || null,
+          broadcastEmail,
         }),
       });
 
@@ -178,6 +180,7 @@ export default function AnnoncesPage() {
         setLinkUrl("");
         setLinkTitle("");
         setShowLinkInput(false);
+        setBroadcastEmail(false);
         removeImage();
         await fetchAnnouncements();
       }
@@ -415,6 +418,16 @@ export default function AnnoncesPage() {
                   <LinkIcon size={16} className="text-indigo-400" />
                   <span>Joindre un lien</span>
                 </button>
+
+                <label className="flex items-center gap-2 px-3 py-2 rounded-xl bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-medium cursor-pointer select-none hover:bg-purple-500/15 transition-colors">
+                  <input
+                    type="checkbox"
+                    checked={broadcastEmail}
+                    onChange={(e) => setBroadcastEmail(e.target.checked)}
+                    className="w-3.5 h-3.5 accent-purple-600 rounded cursor-pointer"
+                  />
+                  <span>Notifier par email</span>
+                </label>
               </div>
 
               <button

@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { broadcastToClubMembers } from "@/lib/email-broadcast";
 
 async function getAuthUser(req: NextRequest) {
   const authHeader = req.headers.get("authorization");
@@ -128,7 +129,7 @@ export async function POST(req: NextRequest) {
     }
 
     const body = await req.json();
-    const { content, image_url, link_url, link_title } = body;
+    const { content, image_url, link_url, link_title, broadcastEmail } = body;
 
     if (!content || !content.trim()) {
       return NextResponse.json({ error: "Le contenu de l'annonce est requis." }, { status: 400 });
@@ -148,6 +149,17 @@ export async function POST(req: NextRequest) {
 
     if (insertError) {
       return NextResponse.json({ error: insertError.message }, { status: 400 });
+    }
+
+    if (broadcastEmail) {
+      await broadcastToClubMembers({
+        subject: `Nouvelle annonce officielle sur l'Intranet`,
+        badge: "Annonce Officielle",
+        title: "Nouvelle communication du Club",
+        message: content.trim(),
+        actionText: "Voir l'annonce sur l'Intranet",
+        actionUrl: "https://hec-entrepreneurs.org/portail/annonces",
+      });
     }
 
     return NextResponse.json({ announcement: newPost });

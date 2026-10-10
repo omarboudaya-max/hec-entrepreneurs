@@ -19,6 +19,12 @@ export default function ProfilPage() {
   const [isSaving, setIsSaving] = useState(false);
   const [message, setMessage] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
+  // Password Change State
+  const [newPassword, setNewPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
+  const [isChangingPassword, setIsChangingPassword] = useState(false);
+  const [passwordMsg, setPasswordMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
+
   useEffect(() => {
     if (profile) {
       setFullName(profile.full_name || "");
@@ -99,6 +105,34 @@ export default function ProfilPage() {
       setMessage({ type: "error", text: err.message || "Erreur lors de la sauvegarde." });
     } finally {
       setIsSaving(false);
+    }
+  };
+
+  const handlePasswordChange = async (e: React.FormEvent) => {
+    e.preventDefault();
+    if (!newPassword || newPassword.length < 6) {
+      setPasswordMsg({ type: "error", text: "Le mot de passe doit comporter au moins 6 caractères." });
+      return;
+    }
+    if (newPassword !== confirmPassword) {
+      setPasswordMsg({ type: "error", text: "Les deux mots de passe ne correspondent pas." });
+      return;
+    }
+
+    setIsChangingPassword(true);
+    setPasswordMsg(null);
+
+    try {
+      const { error } = await supabase.auth.updateUser({ password: newPassword });
+      if (error) throw error;
+
+      setPasswordMsg({ type: "success", text: "Votre mot de passe a été mis à jour avec succès !" });
+      setNewPassword("");
+      setConfirmPassword("");
+    } catch (err: any) {
+      setPasswordMsg({ type: "error", text: err.message || "Erreur lors du changement de mot de passe." });
+    } finally {
+      setIsChangingPassword(false);
     }
   };
 
@@ -262,6 +296,75 @@ export default function ProfilPage() {
           </button>
         </div>
       </form>
+
+      {/* Security & Password Section */}
+      <div className="mt-10 p-6 sm:p-8 rounded-3xl bg-[#121217] border border-white/10 shadow-xl space-y-4">
+        <div className="flex items-center gap-2.5 text-base font-bold text-white">
+          <Lock size={18} className="text-purple-400" />
+          <span>Sécurité & Changement de Mot de Passe</span>
+        </div>
+        <p className="text-xs text-gray-400">
+          Modifiez votre mot de passe de connexion à l&apos;intranet en toute autonomie.
+        </p>
+
+        {passwordMsg && (
+          <div
+            className={`p-3.5 rounded-2xl flex items-center gap-3 text-xs ${
+              passwordMsg.type === "success"
+                ? "bg-emerald-500/10 border border-emerald-500/20 text-emerald-300"
+                : "bg-red-500/10 border border-red-500/20 text-red-300"
+            }`}
+          >
+            {passwordMsg.type === "success" ? <CheckCircle2 size={16} /> : <AlertCircle size={16} />}
+            <span>{passwordMsg.text}</span>
+          </div>
+        )}
+
+        <form onSubmit={handlePasswordChange} className="space-y-4 pt-2">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div>
+              <label className="block text-xs text-gray-400 mb-1.5 font-medium">Nouveau mot de passe</label>
+              <input
+                type="password"
+                required
+                value={newPassword}
+                onChange={(e) => setNewPassword(e.target.value)}
+                placeholder="Au moins 6 caractères"
+                className="w-full px-4 py-2.5 bg-white/[0.04] border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-purple-500 font-mono"
+              />
+            </div>
+
+            <div>
+              <label className="block text-xs text-gray-400 mb-1.5 font-medium">Confirmer le mot de passe</label>
+              <input
+                type="password"
+                required
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                placeholder="Répétez le mot de passe"
+                className="w-full px-4 py-2.5 bg-white/[0.04] border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-purple-500 font-mono"
+              />
+            </div>
+          </div>
+
+          <div className="flex justify-end pt-2">
+            <button
+              type="submit"
+              disabled={isChangingPassword}
+              className="px-5 py-2.5 bg-white/10 hover:bg-white/20 text-white font-bold rounded-xl text-xs transition-colors disabled:opacity-50 flex items-center gap-2"
+            >
+              {isChangingPassword ? (
+                <div className="w-4 h-4 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+              ) : (
+                <>
+                  <Lock size={14} />
+                  <span>Mettre à jour mon mot de passe</span>
+                </>
+              )}
+            </button>
+          </div>
+        </form>
+      </div>
     </div>
   );
 }

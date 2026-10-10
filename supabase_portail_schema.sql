@@ -284,3 +284,128 @@ CREATE POLICY "Bureau and dev can view candidatures"
       WHERE id = auth.uid() AND role IN ('bureau', 'developpeur')
     )
   );
+
+
+-- 9. Club Events & Agenda Table (Calendrier Interne)
+CREATE TABLE IF NOT EXISTS public.club_events (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  title TEXT NOT NULL,
+  description TEXT,
+  location TEXT,
+  event_date DATE NOT NULL,
+  start_time TIME WITHOUT TIME ZONE,
+  end_time TIME WITHOUT TIME ZONE,
+  event_type TEXT NOT NULL DEFAULT 'reunion' CHECK (event_type IN ('reunion', 'ag', 'workshop', 'deadline', 'teambuilding')),
+  created_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.club_events ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Authenticated users can view club events" ON public.club_events;
+CREATE POLICY "Authenticated users can view club events" 
+  ON public.club_events FOR SELECT 
+  TO authenticated 
+  USING (true);
+
+DROP POLICY IF EXISTS "Bureau and responsables can create events" ON public.club_events;
+CREATE POLICY "Bureau and responsables can create events" 
+  ON public.club_events FOR INSERT 
+  TO authenticated 
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.club_profiles 
+      WHERE id = auth.uid() AND role IN ('bureau', 'responsable', 'developpeur')
+    )
+  );
+
+DROP POLICY IF EXISTS "Bureau and creator can delete events" ON public.club_events;
+CREATE POLICY "Bureau and creator can delete events" 
+  ON public.club_events FOR DELETE 
+  TO authenticated 
+  USING (
+    created_by = auth.uid() OR
+    EXISTS (
+      SELECT 1 FROM public.club_profiles 
+      WHERE id = auth.uid() AND role IN ('bureau', 'developpeur')
+    )
+  );
+
+
+-- 10. Event RSVPs (Confirmations de Présence)
+CREATE TABLE IF NOT EXISTS public.event_rsvps (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  event_id UUID REFERENCES public.club_events(id) ON DELETE CASCADE NOT NULL,
+  user_id UUID REFERENCES auth.users(id) ON DELETE CASCADE NOT NULL,
+  status TEXT NOT NULL DEFAULT 'present' CHECK (status IN ('present', 'absent', 'peut_etre')),
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL,
+  UNIQUE(event_id, user_id)
+);
+
+ALTER TABLE public.event_rsvps ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Authenticated users can view rsvps" ON public.event_rsvps;
+CREATE POLICY "Authenticated users can view rsvps" 
+  ON public.event_rsvps FOR SELECT 
+  TO authenticated 
+  USING (true);
+
+DROP POLICY IF EXISTS "Authenticated users can manage their own rsvp" ON public.event_rsvps;
+CREATE POLICY "Authenticated users can manage their own rsvp" 
+  ON public.event_rsvps FOR ALL 
+  TO authenticated 
+  USING (auth.uid() = user_id)
+  WITH CHECK (auth.uid() = user_id);
+
+
+-- 11. Club Tasks Table (Suivi & Kanban par Pôle)
+CREATE TABLE IF NOT EXISTS public.club_tasks (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  title TEXT NOT NULL,
+  description TEXT,
+  pole TEXT NOT NULL DEFAULT 'Général',
+  assigned_to UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  status TEXT NOT NULL DEFAULT 'a_faire' CHECK (status IN ('a_faire', 'en_cours', 'termine')),
+  priority TEXT NOT NULL DEFAULT 'normale' CHECK (priority IN ('basse', 'normale', 'urgente')),
+  due_date DATE,
+  created_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.club_tasks ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Authenticated users can view club tasks" ON public.club_tasks;
+CREATE POLICY "Authenticated users can view club tasks" 
+  ON public.club_tasks FOR SELECT 
+  TO authenticated 
+  USING (true);
+
+DROP POLICY IF EXISTS "Bureau and responsables can create tasks" ON public.club_tasks;
+CREATE POLICY "Bureau and responsables can create tasks" 
+  ON public.club_tasks FOR INSERT 
+  TO authenticated 
+  WITH CHECK (
+    EXISTS (
+      SELECT 1 FROM public.club_profiles 
+      WHERE id = auth.uid() AND role IN ('bureau', 'responsable', 'developpeur')
+    )
+  );
+
+DROP POLICY IF EXISTS "Users can update task status" ON public.club_tasks;
+CREATE POLICY "Users can update task status" 
+  ON public.club_tasks FOR UPDATE 
+  TO authenticated 
+  USING (true)
+  WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Bureau and creator can delete tasks" ON public.club_tasks;
+CREATE POLICY "Bureau and creator can delete tasks" 
+  ON public.club_tasks FOR DELETE 
+  TO authenticated 
+  USING (
+    created_by = auth.uid() OR
+    EXISTS (
+      SELECT 1 FROM public.club_profiles 
+      WHERE id = auth.uid() AND role IN ('bureau', 'developpeur')
+    )
+  );
