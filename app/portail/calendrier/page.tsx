@@ -4,7 +4,7 @@ import React, { useState, useEffect } from "react";
 import {
   Calendar as CalendarIcon, Clock, MapPin, Users, Plus, CheckCircle2,
   XCircle, HelpCircle, Trash2, Send, AlertCircle, Sparkles, Filter,
-  FileText, Printer, Copy, Check, Edit3, ShieldAlert
+  FileText, Printer, Copy, Check, Edit3, ShieldAlert, Lock
 } from "lucide-react";
 import { usePortailAuth } from "@/contexts/PortailAuthContext";
 import { supabase } from "@/lib/supabase";
@@ -133,6 +133,23 @@ export default function CalendrierPage() {
   };
 
   const handleRsvp = async (eventId: string, status: "present" | "absent" | "peut_etre") => {
+    const targetEvt = events.find((e) => e.id === eventId);
+    if (targetEvt) {
+      const now = new Date();
+      const todayStr = now.toISOString().split("T")[0];
+      let isDone = targetEvt.event_date < todayStr;
+      if (targetEvt.event_date === todayStr && targetEvt.end_time) {
+        const [endH, endM] = targetEvt.end_time.split(":").map(Number);
+        if (now.getHours() > endH || (now.getHours() === endH && now.getMinutes() >= endM)) {
+          isDone = true;
+        }
+      }
+      if (isDone) {
+        alert("Cet événement est déjà terminé. Les présences sont clôturées et ne peuvent plus être modifiées.");
+        return;
+      }
+    }
+
     // Optimistic update
     setEvents((prev) =>
       prev.map((evt) => {
@@ -164,7 +181,7 @@ export default function CalendrierPage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
-      await fetch(`/api/portail/events/${eventId}/rsvp`, {
+      const res = await fetch(`/api/portail/events/${eventId}/rsvp`, {
         method: "POST",
         headers: {
           "Content-Type": "application/json",
@@ -172,6 +189,12 @@ export default function CalendrierPage() {
         },
         body: JSON.stringify({ status }),
       });
+
+      const data = await res.json();
+      if (!res.ok) {
+        alert(data.error || "Impossible de modifier la présence.");
+        fetchEvents(); // rollback
+      }
     } catch (err) {
       console.error("Error submitting RSVP:", err);
       fetchEvents(); // rollback
@@ -371,7 +394,17 @@ export default function CalendrierPage() {
             const monthStr = dateObj.toLocaleDateString("fr-FR", { month: "short" });
             const weekdayStr = dateObj.toLocaleDateString("fr-FR", { weekday: "long" });
 
-            const isPastOrToday = evt.event_date <= new Date().toISOString().split("T")[0];
+            const now = new Date();
+            const todayStr = now.toISOString().split("T")[0];
+            let isDone = evt.event_date < todayStr;
+            if (evt.event_date === todayStr && evt.end_time) {
+              const [endH, endM] = evt.end_time.split(":").map(Number);
+              if (now.getHours() > endH || (now.getHours() === endH && now.getMinutes() >= endM)) {
+                isDone = true;
+              }
+            }
+
+            const isPastOrToday = evt.event_date <= todayStr;
             const isMeetingOrAg = evt.event_type === "reunion" || evt.event_type === "ag";
 
             return (
@@ -445,44 +478,70 @@ export default function CalendrierPage() {
                       )}
                     </div>
 
-                    {/* Interactive RSVP buttons */}
-                    <div className="flex items-center gap-1.5 bg-black/40 p-1 rounded-2xl border border-white/10">
-                      <button
-                        onClick={() => handleRsvp(evt.id, "present")}
-                        className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                          evt.userRsvp === "present"
-                            ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/30"
-                            : "text-gray-400 hover:text-white hover:bg-white/5"
-                        }`}
-                      >
-                        <CheckCircle2 size={13} />
-                        <span>Je participe</span>
-                      </button>
+                    {/* Interactive RSVP buttons OR Locked status if event is already done */}
+                    {isDone ? (
+                      <div className="flex items-center gap-2">
+                        {evt.userRsvp === "present" ? (
+                          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold shadow-sm">
+                            <CheckCircle2 size={13} className="text-emerald-400" />
+                            <span>Votre présence : Confirmé ✓</span>
+                          </div>
+                        ) : evt.userRsvp === "absent" ? (
+                          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 text-xs font-semibold shadow-sm">
+                            <XCircle size={13} className="text-red-400" />
+                            <span>Votre présence : Noté absent</span>
+                          </div>
+                        ) : evt.userRsvp === "peut_etre" ? (
+                          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-semibold shadow-sm">
+                            <HelpCircle size={13} className="text-amber-400" />
+                            <span>Votre présence : Était indécis</span>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] border border-white/10 text-gray-400 text-xs font-medium">
+                            <Lock size={12} className="text-gray-400" />
+                            <span>Présences clôturées</span>
+                          </div>
+                        )}
+                      </div>
+                    ) : (
+                      <div className="flex items-center gap-1.5 bg-black/40 p-1 rounded-2xl border border-white/10">
+                        <button
+                          onClick={() => handleRsvp(evt.id, "present")}
+                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                            evt.userRsvp === "present"
+                              ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/30"
+                              : "text-gray-400 hover:text-white hover:bg-white/5"
+                          }`}
+                        >
+                          <CheckCircle2 size={13} />
+                          <span>Je participe</span>
+                        </button>
 
-                      <button
-                        onClick={() => handleRsvp(evt.id, "peut_etre")}
-                        className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
-                          evt.userRsvp === "peut_etre"
-                            ? "bg-amber-600 text-white shadow-md shadow-amber-600/30"
-                            : "text-gray-400 hover:text-white hover:bg-white/5"
-                        }`}
-                      >
-                        <HelpCircle size={13} />
-                        <span>Peut-être</span>
-                      </button>
+                        <button
+                          onClick={() => handleRsvp(evt.id, "peut_etre")}
+                          className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+                            evt.userRsvp === "peut_etre"
+                              ? "bg-amber-600 text-white shadow-md shadow-amber-600/30"
+                              : "text-gray-400 hover:text-white hover:bg-white/5"
+                          }`}
+                        >
+                          <HelpCircle size={13} />
+                          <span>Peut-être</span>
+                        </button>
 
-                      <button
-                        onClick={() => handleRsvp(evt.id, "absent")}
-                        className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
-                          evt.userRsvp === "absent"
-                            ? "bg-red-600 text-white shadow-md shadow-red-600/30"
-                            : "text-gray-400 hover:text-white hover:bg-white/5"
-                        }`}
-                      >
-                        <XCircle size={13} />
-                        <span>Absent</span>
-                      </button>
-                    </div>
+                        <button
+                          onClick={() => handleRsvp(evt.id, "absent")}
+                          className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+                            evt.userRsvp === "absent"
+                              ? "bg-red-600 text-white shadow-md shadow-red-600/30"
+                              : "text-gray-400 hover:text-white hover:bg-white/5"
+                          }`}
+                        >
+                          <XCircle size={13} />
+                          <span>Absent</span>
+                        </button>
+                      </div>
+                    )}
 
                     {/* Bureau/Creator delete */}
                     {isBureau && (
