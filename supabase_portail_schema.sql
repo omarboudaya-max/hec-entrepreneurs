@@ -436,3 +436,29 @@ CREATE POLICY "Bureau and creator can delete tasks"
       WHERE id = auth.uid() AND role IN ('bureau', 'developpeur')
     )
   );
+
+
+-- 12. Candidatures Créneaux "Autres" (Lundi)
+CREATE TABLE IF NOT EXISTS public.candidatures_autres_creneaux (
+  id UUID DEFAULT gen_random_uuid() PRIMARY KEY,
+  full_name TEXT NOT NULL,
+  interview_date TEXT NOT NULL DEFAULT 'Lundi',
+  interview_time TEXT NOT NULL,
+  email TEXT,
+  phone TEXT,
+  created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
+);
+
+ALTER TABLE public.candidatures_autres_creneaux ENABLE ROW LEVEL SECURITY;
+
+DROP POLICY IF EXISTS "Public can insert autres creneaux" ON public.candidatures_autres_creneaux;
+CREATE POLICY "Public can insert autres creneaux" 
+  ON public.candidatures_autres_creneaux FOR INSERT 
+  TO public 
+  WITH CHECK (true);
+
+DROP POLICY IF EXISTS "Public can view autres creneaux" ON public.candidatures_autres_creneaux;
+CREATE POLICY "Public can view autres creneaux" 
+  ON public.candidatures_autres_creneaux FOR SELECT 
+  TO public 
+  USING (true);
