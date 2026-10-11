@@ -423,7 +423,7 @@ export default function Join() {
                                         href="/autres"
                                         className="text-xs text-secondary hover:text-white font-semibold underline underline-offset-4 flex items-center gap-1 transition-colors"
                                     >
-                                        <span>Option « Autre » ? Fixer votre créneau Lundi →</span>
+                                        <span>Option « Autre » ? Fixer votre créneau (Lundi / Mardi) →</span>
                                     </Link>
                                 </div>
                             </motion.div>

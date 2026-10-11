@@ -3,6 +3,42 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export const dynamic = "force-dynamic";
 
+// Schedule and capacity specification:
+// Lundi:
+// - 09:00 à 10:00 : 0
+// - 10:30 à 11:30 : 1
+// - 12:00 à 13:00 : 2
+// - 13:30 : 10
+// - 14:00 à 15:30 : 3
+// - 16:00 à 16:30 : 1
+// Mardi:
+// - 09:00 à 10:00 : 0
+// - 10:30 à 11:30 : 4
+// - 12:00 à 13:00 : 0
+// - 13:30 : 10
+// - 14:00 à 15:30 : 1
+// - 16:00 à 16:30 : 1
+// Mercredi: Supprimé
+
+export const DEFAULT_CAPACITIES: Record<string, Record<string, number>> = {
+  Lundi: {
+    "09:00 - 10:00": 0,
+    "10:30 - 11:30": 1,
+    "12:00 - 13:00": 2,
+    "13:30": 10,
+    "14:00 - 15:30": 3,
+    "16:00 - 16:30": 1,
+  },
+  Mardi: {
+    "09:00 - 10:00": 0,
+    "10:30 - 11:30": 4,
+    "12:00 - 13:00": 0,
+    "13:30": 10,
+    "14:00 - 15:30": 1,
+    "16:00 - 16:30": 1,
+  },
+};
+
 // In-memory fallback if Supabase table is not yet migrated
 declare global {
   var __autresCreneaux: any[] | undefined;
@@ -12,66 +48,91 @@ if (!global.__autresCreneaux) {
   global.__autresCreneaux = [];
 }
 
-const DEFAULT_SLOT_LIMIT = 4; // Max 4 candidates per 30-min slot
+function normalizeSlot(slot: string): string {
+  const s = slot.trim();
+  if (s === "13:30 - 14:00" || s === "13:30" || s === "13h30") return "13:30";
+  if (s === "09:00 à 10:00" || s === "09h00 à 10h00" || s === "09:00-10:00") return "09:00 - 10:00";
+  if (s === "10:30 à 11:30" || s === "10h30 à 11h30" || s === "10:30-11:30") return "10:30 - 11:30";
+  if (s === "12:00 à 13:00" || s === "12h00 à 13h00" || s === "12:00-13:00") return "12:00 - 13:00";
+  if (s === "14:00 à 15:30" || s === "14h00 à 15h30" || s === "14:00-15:30") return "14:00 - 15:30";
+  if (s === "16:00 à 16:30" || s === "16h00 à 16h30" || s === "16:00-16:30") return "16:00 - 16:30";
+  return s;
+}
 
 export async function GET() {
   try {
+    const bookedCounts: Record<string, number> = {};
+
     // 1. Fetch bookings from candidatures_autres_creneaux
     const { data: autresData } = await supabaseAdmin
       .from("candidatures_autres_creneaux")
-      .select("interview_time");
+      .select("interview_date, interview_time");
 
-    // 2. Also fetch any candidatures_recrutement where interview_date = 'Lundi'
-    const { data: mainData } = await supabaseAdmin
-      .from("candidatures_recrutement")
-      .select("interview_time")
-      .eq("interview_date", "Lundi");
-
-    const counts: Record<string, number> = {};
-
-    // Tally from DB
     if (autresData && Array.isArray(autresData)) {
       for (const row of autresData) {
-        if (row.interview_time) {
-          counts[row.interview_time] = (counts[row.interview_time] || 0) + 1;
+        const day = row.interview_date || "Lundi";
+        const slot = normalizeSlot(row.interview_time || "");
+        if (slot) {
+          const key = `${day}::${slot}`;
+          bookedCounts[key] = (bookedCounts[key] || 0) + 1;
         }
       }
     }
+
+    // 2. Also fetch candidatures_recrutement for Lundi & Mardi
+    const { data: mainData } = await supabaseAdmin
+      .from("candidatures_recrutement")
+      .select("interview_date, interview_time")
+      .in("interview_date", ["Lundi", "Mardi"]);
 
     if (mainData && Array.isArray(mainData)) {
       for (const row of mainData) {
         if (row.interview_time && row.interview_time !== "Autre") {
-          counts[row.interview_time] = (counts[row.interview_time] || 0) + 1;
+          const day = row.interview_date || "Lundi";
+          const slot = normalizeSlot(row.interview_time);
+          const key = `${day}::${slot}`;
+          bookedCounts[key] = (bookedCounts[key] || 0) + 1;
         }
       }
     }
 
-    // Tally from memory fallback
+    // 3. Fallback memory tally
     if (global.__autresCreneaux) {
       for (const row of global.__autresCreneaux) {
-        if (row.interview_time) {
-          counts[row.interview_time] = (counts[row.interview_time] || 0) + 1;
+        const day = row.interview_date || "Lundi";
+        const slot = normalizeSlot(row.interview_time || "");
+        if (slot) {
+          const key = `${day}::${slot}`;
+          bookedCounts[key] = (bookedCounts[key] || 0) + 1;
         }
       }
     }
 
     return NextResponse.json({
-      counts,
-      limit: DEFAULT_SLOT_LIMIT,
+      capacities: DEFAULT_CAPACITIES,
+      booked: bookedCounts,
     });
   } catch (err: any) {
     console.error("Error fetching autres creneaux counts:", err);
-    return NextResponse.json({ counts: {}, limit: DEFAULT_SLOT_LIMIT });
+    return NextResponse.json({
+      capacities: DEFAULT_CAPACITIES,
+      booked: {},
+    });
   }
 }
 
 export async function POST(req: NextRequest) {
   try {
     const body = await req.json();
-    const { fullName, interviewTime, email, phone } = body;
+    const { fullName, interviewDate, interviewTime, email, phone } = body;
 
     if (!fullName || !fullName.trim()) {
       return NextResponse.json({ error: "Le nom et prénom sont obligatoires." }, { status: 400 });
+    }
+
+    const cleanDay = (interviewDate || "Lundi").trim();
+    if (cleanDay !== "Lundi" && cleanDay !== "Mardi") {
+      return NextResponse.json({ error: "Veuillez choisir un jour valide (Lundi ou Mardi)." }, { status: 400 });
     }
 
     if (!interviewTime || !interviewTime.trim()) {
@@ -79,20 +140,45 @@ export async function POST(req: NextRequest) {
     }
 
     const cleanName = fullName.trim();
-    const cleanSlot = interviewTime.trim();
+    const cleanSlot = normalizeSlot(interviewTime);
     const cleanEmail = email?.trim() || "";
     const cleanPhone = phone?.trim() || "";
 
+    // Capacity verification
+    const dayCapacities = DEFAULT_CAPACITIES[cleanDay];
+    const maxCapacity = dayCapacities ? (dayCapacities[cleanSlot] ?? 0) : 0;
+
+    if (maxCapacity === 0) {
+      return NextResponse.json(
+        { error: `Le créneau ${cleanSlot} du ${cleanDay} n'est pas disponible (0 place).` },
+        { status: 400 }
+      );
+    }
+
+    // Check current bookings count
+    const { count: currentBookedCount } = await supabaseAdmin
+      .from("candidatures_autres_creneaux")
+      .select("id", { count: "exact", head: true })
+      .eq("interview_date", cleanDay)
+      .eq("interview_time", cleanSlot);
+
+    if (typeof currentBookedCount === "number" && currentBookedCount >= maxCapacity) {
+      return NextResponse.json(
+        { error: `Le créneau ${cleanSlot} du ${cleanDay} est désormais complet. Veuillez en sélectionner un autre.` },
+        { status: 400 }
+      );
+    }
+
     const submissionRecord = {
       full_name: cleanName,
-      interview_date: "Lundi",
+      interview_date: cleanDay,
       interview_time: cleanSlot,
       email: cleanEmail,
       phone: cleanPhone,
       created_at: new Date().toISOString(),
     };
 
-    // 1. Save to dedicated table candidatures_autres_creneaux
+    // 1. Insert into candidatures_autres_creneaux
     const { error: insertErr } = await supabaseAdmin
       .from("candidatures_autres_creneaux")
       .insert([submissionRecord]);
@@ -104,7 +190,7 @@ export async function POST(req: NextRequest) {
       }
     }
 
-    // 2. Also check if candidate exists in candidatures_recrutement to update their slot
+    // 2. Sync with candidatures_recrutement
     try {
       const { data: existingCandidate } = await supabaseAdmin
         .from("candidatures_recrutement")
@@ -118,12 +204,11 @@ export async function POST(req: NextRequest) {
         await supabaseAdmin
           .from("candidatures_recrutement")
           .update({
-            interview_date: "Lundi",
+            interview_date: cleanDay,
             interview_time: cleanSlot,
           })
           .eq("id", existingCandidate.id);
       } else {
-        // Create an entry in candidatures_recrutement for admin visibility
         await supabaseAdmin
           .from("candidatures_recrutement")
           .insert([{
@@ -131,7 +216,7 @@ export async function POST(req: NextRequest) {
             education: "Rattrapage créneau Autre",
             phone: cleanPhone || "Non renseigné",
             email: cleanEmail || "non-renseigne@hec.org",
-            interview_date: "Lundi",
+            interview_date: cleanDay,
             interview_time: cleanSlot,
             status: "creneau_autre_confirme",
           }]);
@@ -149,11 +234,11 @@ export async function POST(req: NextRequest) {
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
             fullName: cleanName,
-            interviewDate: "Lundi",
+            interviewDate: cleanDay,
             interviewTime: cleanSlot,
             phone: cleanPhone,
             email: cleanEmail,
-            source: "formulaire_autres_lundi",
+            source: "formulaire_autres_session",
             submittedAt: new Date().toLocaleString("fr-FR"),
           }),
         });
@@ -165,7 +250,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       fullName: cleanName,
-      interviewDate: "Lundi",
+      interviewDate: cleanDay,
       interviewTime: cleanSlot,
     });
   } catch (err: any) {
