@@ -5,7 +5,7 @@ import Link from "next/link";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Calendar, Clock, User, CheckCircle2, AlertTriangle, ArrowRight,
-  ShieldCheck, MapPin, Sparkles, Phone, Mail, ArrowLeft, Users
+  MapPin, Sparkles, Phone, Mail
 } from "lucide-react";
 import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
@@ -15,27 +15,41 @@ type DayOption = "Lundi" | "Mardi";
 interface SlotItem {
   id: string;
   label: string;
-  sublabel: string;
-  capacity: number;
+  period: string;
 }
 
-const SLOTS_CONFIG: Record<DayOption, SlotItem[]> = {
-  Lundi: [
-    { id: "09:00 - 10:00", label: "09:00 à 10:00", sublabel: "Matinée", capacity: 0 },
-    { id: "10:30 - 11:30", label: "10:30 à 11:30", sublabel: "Matinée", capacity: 1 },
-    { id: "12:00 - 13:00", label: "12:00 à 13:00", sublabel: "Pause Midi", capacity: 2 },
-    { id: "13:30", label: "13:30", sublabel: "Grande Session Bureau", capacity: 10 },
-    { id: "14:00 - 15:30", label: "14:00 à 15:30", sublabel: "Après-midi", capacity: 3 },
-    { id: "16:00 - 16:30", label: "16:00 à 16:30", sublabel: "Fin d'après-midi", capacity: 1 },
-  ],
-  Mardi: [
-    { id: "09:00 - 10:00", label: "09:00 à 10:00", sublabel: "Matinée", capacity: 0 },
-    { id: "10:30 - 11:30", label: "10:30 à 11:30", sublabel: "Matinée", capacity: 4 },
-    { id: "12:00 - 13:00", label: "12:00 à 13:00", sublabel: "Pause Midi", capacity: 0 },
-    { id: "13:30", label: "13:30", sublabel: "Grande Session Bureau", capacity: 10 },
-    { id: "14:00 - 15:30", label: "14:00 à 15:30", sublabel: "Après-midi", capacity: 1 },
-    { id: "16:00 - 16:30", label: "16:00 à 16:30", sublabel: "Fin d'après-midi", capacity: 1 },
-  ],
+const LUNDI_SLOTS: SlotItem[] = [
+  { id: "10:00 - 10:30", label: "10h00 - 10h30", period: "Matin" },
+  { id: "10:30 - 11:00", label: "10h30 - 11h00", period: "Matin" },
+  { id: "11:00 - 11:30", label: "11h00 - 11h30", period: "Matin" },
+  { id: "11:30 - 12:00", label: "11h30 - 12h00", period: "Matin" },
+  { id: "13:00 - 13:30", label: "13h00 - 13h30", period: "Midi" },
+  { id: "13:30 - 14:00", label: "13h30 - 14h00", period: "Midi" },
+  { id: "14:00 - 14:30", label: "14h00 - 14h30", period: "Après-midi" },
+  { id: "14:30 - 15:00", label: "14h30 - 15h00", period: "Après-midi" },
+  { id: "15:00 - 15:30", label: "15h00 - 15h30", period: "Après-midi" },
+  { id: "15:30 - 16:00", label: "15h30 - 16h00", period: "Après-midi" },
+  { id: "16:00 - 16:30", label: "16h00 - 16h30", period: "Après-midi" },
+  { id: "16:30 - 17:00", label: "16h30 - 17h00", period: "Fin d'après-midi" },
+];
+
+const MARDI_SLOTS: SlotItem[] = [
+  { id: "10:00 - 10:30", label: "10h00 - 10h30", period: "Matin" },
+  { id: "10:30 - 11:00", label: "10h30 - 11h00", period: "Matin" },
+  { id: "11:00 - 11:30", label: "11h00 - 11h30", period: "Matin" },
+  { id: "11:30 - 12:00", label: "11h30 - 12h00", period: "Matin" },
+  { id: "13:00 - 13:30", label: "13h00 - 13h30", period: "Midi" },
+  { id: "13:30 - 14:00", label: "13h30 - 14h00", period: "Midi" },
+  { id: "14:00 - 14:30", label: "14h00 - 14h30", period: "Après-midi" },
+  { id: "14:30 - 15:00", label: "14h30 - 15h00", period: "Après-midi" },
+  { id: "15:30 - 16:00", label: "15h30 - 16h00", period: "Après-midi" },
+  { id: "16:00 - 16:30", label: "16h00 - 16h30", period: "Après-midi" },
+  { id: "16:30 - 17:00", label: "16h30 - 17h00", period: "Fin d'après-midi" },
+];
+
+const SLOTS_BY_DAY: Record<DayOption, SlotItem[]> = {
+  Lundi: LUNDI_SLOTS,
+  Mardi: MARDI_SLOTS,
 };
 
 export default function AutresCreneauxPage() {
@@ -43,20 +57,19 @@ export default function AutresCreneauxPage() {
   const [fullName, setFullName] = useState("");
   const [selectedSlot, setSelectedSlot] = useState("");
   const [contactInfo, setContactInfo] = useState("");
-  const [bookedCounts, setBookedCounts] = useState<Record<string, number>>({});
+  const [fullSlots, setFullSlots] = useState<Record<string, string[]>>({ Lundi: [], Mardi: [] });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitted, setSubmitted] = useState(false);
   const [confirmedDay, setConfirmedDay] = useState<DayOption>("Lundi");
   const [confirmedSlot, setConfirmedSlot] = useState("");
   const [errorMsg, setErrorMsg] = useState("");
 
-  // Fetch current slot bookings
   const fetchAvailability = async () => {
     try {
       const res = await fetch("/api/recruitment/autres");
       const data = await res.json();
-      if (data.booked) {
-        setBookedCounts(data.booked);
+      if (data.fullSlots) {
+        setFullSlots(data.fullSlots);
       }
     } catch (err) {
       console.error("Erreur lors de la récupération des créneaux:", err);
@@ -67,20 +80,13 @@ export default function AutresCreneauxPage() {
     fetchAvailability();
   }, []);
 
-  // When changing day, reset slot if that slot belongs to another day
   const handleDayChange = (day: DayOption) => {
     setSelectedDay(day);
     setSelectedSlot("");
   };
 
-  const getRemainingPlaces = (day: DayOption, slot: SlotItem) => {
-    const key = `${day}::${slot.id}`;
-    const booked = bookedCounts[key] || 0;
-    return Math.max(0, slot.capacity - booked);
-  };
-
-  const getTotalAvailablePlaces = (day: DayOption) => {
-    return SLOTS_CONFIG[day].reduce((sum, slot) => sum + getRemainingPlaces(day, slot), 0);
+  const isSlotUnavailable = (slotId: string) => {
+    return fullSlots[selectedDay]?.includes(slotId) || false;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -97,10 +103,8 @@ export default function AutresCreneauxPage() {
       return;
     }
 
-    // Verify client-side availability
-    const slotObj = SLOTS_CONFIG[selectedDay].find((s) => s.id === selectedSlot);
-    if (!slotObj || getRemainingPlaces(selectedDay, slotObj) <= 0) {
-      setErrorMsg("Ce créneau n'est plus disponible. Veuillez en sélectionner un autre.");
+    if (isSlotUnavailable(selectedSlot)) {
+      setErrorMsg("Ce créneau est complet. Veuillez en sélectionner un autre.");
       return;
     }
 
@@ -135,11 +139,13 @@ export default function AutresCreneauxPage() {
     }
   };
 
+  const currentSlots = SLOTS_BY_DAY[selectedDay];
+
   return (
     <div className="min-h-screen bg-[#070709] text-gray-100 flex flex-col selection:bg-purple-500 selection:text-white relative overflow-x-hidden">
       <Navbar />
 
-      {/* Decorative ambient background */}
+      {/* Ambient background glow */}
       <div className="fixed inset-0 pointer-events-none z-0">
         <div className="absolute top-1/4 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[650px] h-[450px] bg-purple-600/10 blur-[150px] rounded-full" />
         <div className="absolute bottom-1/4 right-1/4 w-[450px] h-[350px] bg-indigo-600/10 blur-[130px] rounded-full" />
@@ -168,7 +174,7 @@ export default function AutresCreneauxPage() {
                 </h1>
 
                 <p className="text-sm sm:text-base text-gray-400 max-w-2xl mx-auto leading-relaxed">
-                  Sélectionnez votre créneau d&apos;entretien individuel selon les disponibilités du bureau HEC Entrepreneurs.
+                  Sélectionnez votre tranche horaire pour l&apos;entretien individuel avec les membres du bureau HEC Entrepreneurs.
                 </p>
               </div>
 
@@ -180,7 +186,7 @@ export default function AutresCreneauxPage() {
                     Formulaire réservé exclusivement
                   </div>
                   <p className="text-amber-100/90 leading-relaxed text-xs sm:text-sm">
-                    Cette page est <strong>strictement réservée</strong> aux candidats ayant rempli le formulaire de recrutement officiel et ayant sélectionné l&apos;option <strong>« Autre »</strong> dans le choix des créneaux.
+                    Cette page est <strong>exclusivement destinée</strong> aux candidats ayant déjà soumis leur formulaire de recrutement avec l&apos;option <strong>« Autre »</strong> dans le choix des créneaux.
                   </p>
                 </div>
               </div>
@@ -216,7 +222,7 @@ export default function AutresCreneauxPage() {
                     />
                   </div>
                   <p className="text-[11px] text-gray-400 pl-1">
-                    Indiquez exactement les mêmes prénom et nom mentionnés dans votre candidature initiale.
+                    Indiquez exactement les mêmes prénom et nom renseignés dans votre candidature initiale.
                   </p>
                 </div>
 
@@ -224,7 +230,7 @@ export default function AutresCreneauxPage() {
                 <div className="space-y-3 pt-2">
                   <label className="block text-xs font-medium text-gray-400 flex items-center gap-2">
                     <Phone size={14} className="text-gray-500" />
-                    <span>Numéro de Téléphone ou Email (Recommandé pour rappel et confirmation)</span>
+                    <span>Numéro de Téléphone ou Email (Pour confirmation & rappel)</span>
                   </label>
                   <input
                     type="text"
@@ -237,89 +243,68 @@ export default function AutresCreneauxPage() {
 
                 {/* Question 2: Day & Slot Selection */}
                 <div className="space-y-5 pt-4 border-t border-white/10">
-                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
-                    <label className="block text-sm sm:text-base font-bold text-white flex items-center gap-2">
-                      <span className="w-6 h-6 rounded-full bg-purple-600/30 border border-purple-500/40 text-purple-300 flex items-center justify-center text-xs font-mono">
-                        2
-                      </span>
-                      <span>Choisissez votre Jour & Créneau Horaire</span>
-                      <span className="text-red-400">*</span>
-                    </label>
-                  </div>
+                  <label className="block text-sm sm:text-base font-bold text-white flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-purple-600/30 border border-purple-500/40 text-purple-300 flex items-center justify-center text-xs font-mono">
+                      2
+                    </span>
+                    <span>Choisissez votre Jour & Créneau d&apos;Entretien</span>
+                    <span className="text-red-400">*</span>
+                  </label>
 
                   {/* Day Selector Tabs */}
                   <div className="grid grid-cols-2 gap-3">
                     {(["Lundi", "Mardi"] as DayOption[]).map((day) => {
                       const isSelected = selectedDay === day;
-                      const places = getTotalAvailablePlaces(day);
                       return (
                         <button
                           key={day}
                           type="button"
                           onClick={() => handleDayChange(day)}
-                          className={`p-4 rounded-2xl border transition-all text-left flex flex-col justify-between gap-2 ${
+                          className={`p-4 rounded-2xl border transition-all text-left flex items-center justify-between ${
                             isSelected
-                              ? "bg-purple-600/20 border-purple-500 shadow-lg shadow-purple-600/20"
-                              : "bg-white/[0.03] border-white/10 hover:bg-white/[0.06] text-gray-400"
+                              ? "bg-purple-600/20 border-purple-500 shadow-lg shadow-purple-600/20 text-white"
+                              : "bg-white/[0.03] border-white/10 hover:bg-white/[0.06] text-gray-400 hover:text-gray-200"
                           }`}
                         >
-                          <div className="flex items-center justify-between w-full">
-                            <span className="text-sm sm:text-base font-black text-white flex items-center gap-2">
-                              <Calendar size={16} className={isSelected ? "text-purple-400" : "text-gray-500"} />
-                              {day}
-                            </span>
-                            <span
-                              className={`text-[10px] font-mono px-2 py-0.5 rounded-full border ${
-                                places > 0
-                                  ? "bg-emerald-500/10 text-emerald-300 border-emerald-500/30 font-bold"
-                                  : "bg-red-500/10 text-red-300 border-red-500/30 font-bold"
-                              }`}
-                            >
-                              {places} place{places > 1 ? "s" : ""} dispo
-                            </span>
+                          <div className="flex items-center gap-2.5">
+                            <Calendar size={18} className={isSelected ? "text-purple-400" : "text-gray-500"} />
+                            <span className="text-sm sm:text-base font-black tracking-wide">{day}</span>
                           </div>
-                          <span className="text-[11px] text-gray-400">
-                            {day === "Lundi" ? "Séances disponibles de 10h30 à 16h30" : "Séances disponibles de 10h30 à 16h30"}
+                          <span className={`text-[11px] font-medium ${isSelected ? "text-purple-300" : "text-gray-500"}`}>
+                            10h00 - 16h30
                           </span>
                         </button>
                       );
                     })}
                   </div>
 
-                  {/* Slot Cards Grid for Selected Day */}
-                  <div className="space-y-2">
+                  {/* Slots Grid for Selected Day */}
+                  <div className="space-y-3 pt-2">
                     <span className="text-xs text-gray-400 flex items-center gap-1.5">
                       <Clock size={13} className="text-purple-400" />
-                      Créneaux pour le <strong className="text-white">{selectedDay}</strong> :
+                      Créneaux de 30 min pour le <strong className="text-white">{selectedDay}</strong> :
                     </span>
 
-                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3 pt-1">
-                      {SLOTS_CONFIG[selectedDay].map((slot) => {
-                        const remaining = getRemainingPlaces(selectedDay, slot);
-                        const isFull = remaining <= 0;
+                    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
+                      {currentSlots.map((slot) => {
+                        const isFull = isSlotUnavailable(slot.id);
                         const isSelected = selectedSlot === slot.id;
 
                         if (isFull) {
                           return (
                             <div
                               key={slot.id}
-                              className="p-4 rounded-2xl border border-white/5 bg-white/[0.015] text-gray-500 flex flex-col justify-between gap-3 opacity-55 cursor-not-allowed select-none relative overflow-hidden"
+                              className="p-3.5 rounded-2xl border border-white/5 bg-white/[0.015] text-gray-500 flex items-center justify-between opacity-50 cursor-not-allowed select-none"
                             >
-                              <div className="flex items-center justify-between">
-                                <div className="flex items-center gap-2">
-                                  <Clock size={15} className="text-gray-600" />
-                                  <span className="text-xs font-bold line-through text-gray-400">
-                                    {slot.label}
-                                  </span>
-                                </div>
-                                <span className="text-[10px] font-bold text-red-400 uppercase tracking-wider bg-red-500/10 px-2 py-0.5 rounded-full border border-red-500/20">
-                                  Complet
+                              <div className="flex items-center gap-2">
+                                <Clock size={15} className="text-gray-600" />
+                                <span className="text-xs font-bold line-through text-gray-500">
+                                  {slot.label}
                                 </span>
                               </div>
-                              <div className="text-[10px] text-gray-400 flex items-center justify-between">
-                                <span>{slot.sublabel}</span>
-                                <span className="font-mono">0 place</span>
-                              </div>
+                              <span className="text-[10px] font-bold text-red-400 uppercase tracking-wider bg-red-500/10 px-2 py-0.5 rounded-full border border-red-500/20">
+                                Complet
+                              </span>
                             </div>
                           );
                         }
@@ -329,42 +314,28 @@ export default function AutresCreneauxPage() {
                             key={slot.id}
                             type="button"
                             onClick={() => setSelectedSlot(slot.id)}
-                            className={`p-4 rounded-2xl border text-left transition-all duration-200 flex flex-col justify-between gap-3 group relative ${
+                            className={`p-3.5 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between group ${
                               isSelected
-                                ? "bg-gradient-to-br from-purple-600 to-indigo-600 border-purple-300 text-white shadow-xl shadow-purple-600/30 scale-[1.02]"
+                                ? "bg-gradient-to-r from-purple-600 to-indigo-600 border-purple-300 text-white shadow-xl shadow-purple-600/30 scale-[1.02]"
                                 : "bg-white/[0.03] border-white/10 text-gray-200 hover:bg-white/[0.06] hover:border-purple-500/40"
                             }`}
                           >
-                            <div className="flex items-center justify-between">
-                              <div className="flex items-center gap-2">
-                                <Clock
-                                  size={15}
-                                  className={isSelected ? "text-white" : "text-purple-400 group-hover:text-purple-300"}
-                                />
-                                <span className="text-xs font-black tracking-wide">
-                                  {slot.label}
-                                </span>
-                              </div>
+                            <div className="flex items-center gap-2.5">
+                              <Clock
+                                size={15}
+                                className={isSelected ? "text-white" : "text-purple-400 group-hover:text-purple-300"}
+                              />
+                              <span className="text-xs font-bold tracking-wide">
+                                {slot.label}
+                              </span>
+                            </div>
+
+                            <div className="flex items-center gap-1.5">
                               {isSelected ? (
                                 <CheckCircle2 size={16} className="text-white" />
                               ) : (
-                                <span
-                                  className={`text-[10px] font-mono px-2 py-0.5 rounded-full border font-bold ${
-                                    remaining > 2
-                                      ? "bg-purple-500/20 text-purple-300 border-purple-500/30"
-                                      : "bg-amber-500/20 text-amber-300 border-amber-500/30"
-                                  }`}
-                                >
-                                  {remaining} place{remaining > 1 ? "s" : ""}
-                                </span>
-                              )}
-                            </div>
-
-                            <div className="text-[10px] flex items-center justify-between text-gray-400 group-hover:text-gray-300">
-                              <span className={isSelected ? "text-purple-100" : ""}>{slot.sublabel}</span>
-                              {slot.id === "13:30" && (
-                                <span className={`flex items-center gap-1 font-mono ${isSelected ? "text-white font-bold" : "text-purple-400"}`}>
-                                  <Users size={11} /> 10 max
+                                <span className="text-[10px] text-gray-500 group-hover:text-gray-300">
+                                  {slot.period}
                                 </span>
                               )}
                             </div>
@@ -382,7 +353,7 @@ export default function AutresCreneauxPage() {
                       <span>
                         Créneau sélectionné :{" "}
                         <strong className="text-purple-300 font-bold">
-                          {selectedDay} à {SLOTS_CONFIG[selectedDay].find((s) => s.id === selectedSlot)?.label || selectedSlot}
+                          {selectedDay} à {currentSlots.find((s) => s.id === selectedSlot)?.label || selectedSlot}
                         </strong>
                       </span>
                     ) : (
@@ -448,7 +419,7 @@ export default function AutresCreneauxPage() {
                 <div className="flex items-center justify-between py-1 border-b border-white/5">
                   <span className="text-gray-400">Horaire de passage :</span>
                   <span className="font-mono font-bold text-emerald-300">
-                    {SLOTS_CONFIG[confirmedDay]?.find((s) => s.id === confirmedSlot)?.label || confirmedSlot}
+                    {SLOTS_BY_DAY[confirmedDay]?.find((s) => s.id === confirmedSlot)?.label || confirmedSlot}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-1">
@@ -461,7 +432,7 @@ export default function AutresCreneauxPage() {
               </div>
 
               <p className="text-xs text-gray-400 max-w-md mx-auto leading-relaxed">
-                Veuillez vous présenter 5 minutes à l&apos;avance devant la salle du club. Préparez-vous à exprimer votre motivation et votre projet d&apos;engagement !
+                Veuillez vous présenter 5 minutes à l&apos;avance devant la salle du club.
               </p>
 
               <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">

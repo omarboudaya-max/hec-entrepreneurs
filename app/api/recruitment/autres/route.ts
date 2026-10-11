@@ -3,43 +3,47 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export const dynamic = "force-dynamic";
 
-// Schedule and capacity specification:
+// Slots & Rules specification:
 // Lundi:
-// - 09:00 à 10:00 : 0
-// - 10:30 à 11:30 : 1
-// - 12:00 à 13:00 : 2
-// - 13:30 : 10
-// - 14:00 à 15:30 : 3
-// - 16:00 à 16:30 : 1
+// - 10h, 10h30, 11h, 11h30 : 1 slot each
+// - 13h et 13h30 : 8 slots combined
+// - 14h, 14h30, 15h : 3 slots each
+// - 15h30, 16h, 16h30 : 1 slot each
+//
 // Mardi:
-// - 09:00 à 10:00 : 0
-// - 10:30 à 11:30 : 4
-// - 12:00 à 13:00 : 0
-// - 13:30 : 10
-// - 14:00 à 15:30 : 1
-// - 16:00 à 16:30 : 1
-// Mercredi: Supprimé
+// - 10h, 10h30, 11h, 11h30 : 5 slots each
+// - 13h et 13h30 : 9 slots combined
+// - 14h, 14h30 : 1 slot each
+// - 15h30, 16h, 16h30 : 1 slot each
 
-export const DEFAULT_CAPACITIES: Record<string, Record<string, number>> = {
-  Lundi: {
-    "09:00 - 10:00": 0,
-    "10:30 - 11:30": 1,
-    "12:00 - 13:00": 2,
-    "13:30": 10,
-    "14:00 - 15:30": 3,
-    "16:00 - 16:30": 1,
-  },
-  Mardi: {
-    "09:00 - 10:00": 0,
-    "10:30 - 11:30": 4,
-    "12:00 - 13:00": 0,
-    "13:30": 10,
-    "14:00 - 15:30": 1,
-    "16:00 - 16:30": 1,
-  },
+export const LUNDI_RULES: Record<string, number> = {
+  "10:00 - 10:30": 1,
+  "10:30 - 11:00": 1,
+  "11:00 - 11:30": 1,
+  "11:30 - 12:00": 1,
+  "14:00 - 14:30": 3,
+  "14:30 - 15:00": 3,
+  "15:00 - 15:30": 3,
+  "15:30 - 16:00": 1,
+  "16:00 - 16:30": 1,
+  "16:30 - 17:00": 1,
 };
+export const LUNDI_COMBINED_13H_MAX = 8; // 13:00 - 13:30 et 13:30 - 14:00 combinés
 
-// In-memory fallback if Supabase table is not yet migrated
+export const MARDI_RULES: Record<string, number> = {
+  "10:00 - 10:30": 5,
+  "10:30 - 11:00": 5,
+  "11:00 - 11:30": 5,
+  "11:30 - 12:00": 5,
+  "14:00 - 14:30": 1,
+  "14:30 - 15:00": 1,
+  "15:30 - 16:00": 1,
+  "16:00 - 16:30": 1,
+  "16:30 - 17:00": 1,
+};
+export const MARDI_COMBINED_13H_MAX = 9; // 13:00 - 13:30 et 13:30 - 14:00 combinés
+
+// In-memory fallback
 declare global {
   var __autresCreneaux: any[] | undefined;
 }
@@ -48,15 +52,73 @@ if (!global.__autresCreneaux) {
   global.__autresCreneaux = [];
 }
 
-function normalizeSlot(slot: string): string {
-  const s = slot.trim();
-  if (s === "13:30 - 14:00" || s === "13:30" || s === "13h30") return "13:30";
-  if (s === "09:00 à 10:00" || s === "09h00 à 10h00" || s === "09:00-10:00") return "09:00 - 10:00";
-  if (s === "10:30 à 11:30" || s === "10h30 à 11h30" || s === "10:30-11:30") return "10:30 - 11:30";
-  if (s === "12:00 à 13:00" || s === "12h00 à 13h00" || s === "12:00-13:00") return "12:00 - 13:00";
-  if (s === "14:00 à 15:30" || s === "14h00 à 15h30" || s === "14:00-15:30") return "14:00 - 15:30";
-  if (s === "16:00 à 16:30" || s === "16h00 à 16h30" || s === "16:00-16:30") return "16:00 - 16:30";
-  return s;
+export function normalizeSlot(slot: string): string {
+  if (!slot) return "";
+  const s = slot.trim().toLowerCase();
+
+  if (s.includes("10h00") || s.includes("10:00") || s === "10h") {
+    if (s.includes("10h30") || s.includes("10:30")) return "10:30 - 11:00";
+    return "10:00 - 10:30";
+  }
+  if (s.includes("10h30") || s.includes("10:30")) return "10:30 - 11:00";
+  if (s.includes("11h00") || s.includes("11:00") || s === "11h") {
+    if (s.includes("11h30") || s.includes("11:30")) return "11:30 - 12:00";
+    return "11:00 - 11:30";
+  }
+  if (s.includes("11h30") || s.includes("11:30")) return "11:30 - 12:00";
+
+  if (s.includes("13h00") || s.includes("13:00") || s === "13h") return "13:00 - 13:30";
+  if (s.includes("13h30") || s.includes("13:30")) return "13:30 - 14:00";
+
+  if (s.includes("14h00") || s.includes("14:00") || s === "14h") {
+    if (s.includes("14h30") || s.includes("14:30")) return "14:30 - 15:00";
+    return "14:00 - 14:30";
+  }
+  if (s.includes("14h30") || s.includes("14:30")) return "14:30 - 15:00";
+
+  if (s.includes("15h00") || s.includes("15:00") || s === "15h") {
+    if (s.includes("15h30") || s.includes("15:30")) return "15:30 - 16:00";
+    return "15:00 - 15:30";
+  }
+  if (s.includes("15h30") || s.includes("15:30")) return "15:30 - 16:00";
+
+  if (s.includes("16h00") || s.includes("16:00") || s === "16h") {
+    if (s.includes("16h30") || s.includes("16:30")) return "16:30 - 17:00";
+    return "16:00 - 16:30";
+  }
+  if (s.includes("16h30") || s.includes("16:30")) return "16:30 - 17:00";
+
+  return slot.trim();
+}
+
+export function isSlotFull(day: string, slotId: string, bookedCounts: Record<string, number>): boolean {
+  const normSlot = normalizeSlot(slotId);
+
+  if (day === "Lundi") {
+    if (normSlot === "13:00 - 13:30" || normSlot === "13:30 - 14:00") {
+      const c13_00 = bookedCounts["Lundi::13:00 - 13:30"] || 0;
+      const c13_30 = bookedCounts["Lundi::13:30 - 14:00"] || 0;
+      return c13_00 + c13_30 >= LUNDI_COMBINED_13H_MAX;
+    }
+    const cap = LUNDI_RULES[normSlot];
+    if (cap === undefined) return true; // not offered on Lundi
+    const booked = bookedCounts[`Lundi::${normSlot}`] || 0;
+    return booked >= cap;
+  }
+
+  if (day === "Mardi") {
+    if (normSlot === "13:00 - 13:30" || normSlot === "13:30 - 14:00") {
+      const c13_00 = bookedCounts["Mardi::13:00 - 13:30"] || 0;
+      const c13_30 = bookedCounts["Mardi::13:30 - 14:00"] || 0;
+      return c13_00 + c13_30 >= MARDI_COMBINED_13H_MAX;
+    }
+    const cap = MARDI_RULES[normSlot];
+    if (cap === undefined) return true; // not offered on Mardi
+    const booked = bookedCounts[`Mardi::${normSlot}`] || 0;
+    return booked >= cap;
+  }
+
+  return true;
 }
 
 export async function GET() {
@@ -90,8 +152,10 @@ export async function GET() {
         if (row.interview_time && row.interview_time !== "Autre") {
           const day = row.interview_date || "Lundi";
           const slot = normalizeSlot(row.interview_time);
-          const key = `${day}::${slot}`;
-          bookedCounts[key] = (bookedCounts[key] || 0) + 1;
+          if (slot) {
+            const key = `${day}::${slot}`;
+            bookedCounts[key] = (bookedCounts[key] || 0) + 1;
+          }
         }
       }
     }
@@ -108,14 +172,34 @@ export async function GET() {
       }
     }
 
+    // Determine full slots per day without exposing exact capacity numbers
+    const lundiSlots = [
+      "10:00 - 10:30", "10:30 - 11:00", "11:00 - 11:30", "11:30 - 12:00",
+      "13:00 - 13:30", "13:30 - 14:00",
+      "14:00 - 14:30", "14:30 - 15:00", "15:00 - 15:30",
+      "15:30 - 16:00", "16:00 - 16:30", "16:30 - 17:00",
+    ];
+
+    const mardiSlots = [
+      "10:00 - 10:30", "10:30 - 11:00", "11:00 - 11:30", "11:30 - 12:00",
+      "13:00 - 13:30", "13:30 - 14:00",
+      "14:00 - 14:30", "14:30 - 15:00",
+      "15:30 - 16:00", "16:00 - 16:30", "16:30 - 17:00",
+    ];
+
+    const fullSlots: Record<string, string[]> = {
+      Lundi: lundiSlots.filter((slot) => isSlotFull("Lundi", slot, bookedCounts)),
+      Mardi: mardiSlots.filter((slot) => isSlotFull("Mardi", slot, bookedCounts)),
+    };
+
     return NextResponse.json({
-      capacities: DEFAULT_CAPACITIES,
+      fullSlots,
       booked: bookedCounts,
     });
   } catch (err: any) {
-    console.error("Error fetching autres creneaux counts:", err);
+    console.error("Error fetching autres creneaux status:", err);
     return NextResponse.json({
-      capacities: DEFAULT_CAPACITIES,
+      fullSlots: { Lundi: [], Mardi: [] },
       booked: {},
     });
   }
@@ -144,27 +228,26 @@ export async function POST(req: NextRequest) {
     const cleanEmail = email?.trim() || "";
     const cleanPhone = phone?.trim() || "";
 
-    // Capacity verification
-    const dayCapacities = DEFAULT_CAPACITIES[cleanDay];
-    const maxCapacity = dayCapacities ? (dayCapacities[cleanSlot] ?? 0) : 0;
+    // Fetch existing bookings to check capacity
+    const bookedCounts: Record<string, number> = {};
+    const { data: currentBookings } = await supabaseAdmin
+      .from("candidatures_autres_creneaux")
+      .select("interview_date, interview_time")
+      .eq("interview_date", cleanDay);
 
-    if (maxCapacity === 0) {
-      return NextResponse.json(
-        { error: `Le créneau ${cleanSlot} du ${cleanDay} n'est pas disponible (0 place).` },
-        { status: 400 }
-      );
+    if (currentBookings && Array.isArray(currentBookings)) {
+      for (const row of currentBookings) {
+        const slot = normalizeSlot(row.interview_time || "");
+        if (slot) {
+          const key = `${cleanDay}::${slot}`;
+          bookedCounts[key] = (bookedCounts[key] || 0) + 1;
+        }
+      }
     }
 
-    // Check current bookings count
-    const { count: currentBookedCount } = await supabaseAdmin
-      .from("candidatures_autres_creneaux")
-      .select("id", { count: "exact", head: true })
-      .eq("interview_date", cleanDay)
-      .eq("interview_time", cleanSlot);
-
-    if (typeof currentBookedCount === "number" && currentBookedCount >= maxCapacity) {
+    if (isSlotFull(cleanDay, cleanSlot, bookedCounts)) {
       return NextResponse.json(
-        { error: `Le créneau ${cleanSlot} du ${cleanDay} est désormais complet. Veuillez en sélectionner un autre.` },
+        { error: `Ce créneau (${cleanSlot}) est désormais complet. Veuillez en sélectionner un autre.` },
         { status: 400 }
       );
     }
@@ -184,7 +267,7 @@ export async function POST(req: NextRequest) {
       .insert([submissionRecord]);
 
     if (insertErr) {
-      console.warn("Could not insert into candidatures_autres_creneaux (fallback to memory):", insertErr.message);
+      console.warn("Fallback to memory insert:", insertErr.message);
       if (global.__autresCreneaux) {
         global.__autresCreneaux.push(submissionRecord);
       }
