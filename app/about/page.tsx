@@ -610,9 +610,9 @@ export default function About() {
                                     viewport={{ once: true }}
                                     whileHover={{ scale: 1.02 }}
                                     transition={{ duration: 0.5 }}
-                                    className="glass rounded-[2rem] overflow-hidden border border-white/10 group-hover:border-[#d4af37]/50 transition-colors flex flex-col md:flex-row relative bg-[#050505]/80"
+                                    className="glass rounded-[2rem] overflow-hidden border border-slate-200 dark:border-white/10 group-hover:border-amber-600/50 dark:group-hover:border-[#d4af37]/50 transition-colors flex flex-col md:flex-row relative bg-stone-50/95 dark:bg-[#050505]/80 shadow-md dark:shadow-none"
                                 >
-                                    <div className="w-full md:w-2/5 aspect-[3/4] md:aspect-auto md:h-[450px] relative z-0 bg-[#120805]">
+                                    <div className="w-full md:w-2/5 aspect-[3/4] md:aspect-auto md:h-[450px] relative z-0 bg-stone-100 dark:bg-[#120805]">
                                         <Image 
                                             src="/affiche-tribunal.png" 
                                             alt="Affiche Tribunal de l'entrepreneuriat" 
@@ -622,13 +622,13 @@ export default function About() {
                                     </div>
 
                                     <div className="w-full md:w-3/5 p-8 md:p-12 flex flex-col justify-center relative z-20">
-                                        <h3 className="text-2xl md:text-4xl font-serif text-[#ece2d0] uppercase tracking-[0.1em] leading-tight mb-4 drop-shadow-md">
-                                            LE GRAND TRIBUNAL DE<br/><span className="text-[#d4af37]">L&apos;ENTREPRENEURIAT</span>
+                                        <h3 className="text-2xl md:text-4xl font-serif text-stone-900 dark:text-[#ece2d0] uppercase tracking-[0.1em] leading-tight mb-4 drop-shadow-sm">
+                                            LE GRAND TRIBUNAL DE<br/><span className="text-amber-700 dark:text-[#d4af37]">L&apos;ENTREPRENEURIAT</span>
                                         </h3>
-                                        <p className="text-[#cbb0a5] text-sm md:text-base leading-relaxed font-light mb-8">
+                                        <p className="text-stone-700 dark:text-[#cbb0a5] text-sm md:text-base leading-relaxed font-light mb-8">
                                             Le procès spectaculaire qui remet en question le mythe de l'entrepreneuriat à l'IHEC Carthage. Un événement unique, récompensé "Meilleur Événement 2026".
                                         </p>
-                                        <div className="inline-flex items-center gap-2 text-[#d4af37] font-serif uppercase tracking-widest text-xs group-hover:text-white transition-colors">
+                                        <div className="inline-flex items-center gap-2 text-amber-800 dark:text-[#d4af37] font-serif uppercase tracking-widest text-xs group-hover:text-amber-950 dark:group-hover:text-white transition-colors">
                                             <span>Découvrir l'événement</span>
                                             <span className="group-hover:translate-x-2 transition-transform">→</span>
                                         </div>

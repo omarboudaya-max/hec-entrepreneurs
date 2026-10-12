@@ -24,10 +24,10 @@ export default function PromiseSection() {
             bounce: 0.4
           }}
         >
-          <h2 className="text-3xl md:text-5xl font-light mb-8 text-white uppercase tracking-[0.2em] text-glow">
+          <h2 className="text-3xl md:text-5xl font-light mb-8 text-slate-900 dark:text-white uppercase tracking-[0.2em] text-glow">
             NOTRE PROMESSE
           </h2>
-          <p className="text-lg md:text-3xl text-gray-300 max-w-4xl mx-auto leading-relaxed font-light italic">
+          <p className="text-lg md:text-3xl text-slate-700 dark:text-gray-300 max-w-4xl mx-auto leading-relaxed font-light italic">
             &quot;Le Club HEC Entrepreneurs est une plateforme d’action, de formation et d’innovation dédiée aux étudiants qui souhaitent entreprendre, innover et avoir un impact réel sur leur environnement.&quot;
           </p>
         </motion.div>

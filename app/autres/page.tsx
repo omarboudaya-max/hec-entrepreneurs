@@ -142,7 +142,7 @@ export default function AutresCreneauxPage() {
   const currentSlots = SLOTS_BY_DAY[selectedDay];
 
   return (
-    <div className="min-h-screen bg-[#070709] text-gray-100 flex flex-col selection:bg-purple-500 selection:text-white relative overflow-x-hidden">
+    <div className="min-h-screen bg-slate-50 dark:bg-[#070709] text-slate-900 dark:text-gray-100 flex flex-col selection:bg-purple-500 selection:text-white relative overflow-x-hidden transition-colors duration-300">
       <Navbar />
 
       {/* Ambient background glow */}
@@ -164,37 +164,37 @@ export default function AutresCreneauxPage() {
             >
               {/* Header */}
               <div className="text-center space-y-3">
-                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-300 text-xs font-mono uppercase tracking-widest">
-                  <Sparkles size={13} className="text-purple-400" />
+                <div className="inline-flex items-center gap-2 px-4 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/20 text-purple-700 dark:text-purple-300 text-xs font-mono uppercase tracking-widest font-semibold">
+                  <Sparkles size={13} className="text-purple-600 dark:text-purple-400" />
                   <span>Recrutement 2026/2027 • Rattrapage Créneaux</span>
                 </div>
 
-                <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-white tracking-tight uppercase">
+                <h1 className="text-2xl sm:text-4xl md:text-5xl font-black text-slate-900 dark:text-white tracking-tight uppercase">
                   Choix de Créneau — <span className="text-wave">Lundi & Mardi</span>
                 </h1>
 
-                <p className="text-sm sm:text-base text-gray-400 max-w-2xl mx-auto leading-relaxed">
+                <p className="text-sm sm:text-base text-slate-600 dark:text-gray-400 max-w-2xl mx-auto leading-relaxed">
                   Sélectionnez votre tranche horaire pour l&apos;entretien individuel avec les membres du bureau HEC Entrepreneurs.
                 </p>
               </div>
 
               {/* Notice Banner */}
-              <div className="p-4 sm:p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-200 text-xs sm:text-sm flex items-start gap-3.5 shadow-lg shadow-amber-950/20">
-                <AlertTriangle size={20} className="text-amber-400 shrink-0 mt-0.5" />
+              <div className="p-4 sm:p-5 rounded-2xl bg-amber-500/10 border border-amber-500/30 text-amber-900 dark:text-amber-200 text-xs sm:text-sm flex items-start gap-3.5 shadow-sm">
+                <AlertTriangle size={20} className="text-amber-600 dark:text-amber-400 shrink-0 mt-0.5" />
                 <div className="space-y-1">
-                  <div className="font-bold text-amber-300 uppercase tracking-wider text-xs">
+                  <div className="font-bold text-amber-800 dark:text-amber-300 uppercase tracking-wider text-xs">
                     Formulaire réservé exclusivement
                   </div>
-                  <p className="text-amber-100/90 leading-relaxed text-xs sm:text-sm">
+                  <p className="text-amber-950/90 dark:text-amber-100/90 leading-relaxed text-xs sm:text-sm font-medium">
                     Cette page est <strong>exclusivement destinée</strong> aux candidats ayant déjà soumis leur formulaire de recrutement avec l&apos;option <strong>« Autre »</strong> dans le choix des créneaux.
                   </p>
                 </div>
               </div>
 
               {/* Form Card */}
-              <form onSubmit={handleSubmit} className="p-6 sm:p-10 rounded-3xl bg-[#101016] border border-white/10 shadow-2xl space-y-8 backdrop-blur-xl">
+              <form onSubmit={handleSubmit} className="p-6 sm:p-10 rounded-3xl bg-white dark:bg-[#101016] border border-slate-200 dark:border-white/10 shadow-xl dark:shadow-2xl space-y-8 backdrop-blur-xl">
                 {errorMsg && (
-                  <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-300 text-xs sm:text-sm flex items-center gap-2">
+                  <div className="p-4 rounded-xl bg-red-500/10 border border-red-500/30 text-red-700 dark:text-red-300 text-xs sm:text-sm flex items-center gap-2">
                     <span className="font-bold">Erreur :</span>
                     <span>{errorMsg}</span>
                   </div>
@@ -202,34 +202,34 @@ export default function AutresCreneauxPage() {
 
                 {/* Question 1: Name */}
                 <div className="space-y-3">
-                  <label className="block text-sm sm:text-base font-bold text-white flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-full bg-purple-600/30 border border-purple-500/40 text-purple-300 flex items-center justify-center text-xs font-mono">
+                  <label className="block text-sm sm:text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-purple-600/15 dark:bg-purple-600/30 border border-purple-500/30 text-purple-700 dark:text-purple-300 flex items-center justify-center text-xs font-mono font-bold">
                       1
                     </span>
                     <span>Votre Nom & Prénom</span>
-                    <span className="text-red-400">*</span>
+                    <span className="text-red-500">*</span>
                   </label>
 
                   <div className="relative">
-                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-gray-500 w-4 h-4" />
+                    <User className="absolute left-4 top-1/2 -translate-y-1/2 text-slate-400 dark:text-gray-500 w-4 h-4" />
                     <input
                       type="text"
                       required
                       value={fullName}
                       onChange={(e) => setFullName(e.target.value)}
                       placeholder="Ex: Mohamed Ali Ben Amor"
-                      className="w-full pl-11 pr-4 py-3.5 bg-white/[0.04] border border-white/10 rounded-2xl text-white text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all placeholder:text-gray-500"
+                      className="w-full pl-11 pr-4 py-3.5 bg-slate-50 dark:bg-white/[0.04] border border-slate-200 dark:border-white/10 rounded-2xl text-slate-900 dark:text-white text-sm focus:outline-none focus:border-purple-500 focus:ring-2 focus:ring-purple-500/20 transition-all placeholder:text-slate-400 dark:placeholder:text-gray-500 shadow-sm"
                     />
                   </div>
-                  <p className="text-[11px] text-gray-400 pl-1">
+                  <p className="text-[11px] text-slate-500 dark:text-gray-400 pl-1">
                     Indiquez exactement les mêmes prénom et nom renseignés dans votre candidature initiale.
                   </p>
                 </div>
 
                 {/* Optional Contact Field */}
                 <div className="space-y-3 pt-2">
-                  <label className="block text-xs font-medium text-gray-400 flex items-center gap-2">
-                    <Phone size={14} className="text-gray-500" />
+                  <label className="block text-xs font-medium text-slate-700 dark:text-gray-400 flex items-center gap-2">
+                    <Phone size={14} className="text-slate-400 dark:text-gray-500" />
                     <span>Numéro de Téléphone ou Email (Pour confirmation & rappel)</span>
                   </label>
                   <input
@@ -237,18 +237,18 @@ export default function AutresCreneauxPage() {
                     value={contactInfo}
                     onChange={(e) => setContactInfo(e.target.value)}
                     placeholder="Ex: 50 123 456 ou candidat@gmail.com"
-                    className="w-full px-4 py-3 bg-white/[0.03] border border-white/10 rounded-2xl text-white text-xs focus:outline-none focus:border-purple-500 transition-all placeholder:text-gray-500"
+                    className="w-full px-4 py-3 bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 rounded-2xl text-slate-900 dark:text-white text-xs focus:outline-none focus:border-purple-500 transition-all placeholder:text-slate-400 dark:placeholder:text-gray-500 shadow-sm"
                   />
                 </div>
 
                 {/* Question 2: Day & Slot Selection */}
-                <div className="space-y-5 pt-4 border-t border-white/10">
-                  <label className="block text-sm sm:text-base font-bold text-white flex items-center gap-2">
-                    <span className="w-6 h-6 rounded-full bg-purple-600/30 border border-purple-500/40 text-purple-300 flex items-center justify-center text-xs font-mono">
+                <div className="space-y-5 pt-4 border-t border-slate-200 dark:border-white/10">
+                  <label className="block text-sm sm:text-base font-bold text-slate-900 dark:text-white flex items-center gap-2">
+                    <span className="w-6 h-6 rounded-full bg-purple-600/15 dark:bg-purple-600/30 border border-purple-500/30 text-purple-700 dark:text-purple-300 flex items-center justify-center text-xs font-mono font-bold">
                       2
                     </span>
                     <span>Choisissez votre Jour & Créneau d&apos;Entretien</span>
-                    <span className="text-red-400">*</span>
+                    <span className="text-red-500">*</span>
                   </label>
 
                   {/* Day Selector Tabs */}
@@ -262,15 +262,15 @@ export default function AutresCreneauxPage() {
                           onClick={() => handleDayChange(day)}
                           className={`p-4 rounded-2xl border transition-all text-left flex items-center justify-between ${
                             isSelected
-                              ? "bg-purple-600/20 border-purple-500 shadow-lg shadow-purple-600/20 text-white"
-                              : "bg-white/[0.03] border-white/10 hover:bg-white/[0.06] text-gray-400 hover:text-gray-200"
+                              ? "bg-purple-50 dark:bg-purple-600/20 border-purple-500 shadow-md text-purple-950 dark:text-white"
+                              : "bg-slate-50 dark:bg-white/[0.03] border-slate-200 dark:border-white/10 hover:bg-slate-100 dark:hover:bg-white/[0.06] text-slate-600 dark:text-gray-400"
                           }`}
                         >
                           <div className="flex items-center gap-2.5">
-                            <Calendar size={18} className={isSelected ? "text-purple-400" : "text-gray-500"} />
+                            <Calendar size={18} className={isSelected ? "text-purple-600 dark:text-purple-400" : "text-slate-400 dark:text-gray-500"} />
                             <span className="text-sm sm:text-base font-black tracking-wide">{day}</span>
                           </div>
-                          <span className={`text-[11px] font-medium ${isSelected ? "text-purple-300" : "text-gray-500"}`}>
+                          <span className={`text-[11px] font-semibold ${isSelected ? "text-purple-700 dark:text-purple-300" : "text-slate-400 dark:text-gray-500"}`}>
                             10h00 - 16h30
                           </span>
                         </button>
@@ -280,9 +280,9 @@ export default function AutresCreneauxPage() {
 
                   {/* Slots Grid for Selected Day */}
                   <div className="space-y-3 pt-2">
-                    <span className="text-xs text-gray-400 flex items-center gap-1.5">
-                      <Clock size={13} className="text-purple-400" />
-                      Créneaux de 30 min pour le <strong className="text-white">{selectedDay}</strong> :
+                    <span className="text-xs text-slate-600 dark:text-gray-400 flex items-center gap-1.5 font-medium">
+                      <Clock size={13} className="text-purple-600 dark:text-purple-400" />
+                      Créneaux de 30 min pour le <strong className="text-slate-900 dark:text-white">{selectedDay}</strong> :
                     </span>
 
                     <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-3">
@@ -294,15 +294,15 @@ export default function AutresCreneauxPage() {
                           return (
                             <div
                               key={slot.id}
-                              className="p-3.5 rounded-2xl border border-white/5 bg-white/[0.015] text-gray-500 flex items-center justify-between opacity-50 cursor-not-allowed select-none"
+                              className="p-3.5 rounded-2xl border border-slate-200 dark:border-white/5 bg-slate-100 dark:bg-white/[0.015] text-slate-400 dark:text-gray-500 flex items-center justify-between opacity-60 cursor-not-allowed select-none"
                             >
                               <div className="flex items-center gap-2">
-                                <Clock size={15} className="text-gray-600" />
-                                <span className="text-xs font-bold line-through text-gray-500">
+                                <Clock size={15} className="text-slate-400 dark:text-gray-600" />
+                                <span className="text-xs font-bold line-through text-slate-400 dark:text-gray-500">
                                   {slot.label}
                                 </span>
                               </div>
-                              <span className="text-[10px] font-bold text-red-400 uppercase tracking-wider bg-red-500/10 px-2 py-0.5 rounded-full border border-red-500/20">
+                              <span className="text-[10px] font-bold text-red-600 dark:text-red-400 uppercase tracking-wider bg-red-500/10 px-2 py-0.5 rounded-full border border-red-500/20">
                                 Complet
                               </span>
                             </div>
@@ -314,16 +314,16 @@ export default function AutresCreneauxPage() {
                             key={slot.id}
                             type="button"
                             onClick={() => setSelectedSlot(slot.id)}
-                            className={`p-3.5 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between group ${
+                            className={`p-3.5 rounded-2xl border text-left transition-all duration-200 flex items-center justify-between group shadow-sm ${
                               isSelected
-                                ? "bg-gradient-to-r from-purple-600 to-indigo-600 border-purple-300 text-white shadow-xl shadow-purple-600/30 scale-[1.02]"
-                                : "bg-white/[0.03] border-white/10 text-gray-200 hover:bg-white/[0.06] hover:border-purple-500/40"
+                                ? "bg-gradient-to-r from-purple-600 to-indigo-600 border-purple-400 text-white shadow-md shadow-purple-600/30 scale-[1.02]"
+                                : "bg-white dark:bg-white/[0.03] border-slate-200 dark:border-white/10 text-slate-800 dark:text-gray-200 hover:bg-purple-50/50 dark:hover:bg-white/[0.06] hover:border-purple-300 dark:hover:border-purple-500/40"
                             }`}
                           >
                             <div className="flex items-center gap-2.5">
                               <Clock
                                 size={15}
-                                className={isSelected ? "text-white" : "text-purple-400 group-hover:text-purple-300"}
+                                className={isSelected ? "text-white" : "text-purple-600 dark:text-purple-400 group-hover:text-purple-700 dark:group-hover:text-purple-300"}
                               />
                               <span className="text-xs font-bold tracking-wide">
                                 {slot.label}
@@ -334,7 +334,7 @@ export default function AutresCreneauxPage() {
                               {isSelected ? (
                                 <CheckCircle2 size={16} className="text-white" />
                               ) : (
-                                <span className="text-[10px] text-gray-500 group-hover:text-gray-300">
+                                <span className="text-[10px] font-medium text-slate-400 dark:text-gray-500 group-hover:text-purple-600 dark:group-hover:text-gray-300">
                                   {slot.period}
                                 </span>
                               )}
@@ -347,12 +347,12 @@ export default function AutresCreneauxPage() {
                 </div>
 
                 {/* Submit Action */}
-                <div className="pt-6 border-t border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
-                  <div className="text-xs text-gray-400">
+                <div className="pt-6 border-t border-slate-200 dark:border-white/10 flex flex-col sm:flex-row items-center justify-between gap-4">
+                  <div className="text-xs text-slate-600 dark:text-gray-400">
                     {selectedSlot ? (
                       <span>
                         Créneau sélectionné :{" "}
-                        <strong className="text-purple-300 font-bold">
+                        <strong className="text-purple-700 dark:text-purple-300 font-bold">
                           {selectedDay} à {currentSlots.find((s) => s.id === selectedSlot)?.label || selectedSlot}
                         </strong>
                       </span>
@@ -364,7 +364,7 @@ export default function AutresCreneauxPage() {
                   <button
                     type="submit"
                     disabled={!fullName.trim() || !selectedSlot || isSubmitting}
-                    className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-black uppercase tracking-wider shadow-xl shadow-purple-600/25 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
+                    className="w-full sm:w-auto px-8 py-3.5 rounded-2xl bg-gradient-to-r from-purple-600 via-indigo-600 to-pink-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-black uppercase tracking-wider shadow-lg shadow-purple-600/25 transition-all disabled:opacity-40 disabled:cursor-not-allowed flex items-center justify-center gap-2"
                   >
                     {isSubmitting ? (
                       <div className="flex items-center gap-2">
@@ -388,63 +388,63 @@ export default function AutresCreneauxPage() {
               initial={{ opacity: 0, scale: 0.95 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.5 }}
-              className="p-8 sm:p-12 rounded-3xl bg-[#101016] border border-emerald-500/30 text-center space-y-6 shadow-2xl relative overflow-hidden"
+              className="p-8 sm:p-12 rounded-3xl bg-white dark:bg-[#101016] border border-emerald-500/40 text-center space-y-6 shadow-xl dark:shadow-2xl relative overflow-hidden"
             >
-              <div className="w-20 h-20 rounded-3xl bg-emerald-500/20 border border-emerald-500/40 flex items-center justify-center text-emerald-400 mx-auto shadow-xl shadow-emerald-500/20">
+              <div className="w-20 h-20 rounded-3xl bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-600 dark:text-emerald-400 mx-auto shadow-md">
                 <CheckCircle2 size={40} />
               </div>
 
               <div className="space-y-2">
-                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-300 text-xs font-mono uppercase tracking-wider">
+                <div className="inline-flex items-center gap-2 px-3 py-1 rounded-full bg-emerald-500/10 border border-emerald-500/20 text-emerald-700 dark:text-emerald-300 text-xs font-mono uppercase tracking-wider font-semibold">
                   Confirmation Validée
                 </div>
-                <h2 className="text-2xl sm:text-3xl font-black text-white">
+                <h2 className="text-2xl sm:text-3xl font-black text-slate-900 dark:text-white">
                   Créneau d&apos;Entretien Enregistré !
                 </h2>
-                <p className="text-gray-300 text-xs sm:text-sm max-w-lg mx-auto">
+                <p className="text-slate-600 dark:text-gray-300 text-xs sm:text-sm max-w-lg mx-auto">
                   Merci <strong>{fullName}</strong>, votre entretien individuel avec les membres du bureau HEC Entrepreneurs est bien planifié.
                 </p>
               </div>
 
               {/* Summary Card */}
-              <div className="max-w-md mx-auto p-5 rounded-2xl bg-white/[0.03] border border-white/10 text-left space-y-3 text-xs sm:text-sm">
-                <div className="flex items-center justify-between py-1 border-b border-white/5">
-                  <span className="text-gray-400">Candidat :</span>
-                  <span className="font-bold text-white">{fullName}</span>
+              <div className="max-w-md mx-auto p-5 rounded-2xl bg-slate-50 dark:bg-white/[0.03] border border-slate-200 dark:border-white/10 text-left space-y-3 text-xs sm:text-sm shadow-sm">
+                <div className="flex items-center justify-between py-1 border-b border-slate-200/80 dark:border-white/5">
+                  <span className="text-slate-500 dark:text-gray-400">Candidat :</span>
+                  <span className="font-bold text-slate-900 dark:text-white">{fullName}</span>
                 </div>
-                <div className="flex items-center justify-between py-1 border-b border-white/5">
-                  <span className="text-gray-400">Jour :</span>
-                  <span className="font-bold text-purple-300">{confirmedDay}</span>
+                <div className="flex items-center justify-between py-1 border-b border-slate-200/80 dark:border-white/5">
+                  <span className="text-slate-500 dark:text-gray-400">Jour :</span>
+                  <span className="font-bold text-purple-700 dark:text-purple-300">{confirmedDay}</span>
                 </div>
-                <div className="flex items-center justify-between py-1 border-b border-white/5">
-                  <span className="text-gray-400">Horaire de passage :</span>
-                  <span className="font-mono font-bold text-emerald-300">
+                <div className="flex items-center justify-between py-1 border-b border-slate-200/80 dark:border-white/5">
+                  <span className="text-slate-500 dark:text-gray-400">Horaire de passage :</span>
+                  <span className="font-mono font-bold text-emerald-700 dark:text-emerald-300">
                     {SLOTS_BY_DAY[confirmedDay]?.find((s) => s.id === confirmedSlot)?.label || confirmedSlot}
                   </span>
                 </div>
                 <div className="flex items-center justify-between py-1">
-                  <span className="text-gray-400">Lieu :</span>
-                  <span className="text-white flex items-center gap-1 font-medium">
-                    <MapPin size={13} className="text-pink-400" />
+                  <span className="text-slate-500 dark:text-gray-400">Lieu :</span>
+                  <span className="text-slate-900 dark:text-white flex items-center gap-1 font-medium">
+                    <MapPin size={13} className="text-pink-600 dark:text-pink-400" />
                     Salle Club HEC — IHEC Carthage
                   </span>
                 </div>
               </div>
 
-              <p className="text-xs text-gray-400 max-w-md mx-auto leading-relaxed">
+              <p className="text-xs text-slate-500 dark:text-gray-400 max-w-md mx-auto leading-relaxed">
                 Veuillez vous présenter 5 minutes à l&apos;avance devant la salle du club.
               </p>
 
               <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
                 <Link
                   href="/"
-                  className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold uppercase tracking-wider transition-colors"
+                  className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-white/10 dark:hover:bg-white/15 dark:text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
                 >
                   Retour à l&apos;accueil
                 </Link>
                 <Link
                   href="/portail"
-                  className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-bold uppercase tracking-wider shadow-lg shadow-purple-600/20 hover:opacity-90 transition-opacity"
+                  className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-bold uppercase tracking-wider shadow-md shadow-purple-600/20 hover:opacity-90 transition-opacity"
                 >
                   Espace Membres
                 </Link>

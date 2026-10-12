@@ -43,13 +43,13 @@ export default function DifferentiatorsSection() {
                 type: "spring"
               }}
               whileHover={{ y: shouldReduceMotion ? 0 : -10, transition: { duration: 0.2 } }}
-              className="glass p-10 rounded-[2.5rem] border border-white/5 hover:border-primary/50 transition-colors group relative overflow-hidden"
+              className="glass p-10 rounded-[2.5rem] border border-slate-200/80 dark:border-white/5 hover:border-primary/50 transition-all group relative overflow-hidden shadow-sm dark:shadow-none"
             >
-              <div className="absolute top-0 right-0 p-6 opacity-3 group-hover:opacity-10 transition-opacity">
-                <span className="text-7xl font-thin text-white">{idx + 1}</span>
+              <div className="absolute top-0 right-0 p-6 opacity-5 dark:opacity-3 group-hover:opacity-15 dark:group-hover:opacity-10 transition-opacity">
+                <span className="text-7xl font-thin text-slate-800 dark:text-white">{idx + 1}</span>
               </div>
-              <h3 className="text-xl font-light mb-4 text-primary group-hover:text-white transition-colors uppercase tracking-[0.15em] italic">{item.title}</h3>
-              <p className="text-gray-400 text-sm leading-relaxed group-hover:text-gray-200 transition-colors font-light">{item.desc}</p>
+              <h3 className="text-xl font-medium mb-4 text-purple-700 dark:text-primary group-hover:text-purple-900 dark:group-hover:text-white transition-colors uppercase tracking-[0.15em] italic">{item.title}</h3>
+              <p className="text-slate-600 dark:text-gray-400 text-sm leading-relaxed group-hover:text-slate-900 dark:group-hover:text-gray-200 transition-colors font-normal">{item.desc}</p>
             </motion.div>
           ))}
         </div>

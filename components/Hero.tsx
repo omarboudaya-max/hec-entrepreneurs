@@ -65,27 +65,27 @@ export default function Hero() {
 
                     <motion.h2
                         style={{ y: ySubtitle }}
-                        className="text-xl md:text-3xl font-semibold mb-8 text-white uppercase tracking-widest"
+                        className="text-xl md:text-3xl font-semibold mb-8 text-slate-800 dark:text-white uppercase tracking-widest"
                     >
                         Des idées à l'impact
                     </motion.h2>
 
                     <motion.p
                         style={{ y: ySubtitle }}
-                        className="text-lg md:text-2xl text-gray-400 max-w-3xl mx-auto mb-12 px-4"
+                        className="text-lg md:text-2xl text-slate-600 dark:text-gray-400 max-w-3xl mx-auto mb-12 px-4"
                     >
                         Nous ne parlons pas d’entrepreneuriat. Nous le construisons.
                     </motion.p>
 
                     <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center items-center">
                         <Link href="/entrepreuneuriat" className="w-full sm:w-auto">
-                            <button className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-transparent border border-white/40 hover:bg-white/5 text-white font-light text-base backdrop-blur-sm transition-all tracking-[0.15em] uppercase">
+                            <button className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white/60 dark:bg-transparent border border-slate-300 dark:border-white/40 hover:bg-slate-100 dark:hover:bg-white/5 text-slate-900 dark:text-white font-medium text-base backdrop-blur-sm transition-all tracking-[0.15em] uppercase shadow-sm">
                                 Découvrir nos projets
                             </button>
                         </Link>
                         <Link href="/join" className="w-full sm:w-auto">
-                            <button className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-[#7c3aed]/20 hover:bg-[#7c3aed]/35 border border-[#7c3aed]/50 text-white font-normal text-base transition-all hover:shadow-[0_0_30px_rgba(124,58,237,0.3)] tracking-[0.15em] uppercase flex items-center justify-center gap-3">
-                                <span className="w-2.5 h-2.5 rounded-full bg-amber-400 animate-pulse" />
+                            <button className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-purple-600/15 dark:bg-[#7c3aed]/20 hover:bg-purple-600/25 dark:hover:bg-[#7c3aed]/35 border border-purple-500/40 dark:border-[#7c3aed]/50 text-purple-900 dark:text-white font-semibold text-base transition-all hover:shadow-[0_0_30px_rgba(124,58,237,0.2)] tracking-[0.15em] uppercase flex items-center justify-center gap-3">
+                                <span className="w-2.5 h-2.5 rounded-full bg-amber-500 dark:bg-amber-400 animate-pulse" />
                                 <span>Recrutement Clôturé</span>
                             </button>
                         </Link>

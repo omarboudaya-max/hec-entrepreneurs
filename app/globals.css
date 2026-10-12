@@ -21,96 +21,238 @@ html.light {
   --primary: #7c3aed;
   --secondary: #0891b2;
   --accent: #db2777;
-  --glass: rgba(255, 255, 255, 0.85);
-  --glass-border: rgba(124, 58, 237, 0.2);
-  --mesh-1: rgba(124, 58, 237, 0.07);
+  --glass: rgba(255, 255, 255, 0.92);
+  --glass-border: rgba(124, 58, 237, 0.18);
+  --mesh-1: rgba(124, 58, 237, 0.06);
   --mesh-2: rgba(6, 182, 212, 0.05);
   --mesh-3: rgba(219, 39, 119, 0.04);
 }
 
-/* Light mode overrides for high readability and premium aesthetics */
+/* =========================================================
+   COMPREHENSIVE HIGH-CONTRAST LIGHT MODE ARCHITECTURE
+   ========================================================= */
+
 html.light body {
   background-color: #f8fafc;
   color: #0f172a;
 }
 
+/* 1. Eliminate dark backgrounds & black sections */
+html.light .bg-black,
+html.light .bg-\[\#050505\],
 html.light .bg-\[\#070709\],
 html.light .bg-\[\#09090b\],
 html.light .bg-\[\#0a0a14\],
 html.light .bg-\[\#0d0d12\],
-html.light .bg-\[\#07070d\] {
+html.light .bg-\[\#07070d\],
+html.light .bg-\[\#08080c\],
+html.light .bg-\[\#0b0b10\],
+html.light .bg-\[\#0c0c12\],
+html.light .bg-\[\#0e0e17\],
+html.light .bg-zinc-950,
+html.light .bg-neutral-950,
+html.light .bg-gray-950,
+html.light .bg-slate-950 {
   background-color: #f8fafc !important;
 }
 
+/* 2. Elevated card surfaces & containers */
 html.light .bg-\[\#101015\],
+html.light .bg-\[\#101016\],
 html.light .bg-\[\#121217\],
+html.light .bg-\[\#14141e\],
 html.light .bg-\[\#15151e\],
 html.light .bg-\[\#181824\],
-html.light .bg-\[\#14141e\] {
+html.light .bg-\[\#111118\],
+html.light .bg-\[\#13131c\],
+html.light .bg-\[\#161622\],
+html.light .bg-\[\#1a1a24\],
+html.light .bg-\[\#1f1f2e\],
+html.light .bg-zinc-900,
+html.light .bg-neutral-900,
+html.light .bg-gray-900,
+html.light .bg-slate-900 {
   background-color: #ffffff !important;
-  box-shadow: 0 4px 20px -2px rgba(0, 0, 0, 0.05);
+  box-shadow: 0 4px 20px -2px rgba(15, 23, 42, 0.05), 0 1px 3px 0 rgba(15, 23, 42, 0.03) !important;
+  border-color: rgba(226, 232, 240, 0.95) !important;
 }
 
-html.light .bg-black\/40,
-html.light .bg-black\/50,
-html.light .bg-black\/60 {
-  background-color: rgba(241, 245, 249, 0.9) !important;
+/* 3. Glass containers in light mode */
+html.light .glass {
+  background-color: rgba(255, 255, 255, 0.92) !important;
+  border-color: rgba(226, 232, 240, 0.95) !important;
+  box-shadow: 0 10px 30px -5px rgba(15, 23, 42, 0.06), 0 4px 6px -2px rgba(15, 23, 42, 0.02) !important;
 }
 
-html.light .border-white\/5,
-html.light .border-white\/10,
-html.light .border-white\/15,
-html.light .border-white\/20 {
-  border-color: rgba(0, 0, 0, 0.08) !important;
+html.light .glass:hover {
+  border-color: rgba(124, 58, 237, 0.35) !important;
+  box-shadow: 0 14px 34px -5px rgba(124, 58, 237, 0.12) !important;
 }
 
-/* Text adjustments in light mode */
-html.light .text-white:not(.bg-purple-600 *):not(.bg-indigo-600 *):not(.bg-emerald-600 *):not(.bg-red-600 *):not(.bg-amber-600 *):not([class*="bg-gradient-"] *):not([class*="bg-gradient-"]) {
-  color: #0f172a !important;
-}
-
-html.light .text-gray-300:not([class*="bg-gradient-"] *):not(.bg-purple-600 *) {
-  color: #334155 !important;
-}
-
-html.light .text-gray-400:not([class*="bg-gradient-"] *):not(.bg-purple-600 *) {
-  color: #64748b !important;
-}
-
-html.light .text-gray-500 {
-  color: #94a3b8 !important;
-}
-
-/* Semi-transparent backgrounds in light mode */
+/* 4. Semi-transparent surface tags and sub-blocks */
+html.light .bg-white\/\[0\.015\],
 html.light .bg-white\/\[0\.02\],
 html.light .bg-white\/\[0\.03\],
 html.light .bg-white\/\[0\.04\],
+html.light .bg-white\/\[0\.05\],
 html.light .bg-white\/5 {
-  background-color: rgba(0, 0, 0, 0.04) !important;
+  background-color: rgba(15, 23, 42, 0.035) !important;
+  border-color: rgba(15, 23, 42, 0.08) !important;
 }
 
 html.light .bg-white\/10 {
-  background-color: rgba(0, 0, 0, 0.06) !important;
+  background-color: rgba(15, 23, 42, 0.06) !important;
+  border-color: rgba(15, 23, 42, 0.1) !important;
 }
 
-/* Light mode form inputs */
+html.light .bg-white\/15,
+html.light .bg-white\/20 {
+  background-color: rgba(15, 23, 42, 0.09) !important;
+}
+
+/* 5. Borders - turn transparent white borders into crisp, visible slate borders */
+html.light .border-white\/5,
+html.light .border-white\/10,
+html.light .border-white\/15,
+html.light .border-white\/20,
+html.light .border-white\/30,
+html.light .border-white\/40,
+html.light .border-white {
+  border-color: rgba(15, 23, 42, 0.1) !important;
+}
+
+/* 6. HIGH-CONTRAST TYPOGRAPHY IN LIGHT MODE */
+/* Default white text turns dark slate on cards & surfaces */
+html.light .text-white:not(button[class*="bg-gradient-"] *):not(button[class*="bg-purple"] *):not(button[class*="bg-indigo"] *):not(button[class*="bg-emerald"] *):not(button[class*="bg-red"] *):not(a[class*="bg-gradient-"] *):not([class*="bg-gradient-to-r from-purple"] *):not([class*="bg-gradient-to-r from-indigo"] *):not(.text-wave) {
+  color: #0f172a !important;
+}
+
+/* Gray palette - high contrast and crystal clear */
+html.light .text-gray-100 {
+  color: #0f172a !important;
+}
+
+html.light .text-gray-200 {
+  color: #1e293b !important;
+}
+
+html.light .text-gray-300 {
+  color: #334155 !important;
+}
+
+html.light .text-gray-400 {
+  color: #475569 !important;
+}
+
+html.light .text-gray-500 {
+  color: #64748b !important;
+}
+
+html.light .text-zinc-100,
+html.light .text-zinc-200 {
+  color: #0f172a !important;
+}
+
+html.light .text-zinc-300 {
+  color: #334155 !important;
+}
+
+html.light .text-zinc-400 {
+  color: #475569 !important;
+}
+
+html.light .text-slate-300 {
+  color: #334155 !important;
+}
+
+html.light .text-slate-400 {
+  color: #475569 !important;
+}
+
+/* Faded white text */
+html.light .text-white\/40,
+html.light .text-white\/50,
+html.light .text-white\/60 {
+  color: #64748b !important;
+}
+
+html.light .text-white\/70,
+html.light .text-white\/80,
+html.light .text-white\/90 {
+  color: #334155 !important;
+}
+
+/* Special event and heritage text colors */
+html.light .text-\[\#ece2d0\] {
+  color: #1c1917 !important;
+}
+
+html.light .text-\[\#cbb0a5\] {
+  color: #44403c !important;
+}
+
+html.light .text-\[\#d4af37\] {
+  color: #a16207 !important;
+}
+
+/* Ensure vibrant colored action buttons keep crisp white text */
+html.light .bg-primary,
+html.light .bg-purple-600,
+html.light .bg-indigo-600,
+html.light .bg-emerald-600,
+html.light .bg-red-600,
+html.light [class*="bg-gradient-to-r from-purple"],
+html.light [class*="bg-gradient-to-r from-indigo"],
+html.light [class*="bg-gradient-to-br from-purple"] {
+  color: #ffffff !important;
+}
+
+html.light .bg-primary *,
+html.light .bg-purple-600 *,
+html.light .bg-indigo-600 *,
+html.light .bg-emerald-600 *,
+html.light .bg-red-600 *,
+html.light [class*="bg-gradient-to-r from-purple"] *,
+html.light [class*="bg-gradient-to-r from-indigo"] *,
+html.light [class*="bg-gradient-to-br from-purple"] * {
+  color: #ffffff !important;
+}
+
+/* 7. FORM INPUTS & INTERACTIVE ELEMENTS */
 html.light input:not([type="checkbox"]):not([type="radio"]),
 html.light textarea,
 html.light select {
   background-color: #ffffff !important;
   color: #0f172a !important;
-  border-color: rgba(0, 0, 0, 0.12) !important;
+  border-color: rgba(15, 23, 42, 0.16) !important;
 }
 
 html.light input::placeholder,
 html.light textarea::placeholder {
-  color: #94a3b8 !important;
+  color: #64748b !important;
 }
 
-/* Light mode modals */
-html.light .backdrop-blur-sm,
-html.light .backdrop-blur-md {
-  background-color: rgba(15, 23, 42, 0.35) !important;
+html.light input:focus,
+html.light textarea:focus,
+html.light select:focus {
+  border-color: #7c3aed !important;
+  box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.15) !important;
+}
+
+/* 8. MODAL BACKDROPS & OVERLAYS */
+html.light .bg-black\/40,
+html.light .bg-black\/50,
+html.light .bg-black\/60,
+html.light .bg-black\/70,
+html.light .bg-black\/80,
+html.light .bg-black\/90 {
+  background-color: rgba(15, 23, 42, 0.45) !important;
+}
+
+/* Date blocks & special gradients */
+html.light .from-purple-900\/40.to-black\/60 {
+  background: linear-gradient(to bottom, rgba(124, 58, 237, 0.12), rgba(241, 245, 249, 0.95)) !important;
+  border-color: rgba(124, 58, 237, 0.25) !important;
 }
 
 body {
@@ -219,7 +361,6 @@ body::before {
 }
 
 @keyframes pulse-slow {
-
   0%,
   100% {
     opacity: 1;
@@ -237,7 +378,6 @@ body::before {
 }
 
 @keyframes title-wave {
-
   0%,
   100% {
     background-position: 0% 50%;
@@ -249,7 +389,6 @@ body::before {
 }
 
 @keyframes float {
-
   0%,
   100% {
     transform: translateY(0);

@@ -15,14 +15,14 @@ export default function TribunalEventSection() {
 
   return (
     <section ref={eventRef} className="py-16 md:py-36 relative overflow-hidden flex items-center min-h-0 md:min-h-[85vh]">
-      {/* Background photo faded (bg-cover without bg-fixed for mobile compatibility) */}
+      {/* Background photo faded */}
       <motion.div 
         className="absolute inset-0 z-0 bg-[url('/event-tribunal.jpg')] bg-cover bg-center bg-no-repeat"
         style={{ opacity: backgroundOpacity, filter: "brightness(0.25) saturate(0.8)" }}
       />
-      {/* Dark overlay to ensure text readability */}
+      {/* Dynamic overlay - adapts between light and dark modes */}
       <motion.div 
-        className="absolute inset-0 bg-gradient-to-b from-[#050505] via-[#050505]/85 to-[#050505] z-0"
+        className="absolute inset-0 bg-gradient-to-b from-amber-50/95 via-stone-100/90 to-amber-50/95 dark:from-[#050505] dark:via-[#050505]/85 dark:to-[#050505] z-0 transition-colors duration-300"
         style={{ opacity: backgroundOpacity }}
       />
 
@@ -36,7 +36,7 @@ export default function TribunalEventSection() {
             viewport={{ margin: "-50px", once: true }}
             transition={{ duration: 0.8 }}
           >
-            <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden bg-[#120805] border-4 md:border-[8px] border-[#38160d] shadow-[0_0_50px_rgba(0,0,0,0.8)] group">
+            <div className="relative w-full aspect-[3/4] rounded-2xl overflow-hidden bg-stone-100 dark:bg-[#120805] border-4 md:border-[8px] border-amber-900/30 dark:border-[#38160d] shadow-xl dark:shadow-[0_0_50px_rgba(0,0,0,0.8)] group">
               <Image 
                 src="/affiche-tribunal.png" 
                 alt="Affiche Tribunal de l'entrepreneuriat" 
@@ -45,7 +45,7 @@ export default function TribunalEventSection() {
                 sizes="(max-width: 768px) 100vw, (max-width: 1200px) 50vw, 33vw"
               />
               
-              <div className="absolute inset-0 bg-transparent flex flex-col items-center justify-center -z-10 text-[#d4af37]/60">
+              <div className="absolute inset-0 bg-transparent flex flex-col items-center justify-center -z-10 text-amber-800/60 dark:text-[#d4af37]/60">
                 <p className="font-serif italic text-xs sm:text-sm tracking-widest text-center mt-20">Affiche Tribunal de l'Entrepreneuriat</p>
               </div>
             </div>
@@ -60,32 +60,32 @@ export default function TribunalEventSection() {
             transition={{ duration: 0.8, delay: 0.2 }}
           >
             {/* Watermark Gavel Icon */}
-            <div className="absolute -top-12 -left-6 w-48 h-48 md:w-64 md:h-64 text-[#d4af37]/5 -z-10 -rotate-12 pointer-events-none hidden sm:block">
+            <div className="absolute -top-12 -left-6 w-48 h-48 md:w-64 md:h-64 text-amber-700/10 dark:text-[#d4af37]/5 -z-10 -rotate-12 pointer-events-none hidden sm:block">
               <Gavel className="w-full h-full" strokeWidth={1} />
             </div>
 
             <div className="inline-block">
-              <div className="inline-flex items-center gap-2 text-[#d4af37] bg-[#d4af37]/10 px-3.5 py-1.5 rounded-full border border-[#d4af37]/30 mb-4 text-xs font-serif uppercase tracking-widest shadow-md">
-                <Award className="w-4 h-4 text-[#d4af37]" />
+              <div className="inline-flex items-center gap-2 text-amber-900 dark:text-[#d4af37] bg-amber-500/15 dark:bg-[#d4af37]/10 px-3.5 py-1.5 rounded-full border border-amber-600/30 dark:border-[#d4af37]/30 mb-4 text-xs font-serif uppercase tracking-widest shadow-sm">
+                <Award className="w-4 h-4 text-amber-700 dark:text-[#d4af37]" />
                 <span>Meilleur Événement 2026</span>
               </div>
-              <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-serif text-[#ece2d0] uppercase tracking-tight sm:tracking-[0.1em] drop-shadow-md leading-tight border-b border-[#d4af37]/30 pb-4 break-words">
-                LE TRIBUNAL DE<br/><span className="text-[#d4af37]">L&apos;ENTREPRENEURIAT</span>
+              <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-serif text-stone-900 dark:text-[#ece2d0] uppercase tracking-tight sm:tracking-[0.1em] drop-shadow-sm leading-tight border-b border-amber-600/30 dark:border-[#d4af37]/30 pb-4 break-words">
+                LE TRIBUNAL DE<br/><span className="text-amber-700 dark:text-[#d4af37]">L&apos;ENTREPRENEURIAT</span>
               </h2>
             </div>
 
             {/* Description */}
             <div className="space-y-4 pt-2">
-              <p className="text-[#cbb0a5] text-sm sm:text-base md:text-lg leading-relaxed max-w-xl mx-auto md:mx-0 font-serif font-light text-left sm:text-justify tracking-wide">
+              <p className="text-stone-700 dark:text-[#cbb0a5] text-sm sm:text-base md:text-lg leading-relaxed max-w-xl mx-auto md:mx-0 font-serif font-light text-left sm:text-justify tracking-wide">
                 Pendant des années, on vous a dit : entreprenez, innovez, prenez des risques...
                 Mais aujourd&apos;hui, une seule question change tout :
               </p>
               
-              <p className="text-[#d4af37] text-base sm:text-lg md:text-xl leading-relaxed max-w-xl mx-auto md:mx-0 font-serif italic text-left sm:text-justify">
+              <p className="text-amber-800 dark:text-[#d4af37] text-base sm:text-lg md:text-xl leading-relaxed max-w-xl mx-auto md:mx-0 font-serif italic text-left sm:text-justify font-medium">
                 &quot;L&apos;entrepreneuriat est-il réellement la voie de l&apos;avenir ?&quot;
               </p>
               
-              <h3 className="text-base sm:text-xl text-[#ece2d0] font-serif uppercase tracking-widest border-l-4 border-[#d4af37] pl-4 text-left">
+              <h3 className="text-base sm:text-xl text-stone-900 dark:text-[#ece2d0] font-serif uppercase tracking-widest border-l-4 border-amber-700 dark:border-[#d4af37] pl-4 text-left">
                 L&apos;ENTREPRENEURIAT A ÉTÉ MIS EN PROCÈS
               </h3>
             </div>
@@ -94,7 +94,7 @@ export default function TribunalEventSection() {
             <div className="pt-4 flex items-center justify-center md:justify-start">
               <Link 
                 href="/projets/tribunal"
-                className="px-8 py-4 bg-[#3d160b] hover:bg-[#541e0f] text-[#d4af37] hover:text-white border border-[#d4af37]/50 rounded-xl font-serif text-xs sm:text-sm uppercase tracking-[0.15em] transition-all shadow-lg hover:scale-[1.02] text-center flex items-center justify-center gap-3 group"
+                className="px-8 py-4 bg-amber-900 hover:bg-amber-950 text-amber-100 dark:bg-[#3d160b] dark:hover:bg-[#541e0f] dark:text-[#d4af37] dark:hover:text-white border border-amber-700/50 dark:border-[#d4af37]/50 rounded-xl font-serif text-xs sm:text-sm uppercase tracking-[0.15em] transition-all shadow-lg hover:scale-[1.02] text-center flex items-center justify-center gap-3 group"
               >
                 <span>Découvrir l&apos;événement & l&apos;histoire</span>
                 <span className="group-hover:translate-x-1 transition-transform">→</span>

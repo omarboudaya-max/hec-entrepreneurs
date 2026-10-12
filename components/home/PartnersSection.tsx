@@ -29,7 +29,7 @@ const PARTNERS = [
 
 export default function PartnersSection() {
   return (
-    <section className="py-16 md:py-24 bg-[#050505] relative overflow-hidden">
+    <section className="py-16 md:py-24 bg-slate-100/70 dark:bg-[#050505] border-y border-slate-200/80 dark:border-transparent relative overflow-hidden transition-colors duration-300">
       {/* Subtle background glow */}
       <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[600px] h-[300px] bg-primary/5 blur-[100px] rounded-full pointer-events-none" />
       
@@ -38,7 +38,7 @@ export default function PartnersSection() {
           initial={{ opacity: 0, y: 30 }}
           whileInView={{ opacity: 1, y: 0 }}
           viewport={{ once: true }}
-          className="text-xl sm:text-2xl md:text-3xl font-light text-center mb-10 md:mb-16 text-[#d4af37] uppercase tracking-[0.2em] sm:tracking-[0.3em] font-serif"
+          className="text-xl sm:text-2xl md:text-3xl font-light text-center mb-10 md:mb-16 text-amber-700 dark:text-[#d4af37] uppercase tracking-[0.2em] sm:tracking-[0.3em] font-serif"
         >
           NOS PARTENAIRES
         </motion.h2>
@@ -66,7 +66,7 @@ export default function PartnersSection() {
                   alt={partner.name}
                   width={320}
                   height={140}
-                  className="object-contain w-full h-full max-h-full max-w-full drop-shadow-md"
+                  className="object-contain w-full h-full max-h-full max-w-full drop-shadow-md filter dark:brightness-100"
                 />
               </div>
             </motion.div>
