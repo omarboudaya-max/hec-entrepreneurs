@@ -121,7 +121,19 @@ export function isSlotFull(day: string, slotId: string, bookedCounts: Record<str
   return true;
 }
 
+// Flag de clôture du recrutement
+export const IS_RECRUITMENT_OPEN = false;
+
 export async function GET() {
+  if (!IS_RECRUITMENT_OPEN) {
+    return NextResponse.json({
+      closed: true,
+      message: "La campagne de recrutement et la réservation de créneaux sont closes.",
+      fullSlots: { Lundi: [], Mardi: [] },
+      booked: {},
+    });
+  }
+
   try {
     const bookedCounts: Record<string, number> = {};
 
@@ -206,6 +218,13 @@ export async function GET() {
 }
 
 export async function POST(req: NextRequest) {
+  if (!IS_RECRUITMENT_OPEN) {
+    return NextResponse.json(
+      { error: "La campagne de recrutement et la prise de créneaux sont désormais définitivement closes. Aucune nouvelle réservation ne peut être enregistrée." },
+      { status: 403 }
+    );
+  }
+
   try {
     const body = await req.json();
     const { fullName, interviewDate, interviewTime, email, phone } = body;

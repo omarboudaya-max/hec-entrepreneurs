@@ -417,14 +417,11 @@ export default function Join() {
                                         Pour les candidats ayant réservé leur créneau, les entretiens se déroulent selon le calendrier convenu. Veuillez surveiller votre boîte e-mail pour toute communication.
                                     </p>
                                 </div>
-                                <div className="pt-4 border-t border-white/5 mt-4 flex flex-col gap-2">
-                                    <span className="text-[11px] font-mono text-primary/80 uppercase">Planning maintenu</span>
-                                    <Link
-                                        href="/autres"
-                                        className="text-xs text-secondary hover:text-white font-semibold underline underline-offset-4 flex items-center gap-1 transition-colors"
-                                    >
-                                        <span>Option « Autre » ? Fixer votre créneau (Lundi / Mardi) →</span>
-                                    </Link>
+                                <div className="pt-4 border-t border-white/5 mt-4 flex flex-col gap-1">
+                                    <span className="text-[11px] font-mono text-primary/80 uppercase">Entretiens terminés</span>
+                                    <p className="text-xs text-gray-400">
+                                        L&apos;ensemble des entrevues et créneaux est désormais clos. Les délibérations finales sont en cours.
+                                    </p>
                                 </div>
                             </motion.div>
 
