@@ -49,6 +49,8 @@ Le pôle IT & Dev a présenté la refonte du site officiel et le nouveau Portail
       pv_author_name: "Yasmine (Secrétariat Général HEC)",
       pv_decisions: "1. Validation unanime du calendrier événementiel 2026/2027.\n2. Lancement immédiat de la campagne de prospection de sponsoring.\n3. Déploiement officiel de l'Intranet Membre pour le suivi des tâches et des réunions.",
       pv_updated_at: new Date(Date.now() - 86400000 * 7).toISOString(),
+      custom_present_count: 28,
+      custom_absent_count: 4,
       rsvps: []
     },
     {
@@ -100,8 +102,8 @@ export async function GET(req: NextRequest) {
         events: (global.__memoryEvents || []).map((evt) => ({
           ...evt,
           userRsvp: evt.rsvps?.find((r: any) => r.user_id === user.id)?.status || null,
-          presentCount: evt.rsvps?.filter((r: any) => r.status === "present").length || 0,
-          absentCount: evt.rsvps?.filter((r: any) => r.status === "absent").length || 0,
+          presentCount: evt.custom_present_count != null ? evt.custom_present_count : (evt.rsvps?.filter((r: any) => r.status === "present").length || 0),
+          absentCount: evt.custom_absent_count != null ? evt.custom_absent_count : (evt.rsvps?.filter((r: any) => r.status === "absent").length || 0),
         })),
         isFallback: true
       });
@@ -132,8 +134,8 @@ export async function GET(req: NextRequest) {
         }));
 
       const userRsvp = evtRsvps.find((r) => r.user_id === user.id)?.status || null;
-      const presentCount = evtRsvps.filter((r) => r.status === "present").length;
-      const absentCount = evtRsvps.filter((r) => r.status === "absent").length;
+      const presentCount = evt.custom_present_count != null ? evt.custom_present_count : evtRsvps.filter((r) => r.status === "present").length;
+      const absentCount = evt.custom_absent_count != null ? evt.custom_absent_count : evtRsvps.filter((r) => r.status === "absent").length;
       const maybeCount = evtRsvps.filter((r) => r.status === "peut_etre").length;
 
       let fileUrl = evt.pv_file_url || null;
@@ -151,6 +153,8 @@ export async function GET(req: NextRequest) {
 
       return {
         ...evt,
+        custom_present_count: evt.custom_present_count ?? null,
+        custom_absent_count: evt.custom_absent_count ?? null,
         pv_file_url: fileUrl,
         pv_file_name: fileName,
         pv_content: cleanContent,

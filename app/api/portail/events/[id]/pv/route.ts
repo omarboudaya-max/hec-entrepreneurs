@@ -47,7 +47,15 @@ export async function POST(
     }
 
     const body = await req.json();
-    const { pv_file_url, pv_file_name, pv_author_name, pv_content, pv_decisions } = body;
+    const {
+      pv_file_url,
+      pv_file_name,
+      pv_author_name,
+      pv_content,
+      pv_decisions,
+      custom_present_count,
+      custom_absent_count,
+    } = body;
 
     if (!pv_file_url && (!pv_content || pv_content.trim() === "")) {
       return NextResponse.json({ error: "Veuillez joindre le document officiel du PV (PDF, Word, etc.)." }, { status: 400 });
@@ -64,6 +72,13 @@ export async function POST(
       pv_decisions: pv_decisions?.trim() || null,
       pv_updated_at: now,
     };
+
+    if (custom_present_count !== undefined) {
+      updatePayload.custom_present_count = custom_present_count !== "" && custom_present_count !== null ? Number(custom_present_count) : null;
+    }
+    if (custom_absent_count !== undefined) {
+      updatePayload.custom_absent_count = custom_absent_count !== "" && custom_absent_count !== null ? Number(custom_absent_count) : null;
+    }
 
     // Attempt Supabase update
     let { data: updatedEvent, error: dbError } = await supabaseAdmin

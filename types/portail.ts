@@ -72,6 +72,8 @@ export interface ClubEventItem {
   absentCount?: number;
   maybeCount?: number;
   rsvps?: any[];
+  custom_present_count?: number | null;
+  custom_absent_count?: number | null;
   pv_file_url?: string | null;
   pv_file_name?: string | null;
   pv_content?: string | null;

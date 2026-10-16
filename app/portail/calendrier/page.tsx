@@ -24,7 +24,8 @@ interface EventItem {
   presentCount?: number;
   absentCount?: number;
   maybeCount?: number;
-  rsvps?: any[];
+  custom_present_count?: number | null;
+  custom_absent_count?: number | null;
   pv_file_url?: string | null;
   pv_file_name?: string | null;
   pv_content?: string | null;
@@ -60,6 +61,8 @@ export default function CalendrierPage() {
   const [pvFileName, setPvFileName] = useState<string>("");
   const [pvAuthorName, setPvAuthorName] = useState("");
   const [pvDecisions, setPvDecisions] = useState("");
+  const [customPresentCount, setCustomPresentCount] = useState<number | string>("");
+  const [customAbsentCount, setCustomAbsentCount] = useState<number | string>("");
   const [isSavingPv, setIsSavingPv] = useState(false);
   const [isUploadingPvFile, setIsUploadingPvFile] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
@@ -245,6 +248,20 @@ export default function CalendrierPage() {
         : "Secrétariat Général - HEC";
     setPvAuthorName(evt.pv_author_name || defaultAuthor);
     setPvDecisions(evt.pv_decisions || "");
+    setCustomPresentCount(
+      evt.custom_present_count != null
+        ? evt.custom_present_count
+        : evt.presentCount != null
+        ? evt.presentCount
+        : ""
+    );
+    setCustomAbsentCount(
+      evt.custom_absent_count != null
+        ? evt.custom_absent_count
+        : evt.absentCount != null
+        ? evt.absentCount
+        : ""
+    );
     setSelectedEventForPv(null);
   };
 
@@ -301,6 +318,8 @@ export default function CalendrierPage() {
           pv_file_name: finalFileName,
           pv_author_name: pvAuthorName,
           pv_decisions: pvDecisions,
+          custom_present_count: customPresentCount !== "" ? Number(customPresentCount) : null,
+          custom_absent_count: customAbsentCount !== "" ? Number(customAbsentCount) : null,
         }),
       });
 
@@ -309,7 +328,7 @@ export default function CalendrierPage() {
 
       setStatusMsg({
         type: "success",
-        text: "Le fichier du Procès-Verbal (PV) a été joint et publié avec succès pour les membres !",
+        text: "Le document du Procès-Verbal (PV) et les présences ont été enregistrés avec succès !",
       });
 
       setEditingPvEvent(null);
@@ -1115,6 +1134,42 @@ export default function CalendrierPage() {
                     />
                   </label>
                 )}
+              </div>
+              {/* Émargement / Nombre de membres présents */}
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 p-3.5 rounded-2xl bg-white/[0.02] border border-white/5">
+                <div>
+                  <label className="block text-xs text-gray-300 font-semibold mb-1">
+                    Membres Présents (Émargement)
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={customPresentCount}
+                    onChange={(e) => setCustomPresentCount(e.target.value)}
+                    placeholder="Ex: 28"
+                    className="w-full px-3 py-2 bg-white/[0.04] border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-purple-500 font-bold"
+                  />
+                  <span className="text-[10px] text-gray-500 mt-1 block">
+                    Nombre officiel de présences affiché
+                  </span>
+                </div>
+
+                <div>
+                  <label className="block text-xs text-gray-300 font-semibold mb-1">
+                    Membres Absents
+                  </label>
+                  <input
+                    type="number"
+                    min="0"
+                    value={customAbsentCount}
+                    onChange={(e) => setCustomAbsentCount(e.target.value)}
+                    placeholder="Ex: 4"
+                    className="w-full px-3 py-2 bg-white/[0.04] border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-purple-500 font-bold"
+                  />
+                  <span className="text-[10px] text-gray-500 mt-1 block">
+                    Nombre officiel d&apos;absences
+                  </span>
+                </div>
               </div>
 
               <div>
