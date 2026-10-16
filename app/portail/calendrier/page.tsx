@@ -4,7 +4,8 @@ import React, { useState, useEffect } from "react";
 import {
   Calendar as CalendarIcon, Clock, MapPin, Users, Plus, CheckCircle2,
   XCircle, HelpCircle, Trash2, Send, AlertCircle, Sparkles, Filter,
-  FileText, Printer, Copy, Check, Edit3, ShieldAlert, Lock
+  FileText, Printer, Copy, Check, Edit3, ShieldAlert, Lock,
+  UploadCloud, Download, ExternalLink, Paperclip, FileCheck
 } from "lucide-react";
 import { usePortailAuth } from "@/contexts/PortailAuthContext";
 import { supabase } from "@/lib/supabase";
@@ -24,6 +25,8 @@ interface EventItem {
   absentCount?: number;
   maybeCount?: number;
   rsvps?: any[];
+  pv_file_url?: string | null;
+  pv_file_name?: string | null;
   pv_content?: string | null;
   pv_author_name?: string | null;
   pv_decisions?: string | null;
@@ -52,11 +55,15 @@ export default function CalendrierPage() {
   // PV Reader & Editor Modal State
   const [selectedEventForPv, setSelectedEventForPv] = useState<EventItem | null>(null);
   const [editingPvEvent, setEditingPvEvent] = useState<EventItem | null>(null);
-  const [pvContent, setPvContent] = useState("");
+  const [pvFile, setPvFile] = useState<File | null>(null);
+  const [pvFileUrl, setPvFileUrl] = useState<string>("");
+  const [pvFileName, setPvFileName] = useState<string>("");
   const [pvAuthorName, setPvAuthorName] = useState("");
   const [pvDecisions, setPvDecisions] = useState("");
   const [isSavingPv, setIsSavingPv] = useState(false);
+  const [isUploadingPvFile, setIsUploadingPvFile] = useState(false);
   const [copySuccess, setCopySuccess] = useState(false);
+  const [isDragging, setIsDragging] = useState(false);
 
   const fetchEvents = async () => {
     try {
@@ -229,7 +236,9 @@ export default function CalendrierPage() {
 
   const handleOpenPvEditor = (evt: EventItem) => {
     setEditingPvEvent(evt);
-    setPvContent(evt.pv_content || "");
+    setPvFile(null);
+    setPvFileUrl(evt.pv_file_url || "");
+    setPvFileName(evt.pv_file_name || "");
     const defaultAuthor =
       user?.email?.toLowerCase().includes("omarboudaya")
         ? "Omar Boudaya (Responsable IT & Secrétariat)"
@@ -242,6 +251,12 @@ export default function CalendrierPage() {
   const handleSavePv = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!editingPvEvent) return;
+
+    if (!pvFile && !pvFileUrl) {
+      alert("Veuillez sélectionner un fichier à joindre pour le Procès-Verbal (PDF, Word, etc.).");
+      return;
+    }
+
     setIsSavingPv(true);
     setStatusMsg(null);
 
@@ -249,6 +264,32 @@ export default function CalendrierPage() {
       const { data: { session } } = await supabase.auth.getSession();
       if (!session) return;
 
+      let finalFileUrl = pvFileUrl;
+      let finalFileName = pvFileName;
+
+      // 1. Upload file if a new one was selected
+      if (pvFile) {
+        setIsUploadingPvFile(true);
+        const formData = new FormData();
+        formData.append("file", pvFile);
+        formData.append("bucket", "portail-documents");
+
+        const uploadRes = await fetch("/api/portail/upload", {
+          method: "POST",
+          headers: {
+            Authorization: `Bearer ${session.access_token}`,
+          },
+          body: formData,
+        });
+
+        const uploadData = await uploadRes.json();
+        if (!uploadRes.ok) throw new Error(uploadData.error || "Erreur lors du téléversement du fichier.");
+        finalFileUrl = uploadData.url;
+        finalFileName = pvFile.name;
+        setIsUploadingPvFile(false);
+      }
+
+      // 2. Update event PV metadata
       const res = await fetch(`/api/portail/events/${editingPvEvent.id}/pv`, {
         method: "POST",
         headers: {
@@ -256,7 +297,8 @@ export default function CalendrierPage() {
           Authorization: `Bearer ${session.access_token}`,
         },
         body: JSON.stringify({
-          pv_content: pvContent,
+          pv_file_url: finalFileUrl,
+          pv_file_name: finalFileName,
           pv_author_name: pvAuthorName,
           pv_decisions: pvDecisions,
         }),
@@ -267,7 +309,7 @@ export default function CalendrierPage() {
 
       setStatusMsg({
         type: "success",
-        text: "Procès-Verbal (PV) enregistré et publié pour tous les membres !",
+        text: "Le fichier du Procès-Verbal (PV) a été joint et publié avec succès pour les membres !",
       });
 
       setEditingPvEvent(null);
@@ -276,6 +318,7 @@ export default function CalendrierPage() {
       setStatusMsg({ type: "error", text: err.message });
     } finally {
       setIsSavingPv(false);
+      setIsUploadingPvFile(false);
     }
   };
 
@@ -452,9 +495,14 @@ export default function CalendrierPage() {
                       </div>
 
                       {evt.description && (
-                        <p className="text-xs text-gray-400 pt-1 leading-relaxed max-w-xl">
-                          {evt.description}
-                        </p>
+                        <div className="pt-2 text-xs leading-relaxed max-w-xl">
+                          <span className="text-[10px] uppercase font-bold text-purple-400 block mb-1">
+                            Ordre du jour :
+                          </span>
+                          <p className="whitespace-pre-line text-gray-300 bg-white/[0.03] p-3 rounded-xl border border-white/5">
+                            {evt.description}
+                          </p>
+                        </div>
                       )}
                     </div>
                   </div>
@@ -558,18 +606,26 @@ export default function CalendrierPage() {
 
                 {/* Bottom Section: Procès-Verbal (PV) Bar */}
                 <div className="pt-3.5 border-t border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white/[0.015] -mx-6 sm:-mx-7 -mb-6 sm:-mb-7 px-6 sm:px-7 py-3.5 rounded-b-3xl">
-                  {evt.pv_content ? (
+                  {evt.pv_file_url || evt.pv_content ? (
                     <div className="flex flex-wrap items-center gap-3 w-full justify-between">
-                      <div className="flex items-center gap-2">
+                      <div className="flex flex-wrap items-center gap-2.5">
                         <button
                           onClick={() => handleOpenPvReader(evt)}
                           className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500/25 to-purple-600/25 hover:from-amber-500/40 hover:to-purple-600/40 border border-amber-500/40 text-amber-200 hover:text-white text-xs font-bold transition-all flex items-center gap-2 shadow-md shadow-amber-900/10"
                         >
                           <FileText size={15} className="text-amber-400" />
-                          <span>Consulter le PV {evt.event_type === "ag" ? "(Assemblée)" : "(Réunion)"}</span>
+                          <span>Consulter / Télécharger le PV {evt.event_type === "ag" ? "(AG)" : "(Réunion)"}</span>
                         </button>
+
+                        {evt.pv_file_name && (
+                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 text-[11px] text-gray-300 border border-white/10 font-mono">
+                            <Paperclip size={12} className="text-purple-400" />
+                            <span className="truncate max-w-[200px]">{evt.pv_file_name}</span>
+                          </span>
+                        )}
+
                         <span className="hidden sm:inline-block text-xs text-gray-400">
-                          Rédigé par <strong className="text-purple-300 font-medium">{evt.pv_author_name || "Secrétariat"}</strong>
+                          Joint par <strong className="text-purple-300 font-medium">{evt.pv_author_name || "Secrétariat"}</strong>
                         </span>
                       </div>
 
@@ -579,7 +635,7 @@ export default function CalendrierPage() {
                           className="text-xs text-purple-400 hover:text-purple-300 underline underline-offset-4 flex items-center gap-1"
                         >
                           <Edit3 size={13} />
-                          <span>Modifier le PV</span>
+                          <span>Remplacer le fichier PV</span>
                         </button>
                       )}
                     </div>
@@ -587,7 +643,7 @@ export default function CalendrierPage() {
                     <div className="flex flex-wrap items-center justify-between gap-3 w-full">
                       <div className="flex items-center gap-2 text-xs text-amber-300/80 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-xl">
                         <Clock size={13} className="text-amber-400 shrink-0" />
-                        <span>PV en attente de rédaction par les secrétaires</span>
+                        <span>PV en attente de dépôt du document (PDF / Word)</span>
                       </div>
 
                       {isBureau && (
@@ -595,15 +651,15 @@ export default function CalendrierPage() {
                           onClick={() => handleOpenPvEditor(evt)}
                           className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-purple-600/30 hover:from-amber-500/35 hover:to-purple-600/45 border border-amber-500/40 text-amber-200 hover:text-white text-xs font-bold transition-all flex items-center gap-2 shadow-sm"
                         >
-                          <Edit3 size={14} className="text-amber-400" />
-                          <span>Rédiger le PV (Secrétariat)</span>
+                          <UploadCloud size={14} className="text-amber-400" />
+                          <span>Joindre le fichier PV (PDF / Word)</span>
                         </button>
                       )}
                     </div>
                   ) : (
                     <div className="flex items-center gap-2 text-[11px] text-gray-400 italic">
                       <Clock size={12} className="text-gray-500" />
-                      <span>Séance à venir — Le PV officiel sera rédigé et publié après la réunion.</span>
+                      <span>Séance à venir — Le document officiel du PV sera joint et publié après la réunion.</span>
                     </div>
                   )}
                 </div>
@@ -710,14 +766,24 @@ export default function CalendrierPage() {
               </div>
 
               <div>
-                <label className="block text-xs text-gray-400 mb-1.5 font-medium">Ordre du jour & Instructions</label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs text-gray-300 font-semibold">
+                    Ordre du jour & Points à aborder
+                  </label>
+                  <span className="text-[10px] text-purple-400 font-medium">
+                    Touche Entrée pour aller à la ligne
+                  </span>
+                </div>
                 <textarea
-                  rows={3}
+                  rows={5}
                   value={description}
                   onChange={(e) => setDescription(e.target.value)}
-                  placeholder="Détaillez les points clés abordés durant la séance..."
-                  className="w-full p-3 bg-white/[0.04] border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-purple-500 resize-none"
+                  placeholder={"1. Approbation du PV de la séance précédente\n2. Point d'avancement des pôles et projets\n3. Organisation logistique du prochain événement\n4. Questions diverses"}
+                  className="w-full p-3.5 bg-white/[0.04] border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-purple-500 resize-y leading-relaxed font-sans"
                 />
+                <p className="text-[10px] text-gray-500 mt-1">
+                  Les retours à la ligne seront fidèlement conservés lors de l&apos;affichage pour une présentation claire et structurée.
+                </p>
               </div>
 
               {/* Email Broadcast Checkbox */}
@@ -730,7 +796,7 @@ export default function CalendrierPage() {
                   className="w-4 h-4 accent-purple-600 rounded cursor-pointer"
                 />
                 <label htmlFor="broadcastCheck" className="text-xs text-purple-200 cursor-pointer select-none">
-                  <strong>Envoyer une convocation par email</strong> à tous les 33 membres inscrits au club.
+                  <strong>Envoyer une convocation par email</strong> à tous les membres du club.
                 </label>
               </div>
 
@@ -758,7 +824,7 @@ export default function CalendrierPage() {
       {/* PV Reader Modal */}
       {selectedEventForPv && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="w-full max-w-2xl bg-[#121217] border border-white/15 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-3xl bg-[#121217] border border-white/15 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-6 max-h-[92vh] overflow-y-auto">
             {/* Header */}
             <div className="flex items-start justify-between border-b border-white/10 pb-4 gap-4">
               <div>
@@ -776,7 +842,7 @@ export default function CalendrierPage() {
                 </h2>
                 <div className="flex flex-wrap items-center gap-3 text-xs text-gray-400 mt-2">
                   {selectedEventForPv.pv_author_name && (
-                    <span>Rédigé par : <strong className="text-purple-300 font-semibold">{selectedEventForPv.pv_author_name}</strong></span>
+                    <span>Rédigé / Joint par : <strong className="text-purple-300 font-semibold">{selectedEventForPv.pv_author_name}</strong></span>
                   )}
                   {selectedEventForPv.location && (
                     <span>• Lieu : {selectedEventForPv.location}</span>
@@ -807,13 +873,63 @@ export default function CalendrierPage() {
               </div>
             </div>
 
-            {/* PV Body */}
-            <div className="space-y-2.5">
-              <h4 className="text-xs font-bold uppercase tracking-wider text-purple-400">Compte-Rendu des Délibérations</h4>
-              <div className="p-5 rounded-2xl bg-white/[0.02] border border-white/5 text-gray-200 text-sm leading-relaxed whitespace-pre-line font-normal">
-                {selectedEventForPv.pv_content}
+            {/* Document Download & Action Card */}
+            {selectedEventForPv.pv_file_url ? (
+              <div className="p-5 rounded-2xl bg-gradient-to-r from-purple-900/30 to-amber-900/20 border border-purple-500/30 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-4 shadow-lg">
+                <div className="flex items-center gap-3">
+                  <div className="w-12 h-12 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-300 shrink-0">
+                    <FileText size={24} />
+                  </div>
+                  <div>
+                    <h4 className="text-sm font-bold text-white flex items-center gap-2">
+                      <span>{selectedEventForPv.pv_file_name || "Document_PV_Officiel"}</span>
+                    </h4>
+                    <p className="text-xs text-gray-400">
+                      Document officiel certifié du Club HEC Entrepreneurs
+                    </p>
+                  </div>
+                </div>
+
+                <div className="flex flex-wrap items-center gap-2 w-full sm:w-auto">
+                  <a
+                    href={selectedEventForPv.pv_file_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    download={selectedEventForPv.pv_file_name || "PV_Officiel"}
+                    className="px-4 py-2.5 rounded-xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs font-bold transition-all shadow-md flex items-center gap-2 shrink-0"
+                  >
+                    <Download size={14} />
+                    <span>Télécharger le PV</span>
+                  </a>
+                  <a
+                    href={selectedEventForPv.pv_file_url}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="px-3.5 py-2.5 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-medium transition-colors flex items-center gap-1.5 shrink-0"
+                  >
+                    <ExternalLink size={14} />
+                    <span>Ouvrir</span>
+                  </a>
+                </div>
               </div>
-            </div>
+            ) : null}
+
+            {/* If PDF preview is available */}
+            {selectedEventForPv.pv_file_url && (selectedEventForPv.pv_file_url.toLowerCase().includes(".pdf") || selectedEventForPv.pv_file_name?.toLowerCase().endsWith(".pdf")) ? (
+              <div className="space-y-2">
+                <div className="flex items-center justify-between text-xs text-gray-400">
+                  <span className="font-semibold text-purple-300">Aperçu du document PDF :</span>
+                  <span className="text-[11px] text-gray-500">Lecture directe intégrée</span>
+                </div>
+                <div className="rounded-2xl overflow-hidden border border-white/10 bg-black/60 shadow-inner">
+                  <iframe
+                    src={selectedEventForPv.pv_file_url}
+                    className="w-full h-[520px] border-0"
+                    title="Aperçu du PV"
+                  />
+                </div>
+              </div>
+            ) : null}
 
             {/* Key Decisions Block if present */}
             {selectedEventForPv.pv_decisions && (
@@ -828,22 +944,35 @@ export default function CalendrierPage() {
               </div>
             )}
 
+            {/* Fallback text if no file or additional notes */}
+            {selectedEventForPv.pv_content && !selectedEventForPv.pv_content.startsWith("Fichier officiel joint") && !selectedEventForPv.pv_content.startsWith("[FICHIER_PV:") ? (
+              <div className="space-y-2">
+                <h4 className="text-xs font-bold uppercase tracking-wider text-purple-400">Notes & Délibérations</h4>
+                <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 text-gray-200 text-xs leading-relaxed whitespace-pre-line">
+                  {selectedEventForPv.pv_content}
+                </div>
+              </div>
+            ) : null}
+
             {/* Footer Actions */}
             <div className="flex flex-wrap items-center justify-between gap-3 pt-4 border-t border-white/10">
               <div className="flex items-center gap-2">
-                <button
-                  onClick={() => handleCopyPv(`${selectedEventForPv.title}\nDate: ${selectedEventForPv.event_date}\nRédacteur: ${selectedEventForPv.pv_author_name}\n\n${selectedEventForPv.pv_content}\n\nDécisions:\n${selectedEventForPv.pv_decisions || "N/A"}`)}
-                  className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-gray-300 hover:text-white transition-colors flex items-center gap-1.5"
-                >
-                  {copySuccess ? <Check size={14} className="text-emerald-400" /> : <Copy size={14} />}
-                  <span>{copySuccess ? "Copié !" : "Copier"}</span>
-                </button>
+                {selectedEventForPv.pv_file_url && (
+                  <a
+                    href={selectedEventForPv.pv_file_url}
+                    download
+                    className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-gray-300 hover:text-white transition-colors flex items-center gap-1.5"
+                  >
+                    <Download size={14} />
+                    <span>Télécharger</span>
+                  </a>
+                )}
                 <button
                   onClick={() => window.print()}
                   className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 text-xs text-gray-300 hover:text-white transition-colors flex items-center gap-1.5"
                 >
                   <Printer size={14} />
-                  <span>Imprimer / PDF</span>
+                  <span>Imprimer</span>
                 </button>
               </div>
 
@@ -854,7 +983,7 @@ export default function CalendrierPage() {
                     className="px-4 py-2 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 border border-purple-500/40 text-purple-200 text-xs font-bold transition-all flex items-center gap-1.5"
                   >
                     <Edit3 size={14} />
-                    <span>Modifier ce PV</span>
+                    <span>Remplacer ce fichier PV</span>
                   </button>
                 )}
                 <button
@@ -869,15 +998,15 @@ export default function CalendrierPage() {
         </div>
       )}
 
-      {/* PV Editor Modal */}
+      {/* PV Editor Modal (File Attachment) */}
       {editingPvEvent && (
         <div className="fixed inset-0 z-50 flex items-center justify-center p-4 bg-black/80 backdrop-blur-md">
-          <div className="w-full max-w-2xl bg-[#121217] border border-white/15 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
+          <div className="w-full max-w-xl bg-[#121217] border border-white/15 rounded-3xl p-6 sm:p-8 shadow-2xl space-y-5 max-h-[90vh] overflow-y-auto">
             <div className="flex items-start justify-between border-b border-white/10 pb-4">
               <div>
                 <h3 className="text-lg font-black text-white flex items-center gap-2">
-                  <Edit3 size={18} className="text-amber-400" />
-                  <span>Rédiger / Mettre à jour le Procès-Verbal (PV)</span>
+                  <UploadCloud size={20} className="text-amber-400" />
+                  <span>Joindre le Procès-Verbal (PV)</span>
                 </h3>
                 <p className="text-xs text-gray-400 mt-1">
                   Événement : <strong className="text-white">{editingPvEvent.title}</strong> ({editingPvEvent.event_date})
@@ -904,30 +1033,105 @@ export default function CalendrierPage() {
                 />
               </div>
 
+              {/* File Upload Zone */}
               <div>
-                <label className="block text-xs text-gray-400 mb-1.5 font-medium">
-                  Compte-rendu détaillé des débats & Déroulement de la réunion
+                <label className="block text-xs text-gray-300 font-semibold mb-1.5">
+                  Fichier du Procès-Verbal (PDF, Word, etc.)
                 </label>
-                <textarea
-                  rows={8}
-                  required
-                  value={pvContent}
-                  onChange={(e) => setPvContent(e.target.value)}
-                  placeholder="1. OUVERTURE DE LA SÉANCE & ORDRE DU JOUR...&#10;2. INTERVENTIONS DES PÔLES & ÉCHANGES...&#10;3. QUESTIONS DIVERSES..."
-                  className="w-full p-3.5 bg-white/[0.04] border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-purple-500 leading-relaxed resize-y font-sans"
-                />
+
+                {pvFile ? (
+                  <div className="p-4 rounded-2xl bg-purple-500/10 border border-purple-500/30 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      <FileCheck size={26} className="text-emerald-400 shrink-0" />
+                      <div className="truncate">
+                        <div className="text-xs font-bold text-white truncate">{pvFile.name}</div>
+                        <div className="text-[10px] text-gray-400">
+                          {(pvFile.size / 1024).toFixed(1)} Ko • Prêt pour téléversement
+                        </div>
+                      </div>
+                    </div>
+                    <button
+                      type="button"
+                      onClick={() => setPvFile(null)}
+                      className="text-xs text-gray-400 hover:text-red-400 px-2 py-1 rounded-lg bg-white/5 shrink-0"
+                    >
+                      Changer
+                    </button>
+                  </div>
+                ) : pvFileUrl ? (
+                  <div className="p-4 rounded-2xl bg-emerald-500/10 border border-emerald-500/30 flex items-center justify-between gap-3">
+                    <div className="flex items-center gap-3 overflow-hidden">
+                      <FileText size={26} className="text-emerald-400 shrink-0" />
+                      <div className="truncate">
+                        <div className="text-xs font-bold text-white truncate">
+                          {pvFileName || "Document PV actuel"}
+                        </div>
+                        <div className="text-[10px] text-emerald-300">
+                          Fichier actuellement enregistré dans la base
+                        </div>
+                      </div>
+                    </div>
+                    <label className="text-xs text-purple-300 hover:text-white px-3 py-1.5 rounded-lg bg-white/10 hover:bg-white/15 cursor-pointer shrink-0 transition-colors">
+                      Remplacer
+                      <input
+                        type="file"
+                        accept=".pdf,.doc,.docx,.odt,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                        onChange={(e) => {
+                          if (e.target.files?.[0]) setPvFile(e.target.files[0]);
+                        }}
+                        className="hidden"
+                      />
+                    </label>
+                  </div>
+                ) : (
+                  <label
+                    onDragOver={(e) => { e.preventDefault(); setIsDragging(true); }}
+                    onDragLeave={() => setIsDragging(false)}
+                    onDrop={(e) => {
+                      e.preventDefault();
+                      setIsDragging(false);
+                      if (e.dataTransfer.files?.[0]) setPvFile(e.dataTransfer.files[0]);
+                    }}
+                    className={`border-2 border-dashed rounded-2xl p-6 flex flex-col items-center justify-center cursor-pointer transition-all ${
+                      isDragging
+                        ? "border-purple-500 bg-purple-500/10"
+                        : "border-white/15 hover:border-purple-500/40 bg-white/[0.02] hover:bg-purple-500/[0.02]"
+                    }`}
+                  >
+                    <UploadCloud size={32} className="text-purple-400 mb-2" />
+                    <span className="text-xs font-bold text-white text-center">
+                      Cliquez pour choisir le fichier du PV ou glissez-le ici
+                    </span>
+                    <span className="text-[11px] text-gray-400 mt-1 text-center">
+                      Tous formats acceptés : PDF, Word (.docx, .doc), OpenDoc (.odt), etc.
+                    </span>
+                    <input
+                      type="file"
+                      accept=".pdf,.doc,.docx,.odt,.txt,application/pdf,application/msword,application/vnd.openxmlformats-officedocument.wordprocessingml.document"
+                      onChange={(e) => {
+                        if (e.target.files?.[0]) setPvFile(e.target.files[0]);
+                      }}
+                      className="hidden"
+                    />
+                  </label>
+                )}
               </div>
 
               <div>
-                <label className="block text-xs text-gray-400 mb-1.5 font-medium">
-                  Décisions & Résolutions adoptées (Votes, prochaines étapes, actions retenues)
-                </label>
+                <div className="flex items-center justify-between mb-1.5">
+                  <label className="block text-xs text-gray-300 font-semibold">
+                    Décisions clés & Synthèse (Optionnel)
+                  </label>
+                  <span className="text-[10px] text-purple-400 font-medium">
+                    Touche Entrée pour aller à la ligne
+                  </span>
+                </div>
                 <textarea
-                  rows={4}
+                  rows={3}
                   value={pvDecisions}
                   onChange={(e) => setPvDecisions(e.target.value)}
-                  placeholder="Ex :&#10;1. Approbation du budget à l'unanimité.&#10;2. Validation de la date du Hackathon au 15 novembre.&#10;3. Responsables de pôles chargés des dossiers partenaires."
-                  className="w-full p-3.5 bg-white/[0.04] border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-purple-500 leading-relaxed resize-y"
+                  placeholder={"1. Approbation du bilan moral\n2. Budget alloué au Startup Weekend\n3. Prochaine réunion fixée au mardi"}
+                  className="w-full p-3 bg-white/[0.04] border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-purple-500 leading-relaxed resize-y font-sans"
                 />
               </div>
 
@@ -941,11 +1145,17 @@ export default function CalendrierPage() {
                 </button>
                 <button
                   type="submit"
-                  disabled={isSavingPv}
+                  disabled={isSavingPv || isUploadingPvFile}
                   className="px-6 py-2.5 bg-gradient-to-r from-amber-500 to-purple-600 hover:from-amber-400 hover:to-purple-500 text-white text-xs rounded-xl font-bold shadow-lg shadow-purple-600/20 disabled:opacity-50 transition-all flex items-center gap-2"
                 >
                   <CheckCircle2 size={16} />
-                  <span>{isSavingPv ? "Enregistrement..." : "Enregistrer & Publier le PV"}</span>
+                  <span>
+                    {isUploadingPvFile
+                      ? "Téléversement du fichier..."
+                      : isSavingPv
+                      ? "Publication..."
+                      : "Valider & Publier le PV"}
+                  </span>
                 </button>
               </div>
             </form>

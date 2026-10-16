@@ -47,30 +47,54 @@ export async function POST(
     }
 
     const body = await req.json();
-    const { pv_content, pv_author_name, pv_decisions } = body;
+    const { pv_file_url, pv_file_name, pv_author_name, pv_content, pv_decisions } = body;
 
-    if (!pv_content || pv_content.trim() === "") {
-      return NextResponse.json({ error: "Le contenu du PV ne peut pas être vide." }, { status: 400 });
+    if (!pv_file_url && (!pv_content || pv_content.trim() === "")) {
+      return NextResponse.json({ error: "Veuillez joindre le document officiel du PV (PDF, Word, etc.)." }, { status: 400 });
     }
 
     const now = new Date().toISOString();
     const authorName = pv_author_name?.trim() || profile?.full_name || "Secrétariat Général";
 
+    const updatePayload: any = {
+      pv_file_url: pv_file_url || null,
+      pv_file_name: pv_file_name || null,
+      pv_content: pv_content ? pv_content.trim() : (pv_file_name ? `Fichier officiel joint : ${pv_file_name}` : null),
+      pv_author_name: authorName,
+      pv_decisions: pv_decisions?.trim() || null,
+      pv_updated_at: now,
+    };
+
     // Attempt Supabase update
-    const { data: updatedEvent, error: dbError } = await supabaseAdmin
+    let { data: updatedEvent, error: dbError } = await supabaseAdmin
       .from("club_events")
-      .update({
-        pv_content: pv_content.trim(),
-        pv_author_name: authorName,
-        pv_decisions: pv_decisions?.trim() || null,
-        pv_updated_at: now,
-      })
+      .update(updatePayload)
       .eq("id", id)
       .select()
       .single();
 
+    // If error because pv_file_url column doesn't exist yet, retry with legacy columns
+    if (dbError && (dbError.message?.includes("pv_file_url") || dbError.message?.includes("column"))) {
+      const fallbackPayload = {
+        pv_content: pv_file_url ? `[FICHIER_PV:${pv_file_name || 'document'}](${pv_file_url})\n\n${pv_content || ''}`.trim() : pv_content?.trim(),
+        pv_author_name: authorName,
+        pv_decisions: pv_decisions?.trim() || null,
+        pv_updated_at: now,
+      };
+      const retry = await supabaseAdmin
+        .from("club_events")
+        .update(fallbackPayload)
+        .eq("id", id)
+        .select()
+        .single();
+      if (!retry.error) {
+        updatedEvent = { ...retry.data, pv_file_url, pv_file_name };
+        dbError = null;
+      }
+    }
+
     if (dbError) {
-      console.warn("Could not update PV in DB directly (columns might need migration):", dbError.message);
+      console.warn("Could not update PV in DB directly:", dbError.message);
     }
 
     // Also update in memory events if present
@@ -79,10 +103,7 @@ export async function POST(
       if (idx !== -1) {
         global.__memoryEvents[idx] = {
           ...global.__memoryEvents[idx],
-          pv_content: pv_content.trim(),
-          pv_author_name: authorName,
-          pv_decisions: pv_decisions?.trim() || null,
-          pv_updated_at: now,
+          ...updatePayload,
         };
       }
     }
@@ -91,10 +112,7 @@ export async function POST(
       success: true,
       event: updatedEvent || {
         id,
-        pv_content: pv_content.trim(),
-        pv_author_name: authorName,
-        pv_decisions: pv_decisions?.trim() || null,
-        pv_updated_at: now,
+        ...updatePayload,
       },
     });
   } catch (err: any) {

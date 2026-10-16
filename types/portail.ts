@@ -56,3 +56,27 @@ export interface ClubDocument {
   description?: string | null;
   updated_at: string;
 }
+
+export interface ClubEventItem {
+  id: string;
+  title: string;
+  description?: string | null;
+  location?: string | null;
+  event_date: string;
+  start_time?: string | null;
+  end_time?: string | null;
+  event_type: "reunion" | "ag" | "workshop" | "deadline" | "teambuilding";
+  created_at: string;
+  userRsvp?: "present" | "absent" | "peut_etre" | null;
+  presentCount?: number;
+  absentCount?: number;
+  maybeCount?: number;
+  rsvps?: any[];
+  pv_file_url?: string | null;
+  pv_file_name?: string | null;
+  pv_content?: string | null;
+  pv_author_name?: string | null;
+  pv_decisions?: string | null;
+  pv_updated_at?: string | null;
+}
+

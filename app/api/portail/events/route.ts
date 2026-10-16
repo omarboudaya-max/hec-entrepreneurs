@@ -28,6 +28,8 @@ if (!global.__memoryEvents) {
       end_time: "17:00",
       event_type: "ag",
       created_at: new Date(Date.now() - 86400000 * 8).toISOString(),
+      pv_file_url: "https://wefuloohzyjgrcecixra.supabase.co/storage/v1/object/public/portail-documents/662f444a-21be-497f-9c14-ed1148495483.pdf",
+      pv_file_name: "PV_Assemblee_Generale_Rentree_2026.pdf",
       pv_content: `L'an deux mille vingt-six et le 2 octobre à quatorze heures, s'est tenue l'Assemblée Générale Ordinaire de rentrée du Club HEC Entrepreneurs au Grand Amphi de l'IHEC Carthage.
 
 1. ORDRE DU JOUR :
@@ -134,8 +136,24 @@ export async function GET(req: NextRequest) {
       const absentCount = evtRsvps.filter((r) => r.status === "absent").length;
       const maybeCount = evtRsvps.filter((r) => r.status === "peut_etre").length;
 
+      let fileUrl = evt.pv_file_url || null;
+      let fileName = evt.pv_file_name || null;
+      let cleanContent = evt.pv_content || null;
+
+      if (!fileUrl && evt.pv_content && evt.pv_content.startsWith("[FICHIER_PV:")) {
+        const match = evt.pv_content.match(/^\[FICHIER_PV:(.*?)\]\((.*?)\)/);
+        if (match) {
+          fileName = match[1];
+          fileUrl = match[2];
+          cleanContent = evt.pv_content.replace(/^\[FICHIER_PV:.*?\]\(.*?\)\s*/, "");
+        }
+      }
+
       return {
         ...evt,
+        pv_file_url: fileUrl,
+        pv_file_name: fileName,
+        pv_content: cleanContent,
         rsvps: evtRsvps,
         userRsvp,
         presentCount,

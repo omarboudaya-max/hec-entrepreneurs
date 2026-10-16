@@ -297,6 +297,8 @@ CREATE TABLE IF NOT EXISTS public.club_events (
   end_time TIME WITHOUT TIME ZONE,
   event_type TEXT NOT NULL DEFAULT 'reunion' CHECK (event_type IN ('reunion', 'ag', 'workshop', 'deadline', 'teambuilding')),
   created_by UUID REFERENCES auth.users(id) ON DELETE SET NULL,
+  pv_file_url TEXT,
+  pv_file_name TEXT,
   pv_content TEXT,
   pv_author_name TEXT,
   pv_decisions TEXT,
@@ -305,6 +307,8 @@ CREATE TABLE IF NOT EXISTS public.club_events (
 );
 
 -- In case table already existed, add columns safely
+ALTER TABLE public.club_events ADD COLUMN IF NOT EXISTS pv_file_url TEXT;
+ALTER TABLE public.club_events ADD COLUMN IF NOT EXISTS pv_file_name TEXT;
 ALTER TABLE public.club_events ADD COLUMN IF NOT EXISTS pv_content TEXT;
 ALTER TABLE public.club_events ADD COLUMN IF NOT EXISTS pv_author_name TEXT;
 ALTER TABLE public.club_events ADD COLUMN IF NOT EXISTS pv_decisions TEXT;
