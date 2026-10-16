@@ -7,7 +7,20 @@ import { usePortailAuth } from "@/contexts/PortailAuthContext";
 import { supabase } from "@/lib/supabase";
 import { ClubProfile } from "@/types/portail";
 
-function RoleBadge({ role }: { role: string }) {
+function RoleBadge({ role, poste }: { role: string; poste?: string }) {
+  const isNouveauMembre =
+    role === "nouveau_membre" ||
+    poste?.toLowerCase() === "nouveau membre" ||
+    poste?.toLowerCase().includes("nouveau membre");
+
+  if (isNouveauMembre) {
+    return (
+      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+        <Sparkles size={11} className="text-emerald-400" /> Nouveau Membre
+      </span>
+    );
+  }
+
   // Display override: Developer is shown as Responsable in the member directory
   const effectiveRole = role === "developpeur" ? "responsable" : role;
   switch (effectiveRole) {
@@ -73,10 +86,17 @@ export default function MembresPage() {
       m.email?.toLowerCase().includes(search.toLowerCase()) ||
       effectivePoste.toLowerCase().includes(search.toLowerCase());
 
-    const matchesRole =
-      roleFilter === "all" ||
-      m.role === roleFilter ||
-      (roleFilter === "responsable" && m.role === "developpeur");
+    const isNouveau = m.role === "nouveau_membre" || m.poste?.toLowerCase()?.includes("nouveau membre");
+    let matchesRole = true;
+    if (roleFilter === "bureau") {
+      matchesRole = m.role === "bureau";
+    } else if (roleFilter === "responsable") {
+      matchesRole = m.role === "responsable" || m.role === "developpeur";
+    } else if (roleFilter === "nouveau_membre") {
+      matchesRole = isNouveau;
+    } else if (roleFilter === "membre") {
+      matchesRole = (m.role === "membre" || !m.role) && !isNouveau;
+    }
 
     return matchesSearch && matchesRole;
   });
@@ -114,6 +134,7 @@ export default function MembresPage() {
             { key: "all", label: "Tous" },
             { key: "bureau", label: "Bureau" },
             { key: "responsable", label: "Responsables" },
+            { key: "nouveau_membre", label: "Nouveaux Membres" },
             { key: "membre", label: "Membres" },
           ].map((item) => (
             <button
@@ -162,7 +183,7 @@ export default function MembresPage() {
                         member.full_name?.charAt(0).toUpperCase() || "M"
                       )}
                     </div>
-                    <RoleBadge role={member.role} />
+                    <RoleBadge role={member.role} poste={member.poste} />
                   </div>
 
                   <h3 className="text-base font-bold text-white">{member.full_name}</h3>

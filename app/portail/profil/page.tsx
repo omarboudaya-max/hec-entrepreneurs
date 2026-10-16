@@ -2,9 +2,10 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { User, Mail, Phone, Briefcase, GraduationCap, Camera, Save, Lock, CheckCircle2, AlertCircle, Sparkles } from "lucide-react";
+import { User, Mail, Phone, Briefcase, GraduationCap, Camera, Save, Lock, CheckCircle2, AlertCircle, Sparkles, KeyRound } from "lucide-react";
 import { usePortailAuth } from "@/contexts/PortailAuthContext";
 import { supabase } from "@/lib/supabase";
+import { normalizeUsername } from "@/lib/auth-helpers";
 
 export default function ProfilPage() {
   const { user, profile, refreshProfile } = usePortailAuth();
@@ -123,10 +124,29 @@ export default function ProfilPage() {
     setPasswordMsg(null);
 
     try {
-      const { error } = await supabase.auth.updateUser({ password: newPassword });
-      if (error) throw error;
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) {
+        throw new Error("Session expirée. Veuillez vous reconnecter.");
+      }
 
-      setPasswordMsg({ type: "success", text: "Votre mot de passe a été mis à jour avec succès !" });
+      const res = await fetch("/api/portail/auth/change-password", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: JSON.stringify({ newPassword }),
+      });
+
+      const data = await res.json();
+      if (!res.ok) {
+        throw new Error(data.error || "Erreur lors du changement de mot de passe.");
+      }
+
+      setPasswordMsg({
+        type: "success",
+        text: `Mot de passe mis à jour avec succès ! Un email de confirmation contenant votre nouveau mot de passe vous a été envoyé à ${user?.email}.`,
+      });
       setNewPassword("");
       setConfirmPassword("");
     } catch (err: any) {
@@ -207,14 +227,18 @@ export default function ProfilPage() {
             <span>Statut Officiel au Club (Attribué par l&apos;Administration)</span>
           </div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-4">
+            <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-1">
+              <div className="text-xs text-gray-400 uppercase tracking-wider font-mono">Nom d&apos;utilisateur (Login)</div>
+              <div className="text-sm font-bold text-purple-400 font-mono">{normalizeUsername(profile?.full_name || "")}</div>
+            </div>
             <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-1">
               <div className="text-xs text-gray-400 uppercase tracking-wider font-mono">Rôle d&apos;Accès</div>
               <div className="text-sm font-bold text-white uppercase tracking-wider">{profile?.role}</div>
             </div>
             <div className="p-4 rounded-2xl bg-white/[0.02] border border-white/5 space-y-1">
-              <div className="text-xs text-gray-400 uppercase tracking-wider font-mono">Poste / Pôle</div>
-              <div className="text-sm font-bold text-purple-300">{profile?.poste || "Non assigné"}</div>
+              <div className="text-xs text-gray-400 uppercase tracking-wider font-mono">Poste / Titre</div>
+              <div className="text-sm font-bold text-purple-300">{profile?.poste || "Membre"}</div>
             </div>
           </div>
           <p className="text-xs text-gray-500 italic">
@@ -304,7 +328,7 @@ export default function ProfilPage() {
           <span>Sécurité & Changement de Mot de Passe</span>
         </div>
         <p className="text-xs text-gray-400">
-          Modifiez votre mot de passe de connexion à l&apos;intranet en toute autonomie.
+          Modifiez votre mot de passe de connexion à l&apos;intranet en toute autonomie. Un email de confirmation contenant votre nouveau mot de passe vous sera immédiatement envoyé après validation.
         </p>
 
         {passwordMsg && (

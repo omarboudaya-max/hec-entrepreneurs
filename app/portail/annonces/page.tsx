@@ -38,7 +38,14 @@ function FormattedContent({ text }: { text: string }) {
   );
 }
 
-function RoleBadgeSmall({ role }: { role?: string }) {
+function RoleBadgeSmall({ role, poste }: { role?: string; poste?: string }) {
+  if (role === "nouveau_membre" || poste?.toLowerCase() === "nouveau membre" || poste?.toLowerCase().includes("nouveau membre")) {
+    return (
+      <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+        Nouveau Membre
+      </span>
+    );
+  }
   if (role === "developpeur") {
     return (
       <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-red-500/20 text-red-400 border border-red-500/30">
@@ -499,7 +506,7 @@ export default function AnnoncesPage() {
                     <div>
                       <div className="flex items-center gap-2">
                         <span className="font-bold text-sm text-white">{post.author?.full_name || "Membre HEC"}</span>
-                        <RoleBadgeSmall role={post.author?.role} />
+                        <RoleBadgeSmall role={post.author?.role} poste={post.author?.poste} />
                       </div>
                       <div className="text-xs text-gray-400">
                         {post.author?.poste || "Bureau"} • {new Date(post.created_at).toLocaleDateString("fr-FR", {

@@ -11,7 +11,20 @@ import {
 import { PortailAuthProvider, usePortailAuth } from "@/contexts/PortailAuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
 
-function RoleBadge({ role }: { role: string }) {
+function RoleBadge({ role, poste }: { role: string; poste?: string }) {
+  const isNouveauMembre =
+    role === "nouveau_membre" ||
+    poste?.toLowerCase() === "nouveau membre" ||
+    poste?.toLowerCase().includes("nouveau membre");
+
+  if (isNouveauMembre) {
+    return (
+      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-400 border border-emerald-500/30 flex items-center gap-1">
+        <Sparkles size={11} className="text-emerald-400" /> Nouveau Membre
+      </span>
+    );
+  }
+
   // Display override: developers are displayed as Responsable to members
   const effectiveRole = role === "developpeur" ? "responsable" : role;
   switch (effectiveRole) {
@@ -182,7 +195,7 @@ function PortailShell({ children }: { children: React.ReactNode }) {
                     ? "Responsable IT & Dev Web"
                     : (profile.poste || "Membre")}
                 </div>
-                <RoleBadge role={profile.role} />
+                <RoleBadge role={profile.role} poste={profile.poste} />
               </div>
             </div>
           </div>
