@@ -57,6 +57,7 @@ export default function CalendrierPage() {
   const [location, setLocation] = useState("IHEC Carthage - Salle Club");
   const [description, setDescription] = useState("");
   const [broadcastEmail, setBroadcastEmail] = useState(true);
+  const [testEmailOnly, setTestEmailOnly] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [statusMsg, setStatusMsg] = useState<{ type: "success" | "error"; text: string } | null>(null);
 
@@ -125,6 +126,7 @@ export default function CalendrierPage() {
           location,
           description,
           broadcastEmail,
+          testEmailOnly,
         }),
       });
 
@@ -133,7 +135,9 @@ export default function CalendrierPage() {
 
       setStatusMsg({
         type: "success",
-        text: broadcastEmail
+        text: testEmailOnly
+          ? `Événement planifié et email de test envoyé uniquement à ${user?.email || "votre adresse"} !`
+          : broadcastEmail
           ? "Événement planifié et convocation envoyée par email à tous les membres !"
           : "Événement planifié avec succès !",
       });
@@ -1403,17 +1407,37 @@ export default function CalendrierPage() {
               </div>
 
               {/* Email Broadcast Checkbox */}
-              <div className="p-3.5 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center gap-3">
-                <input
-                  type="checkbox"
-                  id="broadcastCheck"
-                  checked={broadcastEmail}
-                  onChange={(e) => setBroadcastEmail(e.target.checked)}
-                  className="w-4 h-4 accent-purple-600 rounded cursor-pointer"
-                />
-                <label htmlFor="broadcastCheck" className="text-xs text-purple-200 cursor-pointer select-none">
-                  <strong>Envoyer une convocation par email</strong> à tous les membres du club.
-                </label>
+              <div className="space-y-2">
+                <div className="p-3.5 rounded-2xl bg-purple-500/10 border border-purple-500/20 flex items-center gap-3">
+                  <input
+                    type="checkbox"
+                    id="broadcastCheck"
+                    checked={broadcastEmail}
+                    onChange={(e) => {
+                      setBroadcastEmail(e.target.checked);
+                      if (!e.target.checked) setTestEmailOnly(false);
+                    }}
+                    className="w-4 h-4 accent-purple-600 rounded cursor-pointer"
+                  />
+                  <label htmlFor="broadcastCheck" className="text-xs text-purple-200 cursor-pointer select-none flex-1">
+                    <strong>Envoyer une convocation par email</strong>
+                  </label>
+                </div>
+
+                {broadcastEmail && (
+                  <div className="p-3 rounded-xl bg-amber-500/10 border border-amber-500/25 flex items-center gap-3 ml-2">
+                    <input
+                      type="checkbox"
+                      id="testEmailCheck"
+                      checked={testEmailOnly}
+                      onChange={(e) => setTestEmailOnly(e.target.checked)}
+                      className="w-4 h-4 accent-amber-500 rounded cursor-pointer"
+                    />
+                    <label htmlFor="testEmailCheck" className="text-xs text-amber-200 cursor-pointer select-none">
+                      <strong>Mode Test :</strong> Envoyer <span className="underline">uniquement à mon adresse</span> ({user?.email || "mon email"}) sans notifier les autres membres.
+                    </label>
+                  </div>
+                )}
               </div>
 
               <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/10">

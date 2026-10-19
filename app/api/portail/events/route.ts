@@ -216,6 +216,7 @@ export async function POST(req: NextRequest) {
       end_time,
       event_type = "reunion",
       broadcastEmail = false,
+      testEmailOnly = false,
     } = body;
 
     if (!title || !event_date) {
@@ -262,8 +263,8 @@ export async function POST(req: NextRequest) {
       createdEvent = data;
     }
 
-    // If email broadcast is requested, notify all members!
-    if (broadcastEmail) {
+    // If email broadcast or test email is requested
+    if (broadcastEmail || testEmailOnly) {
       const typeLabels: Record<string, string> = {
         reunion: "Convocation Réunion",
         ag: "Assemblée Générale",
@@ -286,17 +287,26 @@ ${description ? `Détails & Ordre du jour :\n${description}\n` : ''}
 Merci de vous connecter sur l'Intranet pour confirmer votre présence dès maintenant.
       `.trim();
 
+      const recipientList = testEmailOnly
+        ? [user.email || "omarboudaya1@gmail.com"]
+        : undefined;
+
       await broadcastToClubMembers({
-        subject: `[${typeLabels[event_type] || "Agenda"}] ${title}`,
-        badge: typeLabels[event_type] || "Agenda Interne",
+        subject: `${testEmailOnly ? "[TEST] " : ""}[${typeLabels[event_type] || "Agenda"}] ${title}`,
+        badge: testEmailOnly ? `[TEST] ${typeLabels[event_type] || "Agenda Interne"}` : (typeLabels[event_type] || "Agenda Interne"),
         title: title,
         message: emailText,
         actionText: "Confirmer ma présence sur l'Intranet",
         actionUrl: "https://hec-entrepreneurs.org/portail/calendrier",
+        recipients: recipientList,
       });
     }
 
-    return NextResponse.json({ event: createdEvent, emailSent: broadcastEmail });
+    return NextResponse.json({
+      event: createdEvent,
+      emailSent: broadcastEmail || testEmailOnly,
+      testEmailOnly,
+    });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
