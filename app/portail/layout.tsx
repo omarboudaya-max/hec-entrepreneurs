@@ -136,8 +136,12 @@ function PortailShell({ children }: { children: React.ReactNode }) {
       {/* Mobile Top Bar */}
       <div className="md:hidden flex items-center justify-between p-4 bg-white/95 dark:bg-[#121217] border-b border-slate-200 dark:border-white/5 sticky top-0 z-50 shadow-sm">
         <Link href="/portail/annonces" className="flex items-center gap-3">
-          <div className="w-8 h-8 rounded-lg bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white font-bold text-sm shadow-md">
-            HEC
+          <div className="w-9 h-9 rounded-xl bg-slate-950 dark:bg-white/[0.06] border border-slate-800/40 dark:border-white/10 flex items-center justify-center p-1.5 shadow-sm shrink-0">
+            <img
+              src="/logo-club.png"
+              alt="Logo HEC Entrepreneurs"
+              className="w-full h-full object-contain"
+            />
           </div>
           <div>
             <div className="font-bold text-sm text-slate-900 dark:text-white tracking-wide">PORTAIL INTERNE</div>
@@ -164,8 +168,12 @@ function PortailShell({ children }: { children: React.ReactNode }) {
         {/* Brand */}
         <div className="p-6 border-b border-slate-200 dark:border-white/5 flex items-center justify-between">
           <Link href="/portail/annonces" className="flex items-center gap-3 group">
-            <div className="w-10 h-10 rounded-xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-pink-500 flex items-center justify-center text-white font-black text-base shadow-lg shadow-purple-500/20 group-hover:scale-105 transition-transform">
-              HEC
+            <div className="w-11 h-11 rounded-xl bg-slate-950 dark:bg-white/[0.06] border border-slate-800/40 dark:border-white/10 flex items-center justify-center p-2 shadow-lg shadow-purple-500/10 group-hover:scale-105 transition-transform shrink-0">
+              <img
+                src="/logo-club.png"
+                alt="Logo HEC Entrepreneurs"
+                className="w-full h-full object-contain"
+              />
             </div>
             <div>
               <div className="font-extrabold text-sm text-slate-900 dark:text-white tracking-wider">ESPACE INTERNE</div>

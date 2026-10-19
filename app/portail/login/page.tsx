@@ -122,8 +122,12 @@ export default function PortailLoginPage() {
       >
         {/* Header */}
         <div className="text-center mb-8">
-          <div className="w-16 h-16 rounded-2xl bg-gradient-to-tr from-purple-600 via-indigo-600 to-pink-500 mx-auto flex items-center justify-center text-white font-black text-2xl shadow-xl shadow-purple-500/20 mb-4">
-            HEC
+          <div className="w-20 h-20 rounded-2xl bg-slate-950 border border-white/10 mx-auto flex items-center justify-center p-3 shadow-xl shadow-purple-500/15 mb-4">
+            <img
+              src="/logo-club.png"
+              alt="Logo HEC Entrepreneurs"
+              className="w-full h-full object-contain"
+            />
           </div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight">
             Espace Intranet
