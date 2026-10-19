@@ -3,12 +3,13 @@
 import React, { useState, useEffect } from "react";
 import {
   ShieldCheck, UserPlus, Trash2, Key, Edit2, CheckCircle2,
-  AlertCircle, Lock, RefreshCw, Sparkles, User
+  AlertCircle, Lock, RefreshCw, Sparkles, User, Camera, Loader2
 } from "lucide-react";
 import { usePortailAuth } from "@/contexts/PortailAuthContext";
 import { supabase } from "@/lib/supabase";
 import { ClubProfile, ClubRole } from "@/types/portail";
 import { sortClubProfiles } from "@/lib/member-sorting";
+import { compressImage } from "@/lib/image-compression";
 
 export default function GestionMembresPage() {
   const { isDeveloper, isBureau } = usePortailAuth();
@@ -31,6 +32,8 @@ export default function GestionMembresPage() {
   const [editPoste, setEditPoste] = useState("");
   const [editBio, setEditBio] = useState("");
   const [editCareer, setEditCareer] = useState("");
+  const [editAvatarUrl, setEditAvatarUrl] = useState("");
+  const [isUploadingEditAvatar, setIsUploadingEditAvatar] = useState(false);
   const [newPassword, setNewPassword] = useState("");
   const [isUpdating, setIsUpdating] = useState(false);
 
@@ -66,12 +69,52 @@ export default function GestionMembresPage() {
     setEditPoste(member.poste || "");
     setEditBio(member.bio || "");
     setEditCareer(member.career || "");
+    setEditAvatarUrl(member.avatar_url || "");
     setNewPassword("");
   };
 
   const closeEditModal = () => {
     setEditingMember(null);
+    setEditAvatarUrl("");
     setNewPassword("");
+  };
+
+  const handleUploadEditAvatar = async (e: React.ChangeEvent<HTMLInputElement>) => {
+    const file = e.target.files?.[0];
+    if (!file) return;
+
+    setIsUploadingEditAvatar(true);
+    try {
+      const { data: { session } } = await supabase.auth.getSession();
+      if (!session) throw new Error("Non authentifié");
+
+      const compressedFile = await compressImage(file);
+      const formData = new FormData();
+      formData.append("file", compressedFile);
+      formData.append("bucket", "portail-media");
+
+      const res = await fetch("/api/portail/upload", {
+        method: "POST",
+        headers: {
+          Authorization: `Bearer ${session.access_token}`,
+        },
+        body: formData,
+      });
+
+      const data = await res.json();
+      if (!res.ok || data.error) {
+        throw new Error(data.error || "Erreur upload photo");
+      }
+
+      if (data.url) {
+        setEditAvatarUrl(data.url);
+      }
+    } catch (err: any) {
+      alert("Erreur upload photo: " + (err.message || "Erreur inconnue"));
+    } finally {
+      setIsUploadingEditAvatar(false);
+      e.target.value = "";
+    }
   };
 
   const handleCreateMember = async (e: React.FormEvent) => {
@@ -135,6 +178,7 @@ export default function GestionMembresPage() {
         poste: editPoste.trim(),
         bio: editBio.trim(),
         career: editCareer.trim(),
+        avatar_url: editAvatarUrl.trim() || null,
       };
       if (newPassword.trim()) {
         payload.password = newPassword.trim();
@@ -402,6 +446,47 @@ export default function GestionMembresPage() {
             </div>
 
             <form onSubmit={handleUpdateMember} className="space-y-4">
+              {/* Photo de Profil */}
+              <div className="flex items-center gap-4 p-3.5 bg-white/[0.02] border border-white/5 rounded-2xl">
+                <div className="w-14 h-14 rounded-full bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-lg font-bold text-purple-300 overflow-hidden relative shrink-0">
+                  {editAvatarUrl ? (
+                    <img src={editAvatarUrl} alt="" className="w-full h-full object-cover" />
+                  ) : (
+                    editFullName.charAt(0).toUpperCase() || "M"
+                  )}
+                  {isUploadingEditAvatar && (
+                    <div className="absolute inset-0 bg-black/75 flex items-center justify-center z-10">
+                      <Loader2 size={18} className="animate-spin text-purple-400" />
+                    </div>
+                  )}
+                </div>
+                <div className="flex-1 min-w-0">
+                  <div className="text-xs font-semibold text-white mb-1">Photo de Profil</div>
+                  <div className="flex items-center gap-2">
+                    <label className="px-3 py-1.5 rounded-lg bg-purple-600/20 hover:bg-purple-600/30 text-purple-300 border border-purple-500/30 text-[11px] font-semibold cursor-pointer flex items-center gap-1.5 transition-colors">
+                      <Camera size={13} />
+                      <span>{isUploadingEditAvatar ? "Téléversement..." : "Changer la photo"}</span>
+                      <input
+                        type="file"
+                        accept="image/*"
+                        onChange={handleUploadEditAvatar}
+                        disabled={isUploadingEditAvatar}
+                        className="hidden"
+                      />
+                    </label>
+                    {editAvatarUrl && (
+                      <button
+                        type="button"
+                        onClick={() => setEditAvatarUrl("")}
+                        className="text-[11px] text-red-400 hover:text-red-300 underline"
+                      >
+                        Supprimer la photo
+                      </button>
+                    )}
+                  </div>
+                </div>
+              </div>
+
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-xs text-gray-400 mb-1.5 font-medium">Nom Complet</label>

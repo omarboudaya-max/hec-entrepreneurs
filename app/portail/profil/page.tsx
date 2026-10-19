@@ -2,10 +2,11 @@
 
 import React, { useState, useEffect } from "react";
 import Image from "next/image";
-import { User, Mail, Phone, Briefcase, GraduationCap, Camera, Save, Lock, CheckCircle2, AlertCircle, Sparkles, KeyRound } from "lucide-react";
+import { User, Mail, Phone, Briefcase, GraduationCap, Camera, Save, Lock, CheckCircle2, AlertCircle, Sparkles, KeyRound, Loader2 } from "lucide-react";
 import { usePortailAuth } from "@/contexts/PortailAuthContext";
 import { supabase } from "@/lib/supabase";
 import { normalizeUsername } from "@/lib/auth-helpers";
+import { compressImage } from "@/lib/image-compression";
 
 export default function ProfilPage() {
   const { user, profile, refreshProfile } = usePortailAuth();
@@ -45,10 +46,15 @@ export default function ProfilPage() {
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      if (!session) {
+        throw new Error("Session expirée. Veuillez vous reconnecter.");
+      }
+
+      // Automatically compress client-side to ensure phone photos (< 250KB) never fail
+      const compressedFile = await compressImage(file);
 
       const formData = new FormData();
-      formData.append("file", file);
+      formData.append("file", compressedFile);
       formData.append("bucket", "portail-media");
 
       const res = await fetch("/api/portail/upload", {
@@ -60,21 +66,31 @@ export default function ProfilPage() {
       });
 
       const data = await res.json();
+      if (!res.ok || data.error) {
+        throw new Error(data.error || "Échec du téléversement de la photo.");
+      }
+
       if (data.url) {
         setAvatarUrl(data.url);
         // Direct update in profile
-        await supabase
+        const { error: updateError } = await supabase
           .from("club_profiles")
           .update({ avatar_url: data.url })
           .eq("id", user?.id);
 
+        if (updateError) {
+          throw updateError;
+        }
+
         await refreshProfile();
-        setMessage({ type: "success", text: "Photo de profil mise à jour !" });
+        setMessage({ type: "success", text: "Photo de profil mise à jour et enregistrée avec succès !" });
       }
     } catch (err: any) {
       setMessage({ type: "error", text: err.message || "Erreur lors du téléversement." });
     } finally {
       setIsUploadingAvatar(false);
+      // Reset input value so re-selecting same file triggers change
+      e.target.value = "";
     }
   };
 
@@ -199,10 +215,32 @@ export default function ProfilPage() {
               ) : (
                 fullName.charAt(0).toUpperCase() || "M"
               )}
+
+              {/* Uploading loading overlay */}
+              {isUploadingAvatar && (
+                <div className="absolute inset-0 bg-black/75 flex flex-col items-center justify-center text-white z-10">
+                  <Loader2 size={24} className="animate-spin text-purple-400" />
+                  <span className="text-[10px] font-semibold mt-1">Envoi...</span>
+                </div>
+              )}
             </div>
-            <label className="absolute inset-0 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 flex flex-col items-center justify-center text-white cursor-pointer transition-opacity text-xs font-medium">
+
+            {/* Desktop hover overlay */}
+            <label className="absolute inset-0 rounded-full bg-black/60 opacity-0 group-hover:opacity-100 hidden sm:flex flex-col items-center justify-center text-white cursor-pointer transition-opacity text-xs font-medium">
               <Camera size={20} className="mb-1 text-purple-400" />
               <span>Changer</span>
+              <input
+                type="file"
+                accept="image/*"
+                onChange={handleAvatarUpload}
+                disabled={isUploadingAvatar}
+                className="hidden"
+              />
+            </label>
+
+            {/* Mobile permanent touch badge */}
+            <label className="sm:hidden absolute -bottom-1 -right-1 w-8 h-8 rounded-full bg-purple-600 text-white flex items-center justify-center shadow-lg border-2 border-[#121217] cursor-pointer active:scale-95 transition-transform">
+              <Camera size={14} />
               <input
                 type="file"
                 accept="image/*"
