@@ -53,8 +53,8 @@ export default function Navbar() {
             <div className="absolute top-4 left-4 sm:top-6 sm:left-8 items-center flex pointer-events-none z-10">
                 <img src="/logo-ihec.png" alt="IHEC Carthage" className="h-12 sm:h-24 md:h-32 w-auto opacity-100 transition-opacity pointer-events-auto drop-shadow-sm" />
             </div>
-            <div className="absolute top-4 right-4 sm:top-6 sm:right-8 items-center flex cursor-pointer pointer-events-none z-10">
-                <Link href="/admin/login" className="pointer-events-auto">
+            <div className="absolute top-4 right-4 sm:top-6 sm:right-8 items-center flex pointer-events-none z-10">
+                <Link href="/" className="pointer-events-auto">
                     <img src="/logo-club.png" alt="HEC Entrepreneurs" className="h-12 sm:h-24 md:h-32 w-auto opacity-100 transition-opacity drop-shadow-sm" />
                 </Link>
             </div>
