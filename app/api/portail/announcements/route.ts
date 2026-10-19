@@ -158,7 +158,7 @@ export async function POST(req: NextRequest) {
         title: "Nouvelle communication du Club",
         message: content.trim(),
         actionText: "Voir l'annonce sur l'Intranet",
-        actionUrl: "https://hec-entrepreneurs.org/portail/annonces",
+        actionUrl: "https://hec-entrepreneurs.vercel.app/portail/annonces",
       });
     }
 

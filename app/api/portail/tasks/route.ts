@@ -186,7 +186,7 @@ export async function POST(req: NextRequest) {
           title: `Mission : ${title}`,
           message: `Bonjour ${assignedUser.full_name},\n\nUne nouvelle tâche vous a été assignée dans le cadre des activités du Pôle ${pole} :\n\n• Titre : ${title}\n• Priorité : ${priority.toUpperCase()}\n${due_date ? `• Date limite : ${due_date}\n` : ''}${description ? `• Description :\n${description}\n` : ''}\nConnectez-vous sur l'Intranet pour consulter vos tâches et mettre à jour leur progression.`,
           actionText: "Voir mes tâches",
-          actionUrl: "https://hec-entrepreneurs.org/portail/taches",
+          actionUrl: "https://hec-entrepreneurs.vercel.app/portail/taches",
           recipients: [assignedUser.email],
         });
       }

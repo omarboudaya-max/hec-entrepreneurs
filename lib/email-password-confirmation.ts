@@ -225,7 +225,7 @@ export async function sendPasswordChangeConfirmationEmail({
           </div>
 
           <div class="btn-container">
-            <a href="https://hec-entrepreneurs.org/portail/login" class="btn" target="_blank">
+            <a href="https://hec-entrepreneurs.vercel.app/portail/login" class="btn" target="_blank">
               Se Connecter au Portail
             </a>
           </div>

@@ -25,7 +25,7 @@ export async function broadcastToClubMembers({
   title,
   message,
   actionText = "Accéder à l'Intranet",
-  actionUrl = "https://hec-entrepreneurs.org/portail",
+  actionUrl = "https://hec-entrepreneurs.vercel.app/portail",
   recipients,
 }: BroadcastOptions) {
   try {

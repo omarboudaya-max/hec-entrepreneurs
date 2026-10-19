@@ -297,7 +297,7 @@ Merci de vous connecter sur l'Intranet pour confirmer votre présence dès maint
         title: title,
         message: emailText,
         actionText: "Confirmer ma présence sur l'Intranet",
-        actionUrl: "https://hec-entrepreneurs.org/portail/calendrier",
+        actionUrl: "https://hec-entrepreneurs.vercel.app/portail/calendrier",
         recipients: recipientList,
       });
     }
