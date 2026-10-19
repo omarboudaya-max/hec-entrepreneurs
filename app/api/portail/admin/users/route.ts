@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { supabaseAdmin } from "@/lib/supabase-admin";
+import { sortClubProfiles } from "@/lib/member-sorting";
 
 // Verify that requester is developer or bureau (RH / Bureau Exécutif)
 async function verifyAdminOrBureau(req: NextRequest) {
@@ -40,13 +41,15 @@ export async function GET(req: NextRequest) {
     const { data: profiles, error } = await supabaseAdmin
       .from("club_profiles")
       .select("*")
-      .order("created_at", { ascending: false });
+      .order("created_at", { ascending: true });
 
     if (error) {
       return NextResponse.json({ error: error.message }, { status: 400 });
     }
 
-    return NextResponse.json({ profiles, isDev: isAuthorized });
+    const sortedProfiles = sortClubProfiles(profiles || []);
+
+    return NextResponse.json({ profiles: sortedProfiles, isDev: isAuthorized });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }

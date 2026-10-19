@@ -6,6 +6,7 @@ import { Search, Mail, Phone, GraduationCap, ShieldCheck, Sparkles, Filter, User
 import { usePortailAuth } from "@/contexts/PortailAuthContext";
 import { supabase } from "@/lib/supabase";
 import { ClubProfile } from "@/types/portail";
+import { sortClubProfiles } from "@/lib/member-sorting";
 
 function RoleBadge({ role, poste }: { role: string; poste?: string }) {
   const isNouveauMembre =
@@ -77,29 +78,31 @@ export default function MembresPage() {
     fetchMembers();
   }, []);
 
-  const filteredMembers = members.filter((m) => {
-    const isOmar = m.email?.toLowerCase().includes("omarboudaya") || m.role === "developpeur";
-    const effectivePoste = isOmar ? "Responsable IT & Développement Web" : (m.poste || "");
+  const filteredMembers = sortClubProfiles(
+    members.filter((m) => {
+      const isOmar = m.email?.toLowerCase().includes("omarboudaya") || m.role === "developpeur";
+      const effectivePoste = isOmar ? "Responsable IT & Développement Web" : (m.poste || "");
 
-    const matchesSearch =
-      m.full_name?.toLowerCase().includes(search.toLowerCase()) ||
-      m.email?.toLowerCase().includes(search.toLowerCase()) ||
-      effectivePoste.toLowerCase().includes(search.toLowerCase());
+      const matchesSearch =
+        m.full_name?.toLowerCase().includes(search.toLowerCase()) ||
+        m.email?.toLowerCase().includes(search.toLowerCase()) ||
+        effectivePoste.toLowerCase().includes(search.toLowerCase());
 
-    const isNouveau = m.role === "nouveau_membre" || m.poste?.toLowerCase()?.includes("nouveau membre");
-    let matchesRole = true;
-    if (roleFilter === "bureau") {
-      matchesRole = m.role === "bureau";
-    } else if (roleFilter === "responsable") {
-      matchesRole = m.role === "responsable" || m.role === "developpeur";
-    } else if (roleFilter === "nouveau_membre") {
-      matchesRole = isNouveau;
-    } else if (roleFilter === "membre") {
-      matchesRole = (m.role === "membre" || !m.role) && !isNouveau;
-    }
+      const isNouveau = m.role === "nouveau_membre" || m.poste?.toLowerCase()?.includes("nouveau membre");
+      let matchesRole = true;
+      if (roleFilter === "bureau") {
+        matchesRole = m.role === "bureau";
+      } else if (roleFilter === "responsable") {
+        matchesRole = m.role === "responsable" || m.role === "developpeur";
+      } else if (roleFilter === "nouveau_membre") {
+        matchesRole = isNouveau;
+      } else if (roleFilter === "membre") {
+        matchesRole = (m.role === "membre" || !m.role) && !isNouveau;
+      }
 
-    return matchesSearch && matchesRole;
-  });
+      return matchesSearch && matchesRole;
+    })
+  );
 
   return (
     <div className="max-w-6xl mx-auto px-4 py-8">

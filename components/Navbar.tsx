@@ -124,9 +124,9 @@ export default function Navbar() {
                     
                     <Link
                         href="/portail"
-                        className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-semibold tracking-wider uppercase bg-purple-100 hover:bg-purple-200 dark:bg-gradient-to-r dark:from-purple-600/25 dark:to-indigo-600/25 dark:hover:from-purple-600/45 dark:hover:to-indigo-600/45 border border-purple-300 dark:border-purple-500/40 text-purple-800 hover:text-purple-900 dark:text-purple-200 dark:hover:text-white transition-all shadow-sm dark:shadow-lg dark:shadow-purple-900/20 backdrop-blur-md"
+                        className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold tracking-wider uppercase bg-purple-600 hover:bg-purple-700 text-white dark:bg-gradient-to-r dark:from-purple-600 dark:to-indigo-600 dark:hover:from-purple-500 dark:hover:to-indigo-500 dark:text-white border border-purple-500/50 dark:border-purple-400/50 shadow-md shadow-purple-600/30 dark:shadow-purple-900/40 transition-all backdrop-blur-md"
                     >
-                        <Shield className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                        <Shield className="w-3.5 h-3.5 text-white" />
                         <span>Espace Membre</span>
                     </Link>
 
@@ -165,9 +165,9 @@ export default function Navbar() {
                             <Link
                                 href="/portail"
                                 onClick={() => setIsOpen(false)}
-                                className="px-6 py-3 rounded-2xl text-xs font-bold uppercase tracking-[0.1em] transition-all text-center bg-purple-100 dark:bg-gradient-to-r dark:from-purple-600/30 dark:to-indigo-600/30 text-purple-900 dark:text-purple-200 border border-purple-300 dark:border-purple-500/40 flex items-center justify-center gap-2 mb-1"
+                                className="px-6 py-3 rounded-2xl text-xs font-bold uppercase tracking-[0.1em] transition-all text-center bg-purple-600 hover:bg-purple-700 text-white dark:bg-gradient-to-r dark:from-purple-600 dark:to-indigo-600 dark:hover:from-purple-500 dark:hover:to-indigo-500 dark:text-white border border-purple-500/50 dark:border-purple-400/50 shadow-md shadow-purple-600/30 flex items-center justify-center gap-2 mb-1"
                             >
-                                <Shield className="w-3.5 h-3.5 text-purple-600 dark:text-purple-400" />
+                                <Shield className="w-3.5 h-3.5 text-white" />
                                 <span>Espace Membre</span>
                             </Link>
                             {isStore && (

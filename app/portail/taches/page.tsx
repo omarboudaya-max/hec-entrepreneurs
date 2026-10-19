@@ -1,6 +1,6 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   CheckSquare, Plus, Filter, User, Calendar, Clock,
   ArrowRight, ArrowLeft, Trash2, CheckCircle2, AlertCircle,
@@ -9,6 +9,7 @@ import {
 import { usePortailAuth } from "@/contexts/PortailAuthContext";
 import { supabase } from "@/lib/supabase";
 import { ClubProfile } from "@/types/portail";
+import { getAllowedPolesForUser, isTaskVisibleToUser, POLE_OPTIONS } from "@/lib/pole-permissions";
 
 interface TaskItem {
   id: string;
@@ -23,30 +24,36 @@ interface TaskItem {
   created_at: string;
 }
 
-const POLES = [
-  "Tous",
-  "Sponsoring",
-  "Marketing",
-  "Projets & Événements",
-  "Communication",
-  "IT & Web",
-  "Protocole",
-  "Général",
-];
-
 export default function TachesPage() {
-  const { user, isResponsable } = usePortailAuth();
+  const { user, profile, isResponsable } = usePortailAuth();
   const [tasks, setTasks] = useState<TaskItem[]>([]);
   const [members, setMembers] = useState<ClubProfile[]>([]);
   const [loading, setLoading] = useState(true);
   const [selectedPole, setSelectedPole] = useState("Tous");
   const [onlyMyTasks, setOnlyMyTasks] = useState(false);
+  const [mobileStatusTab, setMobileStatusTab] = useState<"all" | "a_faire" | "en_cours" | "termine">("all");
+
+  // Dynamic poles allowed for the current user (Général is always 2nd after Tous)
+  const allowedPoles = useMemo(() => {
+    return getAllowedPolesForUser(user?.email, profile?.poste, profile?.role);
+  }, [user?.email, profile?.poste, profile?.role]);
+
+  const createPoles = useMemo(() => {
+    return allowedPoles.filter((p) => p !== "Tous");
+  }, [allowedPoles]);
+
+  // If active selected pole is no longer in allowed list, reset to Tous
+  useEffect(() => {
+    if (!allowedPoles.includes(selectedPole)) {
+      setSelectedPole("Tous");
+    }
+  }, [allowedPoles, selectedPole]);
 
   // New Task Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [newTitle, setNewTitle] = useState("");
   const [newDescription, setNewDescription] = useState("");
-  const [newPole, setNewPole] = useState("Sponsoring");
+  const [newPole, setNewPole] = useState("Général");
   const [newPriority, setNewPriority] = useState<TaskItem["priority"]>("normale");
   const [newAssignedTo, setNewAssignedTo] = useState("");
   const [newDueDate, setNewDueDate] = useState("");
@@ -169,8 +176,12 @@ export default function TachesPage() {
     }
   };
 
-  // Filter tasks
+  // Filter tasks with strict role and department permissions
   const filteredTasks = tasks.filter((t) => {
+    // Check permission: super-viewers, assignees, general tasks, or department members
+    if (!isTaskVisibleToUser(t, user?.id, user?.email, profile?.poste, profile?.role)) {
+      return false;
+    }
     const matchesPole = selectedPole === "Tous" || t.pole === selectedPole;
     const matchesMy = !onlyMyTasks || t.assigned_to === user?.id;
     return matchesPole && matchesMy;
@@ -231,9 +242,9 @@ export default function TachesPage() {
 
       {/* Filters Bar */}
       <div className="p-4 rounded-2xl bg-[#121217] border border-white/10 mb-8 flex flex-col md:flex-row items-start md:items-center justify-between gap-4">
-        {/* Pole Filter Pills */}
-        <div className="flex items-center gap-1.5 overflow-x-auto w-full md:w-auto pb-1.5 md:pb-0">
-          {POLES.map((pole) => (
+        {/* Pole Filter Pills without white swinger bar */}
+        <div className="flex flex-wrap items-center gap-1.5 w-full md:w-auto pb-1.5 md:pb-0 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
+          {allowedPoles.map((pole) => (
             <button
               key={pole}
               onClick={() => setSelectedPole(pole)}
@@ -260,81 +271,123 @@ export default function TachesPage() {
         </label>
       </div>
 
+      {/* Mobile Kanban Tab Selector (clean & native feel on smartphones) */}
+      <div className="flex md:hidden items-center justify-between p-1 rounded-2xl bg-[#121217] border border-white/10 mb-6 gap-1 overflow-x-auto [scrollbar-width:none]">
+        {[
+          { key: "all", label: "Toutes", count: filteredTasks.length },
+          { key: "a_faire", label: "À Faire", count: todoTasks.length, dot: "bg-amber-400" },
+          { key: "en_cours", label: "En Cours", count: inProgressTasks.length, dot: "bg-blue-400" },
+          { key: "termine", label: "Terminé", count: doneTasks.length, dot: "bg-emerald-400" },
+        ].map((tab) => (
+          <button
+            key={tab.key}
+            onClick={() => setMobileStatusTab(tab.key as any)}
+            className={`flex-1 py-2 px-1.5 rounded-xl text-xs font-bold transition-all flex items-center justify-center gap-1.5 whitespace-nowrap active:scale-95 ${
+              mobileStatusTab === tab.key
+                ? "bg-purple-600 text-white shadow-md shadow-purple-600/30"
+                : "text-gray-400 hover:text-white hover:bg-white/5"
+            }`}
+          >
+            {tab.dot && <span className={`w-1.5 h-1.5 rounded-full ${tab.dot}`} />}
+            <span>{tab.label}</span>
+            <span className="text-[10px] opacity-75 font-mono">({tab.count})</span>
+          </button>
+        ))}
+      </div>
+
       {/* 3-Column Kanban Board */}
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
         {/* Column 1: A Faire */}
-        <div className="flex flex-col space-y-4">
-          <div className="flex items-center justify-between px-3 py-2 rounded-2xl bg-[#121217] border border-white/10">
+        <div className={`flex flex-col space-y-4 ${mobileStatusTab !== "all" && mobileStatusTab !== "a_faire" ? "hidden md:flex" : "flex"}`}>
+          <div className="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-[#121217] border border-white/10">
             <div className="flex items-center gap-2">
               <div className="w-2.5 h-2.5 rounded-full bg-amber-400" />
               <span className="text-xs font-bold text-white uppercase tracking-wider">À Faire</span>
             </div>
-            <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-white/5 text-gray-400">
+            <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-white/5 text-gray-400 font-bold">
               {todoTasks.length}
             </span>
           </div>
 
-          <div className="space-y-3 min-h-[300px]">
-            {todoTasks.map((task) => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                onMoveForward={() => handleStatusChange(task.id, "en_cours")}
-                onDelete={() => handleDeleteTask(task.id)}
-                isResponsable={isResponsable}
-              />
-            ))}
+          <div className="space-y-3 min-h-[150px] sm:min-h-[300px]">
+            {todoTasks.length === 0 ? (
+              <div className="p-6 text-center text-xs text-gray-500 bg-white/[0.015] border border-dashed border-white/5 rounded-2xl">
+                Aucune tâche à faire
+              </div>
+            ) : (
+              todoTasks.map((task) => (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  onMoveForward={() => handleStatusChange(task.id, "en_cours")}
+                  onDelete={() => handleDeleteTask(task.id)}
+                  isResponsable={isResponsable}
+                />
+              ))
+            )}
           </div>
         </div>
 
         {/* Column 2: En Cours */}
-        <div className="flex flex-col space-y-4">
-          <div className="flex items-center justify-between px-3 py-2 rounded-2xl bg-[#121217] border border-white/10">
+        <div className={`flex flex-col space-y-4 ${mobileStatusTab !== "all" && mobileStatusTab !== "en_cours" ? "hidden md:flex" : "flex"}`}>
+          <div className="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-[#121217] border border-white/10">
             <div className="flex items-center gap-2">
               <div className="w-2.5 h-2.5 rounded-full bg-blue-400 animate-pulse" />
               <span className="text-xs font-bold text-white uppercase tracking-wider">En Cours</span>
             </div>
-            <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-white/5 text-gray-400">
+            <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-white/5 text-gray-400 font-bold">
               {inProgressTasks.length}
             </span>
           </div>
 
-          <div className="space-y-3 min-h-[300px]">
-            {inProgressTasks.map((task) => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                onMoveBack={() => handleStatusChange(task.id, "a_faire")}
-                onMoveForward={() => handleStatusChange(task.id, "termine")}
-                onDelete={() => handleDeleteTask(task.id)}
-                isResponsable={isResponsable}
-              />
-            ))}
+          <div className="space-y-3 min-h-[150px] sm:min-h-[300px]">
+            {inProgressTasks.length === 0 ? (
+              <div className="p-6 text-center text-xs text-gray-500 bg-white/[0.015] border border-dashed border-white/5 rounded-2xl">
+                Aucune tâche en cours
+              </div>
+            ) : (
+              inProgressTasks.map((task) => (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  onMoveBack={() => handleStatusChange(task.id, "a_faire")}
+                  onMoveForward={() => handleStatusChange(task.id, "termine")}
+                  onDelete={() => handleDeleteTask(task.id)}
+                  isResponsable={isResponsable}
+                />
+              ))
+            )}
           </div>
         </div>
 
         {/* Column 3: Terminé */}
-        <div className="flex flex-col space-y-4">
-          <div className="flex items-center justify-between px-3 py-2 rounded-2xl bg-[#121217] border border-white/10">
+        <div className={`flex flex-col space-y-4 ${mobileStatusTab !== "all" && mobileStatusTab !== "termine" ? "hidden md:flex" : "flex"}`}>
+          <div className="flex items-center justify-between px-3.5 py-2.5 rounded-2xl bg-[#121217] border border-white/10">
             <div className="flex items-center gap-2">
               <div className="w-2.5 h-2.5 rounded-full bg-emerald-400" />
               <span className="text-xs font-bold text-white uppercase tracking-wider">Terminé</span>
             </div>
-            <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-white/5 text-gray-400">
+            <span className="text-xs font-mono px-2 py-0.5 rounded-full bg-white/5 text-gray-400 font-bold">
               {doneTasks.length}
             </span>
           </div>
 
-          <div className="space-y-3 min-h-[300px]">
-            {doneTasks.map((task) => (
-              <TaskCard
-                key={task.id}
-                task={task}
-                onMoveBack={() => handleStatusChange(task.id, "en_cours")}
-                onDelete={() => handleDeleteTask(task.id)}
-                isResponsable={isResponsable}
-              />
-            ))}
+          <div className="space-y-3 min-h-[150px] sm:min-h-[300px]">
+            {doneTasks.length === 0 ? (
+              <div className="p-6 text-center text-xs text-gray-500 bg-white/[0.015] border border-dashed border-white/5 rounded-2xl">
+                Aucune tâche terminée
+              </div>
+            ) : (
+              doneTasks.map((task) => (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  onMoveBack={() => handleStatusChange(task.id, "en_cours")}
+                  onDelete={() => handleDeleteTask(task.id)}
+                  isResponsable={isResponsable}
+                />
+              ))
+            )}
           </div>
         </div>
       </div>
@@ -382,7 +435,7 @@ export default function TachesPage() {
                     onChange={(e) => setNewPole(e.target.value)}
                     className="w-full px-3.5 py-2.5 bg-[#1a1a22] border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-purple-500"
                   >
-                    {POLES.filter((p) => p !== "Tous").map((p) => (
+                    {createPoles.map((p) => (
                       <option key={p} value={p}>{p}</option>
                     ))}
                   </select>
@@ -441,18 +494,18 @@ export default function TachesPage() {
                 />
               </div>
 
-              <div className="flex items-center justify-end gap-3 pt-3 border-t border-white/10">
+              <div className="flex flex-col-reverse sm:flex-row items-center justify-end gap-2.5 sm:gap-3 pt-3 border-t border-white/10">
                 <button
                   type="button"
                   onClick={() => setIsModalOpen(false)}
-                  className="px-4 py-2 bg-white/10 hover:bg-white/15 text-white text-xs rounded-xl font-medium transition-colors"
+                  className="w-full sm:w-auto px-4 py-2.5 bg-white/10 hover:bg-white/15 text-white text-xs rounded-xl font-medium transition-colors text-center"
                 >
                   Annuler
                 </button>
                 <button
                   type="submit"
                   disabled={isSubmitting}
-                  className="px-5 py-2 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs rounded-xl font-bold shadow-md shadow-purple-600/20 disabled:opacity-50 transition-all flex items-center gap-1.5"
+                  className="w-full sm:w-auto px-5 py-2.5 bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white text-xs rounded-xl font-bold shadow-md shadow-purple-600/20 disabled:opacity-50 transition-all flex items-center justify-center gap-1.5"
                 >
                   {isSubmitting ? "Création..." : "Créer la tâche"}
                 </button>
@@ -534,15 +587,16 @@ function TaskCard({
       </div>
 
       {/* Movement Buttons */}
-      <div className="flex items-center justify-between pt-1">
+      <div className="flex items-center justify-between pt-1.5 border-t border-white/5">
         <div>
           {onMoveBack && (
             <button
               onClick={onMoveBack}
-              className="p-1 rounded-lg text-gray-400 hover:text-white hover:bg-white/5 text-xs flex items-center gap-1 transition-colors"
+              className="px-2.5 py-1.5 rounded-xl text-gray-300 hover:text-white bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-medium flex items-center gap-1 transition-all active:scale-95"
               title="Reculer d'une étape"
             >
               <ArrowLeft size={13} />
+              <span className="text-[11px]">Reculer</span>
             </button>
           )}
         </div>
@@ -551,17 +605,17 @@ function TaskCard({
           {isResponsable && (
             <button
               onClick={onDelete}
-              className="p-1 rounded-lg text-gray-500 hover:text-red-400 hover:bg-red-500/10 transition-colors"
+              className="p-1.5 rounded-xl text-gray-500 hover:text-red-400 hover:bg-red-500/10 border border-transparent hover:border-red-500/20 transition-all active:scale-95"
               title="Supprimer la tâche"
             >
-              <Trash2 size={13} />
+              <Trash2 size={14} />
             </button>
           )}
 
           {onMoveForward && (
             <button
               onClick={onMoveForward}
-              className="px-2.5 py-1 rounded-lg bg-white/5 hover:bg-purple-600 text-gray-300 hover:text-white text-xs font-semibold flex items-center gap-1 transition-colors"
+              className="px-3 py-1.5 rounded-xl bg-purple-600/25 hover:bg-purple-600 border border-purple-500/30 text-purple-200 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all shadow-sm active:scale-95"
               title="Avancer d'une étape"
             >
               <span>Avancer</span>

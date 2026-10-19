@@ -134,27 +134,40 @@ export async function GET(req: NextRequest) {
         }));
 
       const userRsvp = evtRsvps.find((r) => r.user_id === user.id)?.status || null;
-      const presentCount = evt.custom_present_count != null ? evt.custom_present_count : evtRsvps.filter((r) => r.status === "present").length;
-      const absentCount = evt.custom_absent_count != null ? evt.custom_absent_count : evtRsvps.filter((r) => r.status === "absent").length;
-      const maybeCount = evtRsvps.filter((r) => r.status === "peut_etre").length;
 
       let fileUrl = evt.pv_file_url || null;
       let fileName = evt.pv_file_name || null;
       let cleanContent = evt.pv_content || null;
 
-      if (!fileUrl && evt.pv_content && evt.pv_content.startsWith("[FICHIER_PV:")) {
-        const match = evt.pv_content.match(/^\[FICHIER_PV:(.*?)\]\((.*?)\)/);
+      if (!fileUrl && evt.pv_content && evt.pv_content.includes("[FICHIER_PV:")) {
+        const match = evt.pv_content.match(/\[FICHIER_PV:(.*?)\]\((.*?)\)/);
         if (match) {
           fileName = match[1];
           fileUrl = match[2];
-          cleanContent = evt.pv_content.replace(/^\[FICHIER_PV:.*?\]\(.*?\)\s*/, "");
+          cleanContent = evt.pv_content.replace(/\[FICHIER_PV:.*?\]\(.*?\)\s*/, "");
         }
       }
 
+      let parsedCustomPresent = evt.custom_present_count ?? null;
+      let parsedCustomAbsent = evt.custom_absent_count ?? null;
+
+      if ((parsedCustomPresent == null || parsedCustomAbsent == null) && cleanContent && cleanContent.includes("[PRESENCES:")) {
+        const presMatch = cleanContent.match(/\[PRESENCES:present=(\d+),absent=(\d+)\]/);
+        if (presMatch) {
+          if (parsedCustomPresent == null) parsedCustomPresent = Number(presMatch[1]);
+          if (parsedCustomAbsent == null) parsedCustomAbsent = Number(presMatch[2]);
+          cleanContent = cleanContent.replace(/\[PRESENCES:present=\d+,absent=\d+\]\s*/, "");
+        }
+      }
+
+      const presentCount = parsedCustomPresent != null ? parsedCustomPresent : evtRsvps.filter((r) => r.status === "present").length;
+      const absentCount = parsedCustomAbsent != null ? parsedCustomAbsent : evtRsvps.filter((r) => r.status === "absent").length;
+      const maybeCount = evtRsvps.filter((r) => r.status === "peut_etre").length;
+
       return {
         ...evt,
-        custom_present_count: evt.custom_present_count ?? null,
-        custom_absent_count: evt.custom_absent_count ?? null,
+        custom_present_count: parsedCustomPresent,
+        custom_absent_count: parsedCustomAbsent,
         pv_file_url: fileUrl,
         pv_file_name: fileName,
         pv_content: cleanContent,

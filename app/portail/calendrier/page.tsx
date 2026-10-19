@@ -1,11 +1,12 @@
 "use client";
 
-import React, { useState, useEffect } from "react";
+import React, { useState, useEffect, useMemo } from "react";
 import {
   Calendar as CalendarIcon, Clock, MapPin, Users, Plus, CheckCircle2,
   XCircle, HelpCircle, Trash2, Send, AlertCircle, Sparkles, Filter,
   FileText, Printer, Copy, Check, Edit3, ShieldAlert, Lock,
-  UploadCloud, Download, ExternalLink, Paperclip, FileCheck
+  UploadCloud, Download, ExternalLink, Paperclip, FileCheck,
+  ChevronLeft, ChevronRight, CalendarDays, ChevronDown, ChevronUp, Archive
 } from "lucide-react";
 import { usePortailAuth } from "@/contexts/PortailAuthContext";
 import { supabase } from "@/lib/supabase";
@@ -39,6 +40,12 @@ export default function CalendrierPage() {
   const [events, setEvents] = useState<EventItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>("all");
+
+  // Monthly Calendar Modal State
+  const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
+  const [currentMonthDate, setCurrentMonthDate] = useState(() => new Date());
+  const [selectedDateStr, setSelectedDateStr] = useState<string>(() => new Date().toISOString().split("T")[0]);
+  const [showPastEvents, setShowPastEvents] = useState(false);
 
   // Create Modal State
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -279,7 +286,11 @@ export default function CalendrierPage() {
 
     try {
       const { data: { session } } = await supabase.auth.getSession();
-      if (!session) return;
+      if (!session) {
+        alert("Votre session a expiré ou vous n'êtes pas connecté. Veuillez vous reconnecter au portail.");
+        setIsSavingPv(false);
+        return;
+      }
 
       let finalFileUrl = pvFileUrl;
       let finalFileName = pvFileName;
@@ -334,7 +345,8 @@ export default function CalendrierPage() {
       setEditingPvEvent(null);
       await fetchEvents();
     } catch (err: any) {
-      setStatusMsg({ type: "error", text: err.message });
+      alert("Erreur lors de l'enregistrement du PV : " + (err.message || "Erreur inconnue"));
+      setStatusMsg({ type: "error", text: err.message || "Erreur lors de l'enregistrement" });
     } finally {
       setIsSavingPv(false);
       setIsUploadingPvFile(false);
@@ -347,10 +359,134 @@ export default function CalendrierPage() {
     setTimeout(() => setCopySuccess(false), 2000);
   };
 
+  const MONTH_NAMES = [
+    "Janvier", "Février", "Mars", "Avril", "Mai", "Juin",
+    "Juillet", "Août", "Septembre", "Octobre", "Novembre", "Décembre"
+  ];
+  const WEEK_DAYS = ["Lun", "Mar", "Mer", "Jeu", "Ven", "Sam", "Dim"];
+
+  const formatFullDateFr = (dateStr: string) => {
+    try {
+      const [y, m, d] = dateStr.split("-").map(Number);
+      const date = new Date(y, m - 1, d);
+      return date.toLocaleDateString("fr-FR", {
+        weekday: "long",
+        day: "numeric",
+        month: "long",
+        year: "numeric"
+      });
+    } catch {
+      return dateStr;
+    }
+  };
+
+  const now = new Date();
+  const todayStr = now.toISOString().split("T")[0];
+
+  const isEventDone = (evt: EventItem) => {
+    if (evt.event_date < todayStr) return true;
+    if (evt.event_date === todayStr && evt.end_time) {
+      const [endH, endM] = evt.end_time.split(":").map(Number);
+      if (now.getHours() > endH || (now.getHours() === endH && now.getMinutes() >= endM)) {
+        return true;
+      }
+    }
+    return false;
+  };
+
+  const getDotColor = (type: EventItem["event_type"]) => {
+    switch (type) {
+      case "reunion":
+        return "bg-purple-500 shadow-[0_0_8px_rgba(168,85,247,0.8)]";
+      case "ag":
+        return "bg-amber-400 shadow-[0_0_8px_rgba(251,191,36,0.8)]";
+      case "workshop":
+        return "bg-blue-400 shadow-[0_0_8px_rgba(96,165,250,0.8)]";
+      case "deadline":
+        return "bg-red-400 shadow-[0_0_8px_rgba(248,113,113,0.8)]";
+      case "teambuilding":
+        return "bg-pink-400 shadow-[0_0_8px_rgba(244,114,182,0.8)]";
+      default:
+        return "bg-white shadow-[0_0_8px_rgba(255,255,255,0.8)]";
+    }
+  };
+
+  const goToPreviousMonth = () => {
+    setCurrentMonthDate((prev) => new Date(prev.getFullYear(), prev.getMonth() - 1, 1));
+  };
+
+  const goToNextMonth = () => {
+    setCurrentMonthDate((prev) => new Date(prev.getFullYear(), prev.getMonth() + 1, 1));
+  };
+
+  const goToToday = () => {
+    const t = new Date();
+    setCurrentMonthDate(t);
+    setSelectedDateStr(t.toISOString().split("T")[0]);
+  };
+
+  const calendarGridDays = useMemo(() => {
+    const y = currentMonthDate.getFullYear();
+    const m = currentMonthDate.getMonth();
+
+    const firstDay = new Date(y, m, 1);
+    const startDayOffset = (firstDay.getDay() + 6) % 7;
+    const daysInCurrentMonth = new Date(y, m + 1, 0).getDate();
+    const daysInPrevMonth = new Date(y, m, 0).getDate();
+
+    const cells = [];
+
+    for (let i = startDayOffset - 1; i >= 0; i--) {
+      const day = daysInPrevMonth - i;
+      const prevMonth = m === 0 ? 11 : m - 1;
+      const prevYear = m === 0 ? y - 1 : y;
+      const dateStr = `${prevYear}-${String(prevMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+      cells.push({
+        day,
+        dateStr,
+        isCurrentMonth: false,
+        isPrevMonth: true,
+        isNextMonth: false,
+      });
+    }
+
+    for (let day = 1; day <= daysInCurrentMonth; day++) {
+      const dateStr = `${y}-${String(m + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+      cells.push({
+        day,
+        dateStr,
+        isCurrentMonth: true,
+        isPrevMonth: false,
+        isNextMonth: false,
+      });
+    }
+
+    const remaining = 7 - (cells.length % 7);
+    if (remaining < 7) {
+      for (let day = 1; day <= remaining; day++) {
+        const nextMonth = m === 11 ? 0 : m + 1;
+        const nextYear = m === 11 ? y + 1 : y;
+        const dateStr = `${nextYear}-${String(nextMonth + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+        cells.push({
+          day,
+          dateStr,
+          isCurrentMonth: false,
+          isPrevMonth: false,
+          isNextMonth: true,
+        });
+      }
+    }
+
+    return cells;
+  }, [currentMonthDate]);
+
   const filteredEvents = events.filter((evt) => {
     if (filterType === "all") return true;
     return evt.event_type === filterType;
   });
+
+  const upcomingEvents = filteredEvents.filter((evt) => !isEventDone(evt));
+  const pastEvents = filteredEvents.filter((evt) => isEventDone(evt));
 
   const getTypeBadge = (type: EventItem["event_type"]) => {
     switch (type) {
@@ -369,10 +505,445 @@ export default function CalendrierPage() {
     }
   };
 
+  const renderEventCard = (evt: EventItem, isPastSection: boolean = false) => {
+    const badge = getTypeBadge(evt.event_type);
+    const dateObj = new Date(evt.event_date);
+    const dayNum = dateObj.toLocaleDateString("fr-FR", { day: "numeric" });
+    const monthStr = dateObj.toLocaleDateString("fr-FR", { month: "short" });
+    const weekdayStr = dateObj.toLocaleDateString("fr-FR", { weekday: "long" });
+
+    const isDone = isEventDone(evt);
+    const isPastOrToday = evt.event_date <= todayStr;
+    const isMeetingOrAg = evt.event_type === "reunion" || evt.event_type === "ag";
+
+    return (
+      <div
+        key={evt.id}
+        className={`p-6 sm:p-7 rounded-3xl border shadow-xl flex flex-col justify-between gap-5 transition-all ${
+          isDone
+            ? "bg-[#111116]/90 border-white/10 hover:border-white/20"
+            : "bg-[#121217] border-white/10 hover:border-purple-500/30 shadow-purple-950/10"
+        }`}
+      >
+        {/* Explicit Status Banner if event is done */}
+        {isDone && (
+          <div className="flex items-center justify-between gap-2 px-3.5 py-1.5 rounded-xl bg-zinc-900/90 border border-zinc-700/60 text-zinc-300 text-xs">
+            <div className="flex items-center gap-2">
+              <Lock size={12} className="text-amber-400" />
+              <span className="font-semibold text-white tracking-wide">
+                Événement Clôturé
+              </span>
+              <span className="text-gray-400 hidden sm:inline">
+                — Séance tenue le {dayNum} {monthStr} {dateObj.getFullYear()}
+              </span>
+            </div>
+            <span className="text-[10px] font-bold uppercase tracking-wider text-amber-300 bg-amber-500/10 px-2 py-0.5 rounded-md border border-amber-500/20">
+              Archivé
+            </span>
+          </div>
+        )}
+
+        {/* Top Section: Date & Details + RSVP */}
+        <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
+          {/* Left: Date Badge & Details */}
+          <div className="flex items-start gap-4">
+            {/* Calendar Date Block */}
+            <div
+              className={`w-16 h-16 rounded-2xl flex flex-col items-center justify-center shrink-0 shadow-lg text-center ${
+                isDone
+                  ? "bg-gradient-to-b from-zinc-800/60 to-black/80 border border-zinc-700/50"
+                  : "bg-gradient-to-b from-purple-900/40 to-black/60 border border-purple-500/30"
+              }`}
+            >
+              <span
+                className={`text-[10px] uppercase font-bold tracking-wider ${
+                  isDone ? "text-gray-400" : "text-purple-400"
+                }`}
+              >
+                {monthStr}
+              </span>
+              <span className="text-xl font-black text-white leading-none">
+                {dayNum}
+              </span>
+            </div>
+
+            <div className="space-y-1.5">
+              <div className="flex flex-wrap items-center gap-2">
+                <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${badge.bg}`}>
+                  {badge.label}
+                </span>
+                <span className="text-xs text-gray-400 capitalize">{weekdayStr}</span>
+              </div>
+
+              <h2 className="text-lg font-bold text-white tracking-tight">{evt.title}</h2>
+
+              <div className="flex flex-wrap items-center gap-4 text-xs text-gray-400 pt-1">
+                {evt.start_time && (
+                  <div className="flex items-center gap-1.5 text-gray-300">
+                    <Clock size={13} className="text-purple-400" />
+                    <span>{evt.start_time} {evt.end_time ? `- ${evt.end_time}` : ""}</span>
+                  </div>
+                )}
+                {evt.location && (
+                  <div className="flex items-center gap-1.5 text-gray-300">
+                    <MapPin size={13} className="text-pink-400" />
+                    <span>{evt.location}</span>
+                  </div>
+                )}
+              </div>
+
+              {evt.description && (
+                <div className="pt-2 text-xs leading-relaxed max-w-xl">
+                  <span className="text-[10px] uppercase font-bold text-purple-400 block mb-1">
+                    Ordre du jour :
+                  </span>
+                  <p className="whitespace-pre-line text-gray-300 bg-white/[0.03] p-3 rounded-xl border border-white/5">
+                    {evt.description}
+                  </p>
+                </div>
+              )}
+            </div>
+          </div>
+
+          {/* Right: RSVP & Attendance */}
+          <div className="w-full md:w-auto flex flex-col sm:flex-row md:flex-col items-start md:items-end justify-between gap-4 shrink-0 border-t md:border-t-0 pt-4 md:pt-0 border-white/5">
+            {/* Attendance counters */}
+            <div className="flex items-center gap-2 text-[11px] font-medium">
+              <span className="px-2.5 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300">
+                ✓ {evt.presentCount || 0} présent{(evt.presentCount || 0) > 1 ? "s" : ""}
+              </span>
+              {(evt.maybeCount || 0) > 0 && (
+                <span className="px-2.5 py-1 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300">
+                  ? {evt.maybeCount}
+                </span>
+              )}
+              {(evt.absentCount || 0) > 0 && (
+                <span className="px-2.5 py-1 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300">
+                  ✕ {evt.absentCount}
+                </span>
+              )}
+            </div>
+
+            {/* Interactive RSVP buttons OR Locked status if event is already done */}
+            {isDone ? (
+              <div className="flex items-center gap-2">
+                {evt.userRsvp === "present" ? (
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold shadow-sm">
+                    <CheckCircle2 size={13} className="text-emerald-400" />
+                    <span>Votre présence : Confirmé ✓</span>
+                  </div>
+                ) : evt.userRsvp === "absent" ? (
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 text-xs font-semibold shadow-sm">
+                    <XCircle size={13} className="text-red-400" />
+                    <span>Votre présence : Noté absent</span>
+                  </div>
+                ) : evt.userRsvp === "peut_etre" ? (
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-semibold shadow-sm">
+                    <HelpCircle size={13} className="text-amber-400" />
+                    <span>Votre présence : Était indécis</span>
+                  </div>
+                ) : (
+                  <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] border border-white/10 text-gray-400 text-xs font-medium">
+                    <Lock size={12} className="text-gray-400" />
+                    <span>Présences clôturées</span>
+                  </div>
+                )}
+              </div>
+            ) : (
+              <div className="flex items-center gap-1.5 bg-black/40 p-1 rounded-2xl border border-white/10">
+                <button
+                  onClick={() => handleRsvp(evt.id, "present")}
+                  className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
+                    evt.userRsvp === "present"
+                      ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/30"
+                      : "text-gray-400 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  <CheckCircle2 size={13} />
+                  <span>Je participe</span>
+                </button>
+
+                <button
+                  onClick={() => handleRsvp(evt.id, "peut_etre")}
+                  className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+                    evt.userRsvp === "peut_etre"
+                      ? "bg-amber-600 text-white shadow-md shadow-amber-600/30"
+                      : "text-gray-400 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  <HelpCircle size={13} />
+                  <span>Peut-être</span>
+                </button>
+
+                <button
+                  onClick={() => handleRsvp(evt.id, "absent")}
+                  className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
+                    evt.userRsvp === "absent"
+                      ? "bg-red-600 text-white shadow-md shadow-red-600/30"
+                      : "text-gray-400 hover:text-white hover:bg-white/5"
+                  }`}
+                >
+                  <XCircle size={13} />
+                  <span>Absent</span>
+                </button>
+              </div>
+            )}
+
+            {/* Bureau/Creator delete */}
+            {isBureau && (
+              <button
+                onClick={() => handleDeleteEvent(evt.id, evt.title)}
+                className="text-gray-500 hover:text-red-400 text-xs flex items-center gap-1 transition-colors self-end"
+              >
+                <Trash2 size={12} />
+                <span>Supprimer</span>
+              </button>
+            )}
+          </div>
+        </div>
+
+        {/* Bottom Section: Procès-Verbal (PV) Bar */}
+        <div className="pt-3.5 border-t border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white/[0.015] -mx-6 sm:-mx-7 -mb-6 sm:-mb-7 px-6 sm:px-7 py-3.5 rounded-b-3xl">
+          {evt.pv_file_url || evt.pv_content ? (
+            <div className="flex flex-wrap items-center gap-3 w-full justify-between">
+              <div className="flex flex-wrap items-center gap-2.5">
+                <button
+                  onClick={() => handleOpenPvReader(evt)}
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500/25 to-purple-600/25 hover:from-amber-500/40 hover:to-purple-600/40 border border-amber-500/40 text-amber-200 hover:text-white text-xs font-bold transition-all flex items-center gap-2 shadow-md shadow-amber-900/10"
+                >
+                  <FileText size={15} className="text-amber-400" />
+                  <span>Consulter / Télécharger le PV {evt.event_type === "ag" ? "(AG)" : "(Réunion)"}</span>
+                </button>
+
+                {evt.pv_file_name && (
+                  <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 text-[11px] text-gray-300 border border-white/10 font-mono">
+                    <Paperclip size={12} className="text-purple-400" />
+                    <span className="truncate max-w-[200px]">{evt.pv_file_name}</span>
+                  </span>
+                )}
+
+                <span className="hidden sm:inline-block text-xs text-gray-400">
+                  Joint par <strong className="text-purple-300 font-medium">{evt.pv_author_name || "Secrétariat"}</strong>
+                </span>
+              </div>
+
+              {isBureau && (
+                <button
+                  onClick={() => handleOpenPvEditor(evt)}
+                  className="text-xs text-purple-400 hover:text-purple-300 underline underline-offset-4 flex items-center gap-1"
+                >
+                  <Edit3 size={13} />
+                  <span>Remplacer le fichier PV</span>
+                </button>
+              )}
+            </div>
+          ) : isPastOrToday && isMeetingOrAg ? (
+            <div className="flex flex-wrap items-center justify-between gap-3 w-full">
+              <div className="flex items-center gap-2 text-xs text-amber-300/80 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-xl">
+                <Clock size={13} className="text-amber-400 shrink-0" />
+                <span>PV en attente de dépôt du document (PDF / Word)</span>
+              </div>
+
+              {isBureau && (
+                <button
+                  onClick={() => handleOpenPvEditor(evt)}
+                  className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-purple-600/30 hover:from-amber-500/35 hover:to-purple-600/45 border border-amber-500/40 text-amber-200 hover:text-white text-xs font-bold transition-all flex items-center gap-2 shadow-sm"
+                >
+                  <UploadCloud size={14} className="text-amber-400" />
+                  <span>Joindre le fichier PV (PDF / Word)</span>
+                </button>
+              )}
+            </div>
+          ) : (
+            <div className="flex items-center gap-2 text-[11px] text-gray-400 italic">
+              <Clock size={12} className="text-gray-500" />
+              <span>Séance à venir — Le document officiel du PV sera joint et publié après la réunion.</span>
+            </div>
+          )}
+        </div>
+      </div>
+    );
+  };
+
+  const renderSelectedDayEventsContent = () => {
+    const selectedDayEvents = events.filter((e) => e.event_date === selectedDateStr);
+    const formattedDate = formatFullDateFr(selectedDateStr);
+
+    return (
+      <div className="space-y-4">
+        {/* Date Title Banner */}
+        <div className="flex items-center justify-between pb-3 border-b border-white/10">
+          <div>
+            <span className="text-[10px] uppercase font-bold text-purple-400 tracking-wider block">
+              Détails du jour sélectionné
+            </span>
+            <h4 className="text-sm sm:text-base font-bold text-white capitalize">
+              {formattedDate}
+            </h4>
+          </div>
+          <span className="px-2.5 py-1 rounded-xl text-xs font-semibold bg-white/5 border border-white/10 text-gray-300">
+            {selectedDayEvents.length} {selectedDayEvents.length > 1 ? "événements" : "événement"}
+          </span>
+        </div>
+
+        {/* Events List for this date */}
+        {selectedDayEvents.length === 0 ? (
+          <div className="p-8 text-center bg-white/[0.015] border border-white/5 rounded-2xl space-y-3">
+            <CalendarIcon size={32} className="mx-auto text-gray-500 opacity-40" />
+            <p className="text-xs text-gray-400 font-medium">
+              Aucun événement prévu pour le {formattedDate}.
+            </p>
+            {isResponsable && (
+              <button
+                onClick={() => {
+                  setEventDate(selectedDateStr);
+                  setIsCalendarModalOpen(false);
+                  setIsModalOpen(true);
+                }}
+                className="mt-2 px-3.5 py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-purple-300 text-xs font-bold transition-all inline-flex items-center gap-1.5"
+              >
+                <Plus size={14} />
+                <span>Planifier un événement ce jour</span>
+              </button>
+            )}
+          </div>
+        ) : (
+          <div className="space-y-3.5">
+            {selectedDayEvents.map((evt) => {
+              const badge = getTypeBadge(evt.event_type);
+              const isDone = isEventDone(evt);
+
+              return (
+                <div
+                  key={evt.id}
+                  className="p-4 sm:p-5 rounded-2xl bg-white/[0.03] border border-white/10 hover:border-purple-500/30 transition-all space-y-3"
+                >
+                  {/* Header: Badge & Status */}
+                  <div className="flex items-center justify-between gap-2">
+                    <span className={`px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${badge.bg}`}>
+                      {badge.label}
+                    </span>
+                    {isDone ? (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-zinc-800 text-gray-300 border border-zinc-700 flex items-center gap-1">
+                        <Lock size={10} />
+                        <span>Terminé</span>
+                      </span>
+                    ) : (
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 flex items-center gap-1">
+                        <Sparkles size={10} />
+                        <span>À venir</span>
+                      </span>
+                    )}
+                  </div>
+
+                  {/* Event Title */}
+                  <h5 className="text-sm sm:text-base font-bold text-white tracking-tight">
+                    {evt.title}
+                  </h5>
+
+                  {/* Time & Location */}
+                  <div className="flex flex-wrap items-center gap-3 text-xs text-gray-300">
+                    {evt.start_time && (
+                      <div className="flex items-center gap-1 text-purple-300">
+                        <Clock size={12} />
+                        <span>{evt.start_time} {evt.end_time ? `- ${evt.end_time}` : ""}</span>
+                      </div>
+                    )}
+                    {evt.location && (
+                      <div className="flex items-center gap-1 text-pink-300">
+                        <MapPin size={12} />
+                        <span className="truncate max-w-[200px]">{evt.location}</span>
+                      </div>
+                    )}
+                  </div>
+
+                  {/* Description */}
+                  {evt.description && (
+                    <p className="text-xs text-gray-300 leading-relaxed bg-black/30 p-2.5 rounded-xl border border-white/5 whitespace-pre-line">
+                      {evt.description}
+                    </p>
+                  )}
+
+                  {/* Attendance Summary */}
+                  <div className="flex items-center gap-2 text-[11px] pt-1">
+                    <span className="px-2 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+                      ✓ {evt.presentCount || 0} présent{(evt.presentCount || 0) > 1 ? "s" : ""}
+                    </span>
+                    {(evt.absentCount || 0) > 0 && (
+                      <span className="px-2 py-0.5 rounded-lg bg-red-500/10 text-red-300 border border-red-500/20">
+                        ✕ {evt.absentCount}
+                      </span>
+                    )}
+                  </div>
+
+                  {/* PV Button if completed, or RSVP if upcoming */}
+                  {isDone ? (
+                    <div className="pt-2 border-t border-white/5 flex flex-wrap items-center justify-between gap-2">
+                      {evt.pv_file_url || evt.pv_content ? (
+                        <button
+                          onClick={() => handleOpenPvReader(evt)}
+                          className="w-full px-3.5 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-purple-600/25 hover:from-amber-500/35 hover:to-purple-600/40 border border-amber-500/40 text-amber-200 hover:text-white text-xs font-bold transition-all flex items-center justify-center gap-2 shadow-sm"
+                        >
+                          <FileText size={14} className="text-amber-400" />
+                          <span>Consulter le Procès-Verbal (PV)</span>
+                        </button>
+                      ) : (
+                        <div className="text-[11px] text-gray-500 italic flex items-center gap-1">
+                          <Clock size={11} />
+                          <span>PV en attente de dépôt</span>
+                        </div>
+                      )}
+                    </div>
+                  ) : (
+                    <div className="pt-2 border-t border-white/5 flex items-center justify-between gap-2">
+                      <span className="text-[11px] text-gray-400">Votre présence :</span>
+                      <div className="flex items-center gap-1 bg-black/40 p-1 rounded-xl border border-white/10">
+                        <button
+                          onClick={() => handleRsvp(evt.id, "present")}
+                          className={`px-2.5 py-1 rounded-lg text-[11px] font-bold transition-all ${
+                            evt.userRsvp === "present"
+                              ? "bg-emerald-600 text-white shadow-sm"
+                              : "text-gray-400 hover:text-white"
+                          }`}
+                        >
+                          ✓ Participe
+                        </button>
+                        <button
+                          onClick={() => handleRsvp(evt.id, "peut_etre")}
+                          className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-all ${
+                            evt.userRsvp === "peut_etre"
+                              ? "bg-amber-600 text-white shadow-sm"
+                              : "text-gray-400 hover:text-white"
+                          }`}
+                        >
+                          ?
+                        </button>
+                        <button
+                          onClick={() => handleRsvp(evt.id, "absent")}
+                          className={`px-2 py-1 rounded-lg text-[11px] font-bold transition-all ${
+                            evt.userRsvp === "absent"
+                              ? "bg-red-600 text-white shadow-sm"
+                              : "text-gray-400 hover:text-white"
+                          }`}
+                        >
+                          ✕
+                        </button>
+                      </div>
+                    </div>
+                  )}
+                </div>
+              );
+            })}
+          </div>
+        )}
+      </div>
+    );
+  };
+
   return (
     <div className="max-w-5xl mx-auto px-4 py-8">
       {/* Header */}
-      <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-4 mb-8">
+      <div className="flex flex-col md:flex-row justify-between items-start md:items-center gap-4 mb-8">
         <div>
           <h1 className="text-2xl sm:text-3xl font-extrabold text-white tracking-tight flex items-center gap-3">
             <CalendarIcon className="text-purple-400" />
@@ -383,15 +954,32 @@ export default function CalendrierPage() {
           </p>
         </div>
 
-        {isResponsable && (
+        <div className="flex flex-wrap items-center gap-3 w-full md:w-auto">
+          {/* Prominent CALENDRIER Button */}
           <button
-            onClick={() => setIsModalOpen(true)}
-            className="px-5 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs uppercase tracking-wider flex items-center gap-2 shadow-lg shadow-purple-600/20 transition-all shrink-0"
+            id="open-calendar-modal-btn"
+            onClick={() => setIsCalendarModalOpen(true)}
+            className="flex-1 md:flex-none px-4 sm:px-5 py-3 rounded-2xl bg-gradient-to-r from-purple-900/40 to-indigo-900/30 hover:from-purple-900/60 hover:to-indigo-900/50 border border-purple-500/40 hover:border-purple-400 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2.5 shadow-lg shadow-purple-950/50 hover:shadow-purple-600/20 transition-all group backdrop-blur-md"
           >
-            <Plus size={16} />
-            <span>Planifier une Réunion</span>
+            <div className="w-6 h-6 rounded-lg bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center shadow-md group-hover:scale-110 transition-transform">
+              <CalendarDays size={14} className="text-white" />
+            </div>
+            <span>Calendrier</span>
+            <span className="px-2 py-0.5 rounded-full text-[10px] bg-purple-500/20 text-purple-300 border border-purple-500/30 font-mono">
+              Mois
+            </span>
           </button>
-        )}
+
+          {isResponsable && (
+            <button
+              onClick={() => setIsModalOpen(true)}
+              className="flex-1 md:flex-none px-4 sm:px-5 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 hover:from-purple-500 hover:to-indigo-500 text-white font-bold text-xs uppercase tracking-wider flex items-center justify-center gap-2 shadow-lg shadow-purple-600/20 transition-all shrink-0"
+            >
+              <Plus size={16} />
+              <span>Planifier une Réunion</span>
+            </button>
+          )}
+        </div>
       </div>
 
       {statusMsg && (
@@ -408,7 +996,7 @@ export default function CalendrierPage() {
       )}
 
       {/* Filters */}
-      <div className="flex items-center gap-2 border-b border-white/10 pb-4 mb-8 overflow-x-auto">
+      <div className="flex flex-wrap items-center gap-2 border-b border-white/10 pb-4 mb-8 [scrollbar-width:none] [-ms-overflow-style:none] [&::-webkit-scrollbar]:hidden">
         <span className="text-xs text-gray-400 mr-2 flex items-center gap-1">
           <Filter size={14} /> Filtre :
         </span>
@@ -441,250 +1029,259 @@ export default function CalendrierPage() {
             <div key={i} className="p-6 rounded-3xl bg-[#121217] border border-white/5 animate-pulse h-40" />
           ))}
         </div>
-      ) : filteredEvents.length === 0 ? (
-        <div className="p-16 rounded-3xl bg-[#121217] border border-white/5 text-center text-gray-400 space-y-2">
-          <CalendarIcon size={36} className="mx-auto text-gray-500 opacity-60" />
-          <p className="text-base font-semibold text-white">Aucun événement prévu</p>
-          <p className="text-xs text-gray-500">Les nouvelles convocations et réunions apparaîtront ici.</p>
-        </div>
       ) : (
-        <div className="space-y-6">
-          {filteredEvents.map((evt) => {
-            const badge = getTypeBadge(evt.event_type);
-            const dateObj = new Date(evt.event_date);
-            const dayNum = dateObj.toLocaleDateString("fr-FR", { day: "numeric" });
-            const monthStr = dateObj.toLocaleDateString("fr-FR", { month: "short" });
-            const weekdayStr = dateObj.toLocaleDateString("fr-FR", { weekday: "long" });
+        <div className="space-y-10">
+          {/* Section 1: Upcoming Events */}
+          <div className="space-y-6">
+            <div className="flex items-center justify-between border-b border-white/5 pb-2">
+              <div className="flex items-center gap-2.5">
+                <div className="w-2.5 h-2.5 rounded-full bg-emerald-400 animate-pulse" />
+                <h2 className="text-sm font-bold text-white uppercase tracking-wider">
+                  Événements & Réunions à Venir
+                </h2>
+                <span className="px-2 py-0.5 rounded-full text-[11px] bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 font-mono">
+                  {upcomingEvents.length}
+                </span>
+              </div>
 
-            const now = new Date();
-            const todayStr = now.toISOString().split("T")[0];
-            let isDone = evt.event_date < todayStr;
-            if (evt.event_date === todayStr && evt.end_time) {
-              const [endH, endM] = evt.end_time.split(":").map(Number);
-              if (now.getHours() > endH || (now.getHours() === endH && now.getMinutes() >= endM)) {
-                isDone = true;
-              }
-            }
+              {pastEvents.length > 0 && (
+                <button
+                  onClick={() => setShowPastEvents(!showPastEvents)}
+                  className="text-xs text-purple-400 hover:text-purple-300 font-semibold flex items-center gap-1.5 transition-colors"
+                >
+                  <Archive size={13} />
+                  <span>{showPastEvents ? "Masquer les archives" : `Voir les archives (${pastEvents.length})`}</span>
+                  {showPastEvents ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                </button>
+              )}
+            </div>
 
-            const isPastOrToday = evt.event_date <= todayStr;
-            const isMeetingOrAg = evt.event_type === "reunion" || evt.event_type === "ag";
+            {upcomingEvents.length === 0 ? (
+              <div className="p-12 rounded-3xl bg-[#121217] border border-white/5 text-center text-gray-400 space-y-3">
+                <CalendarIcon size={36} className="mx-auto text-purple-400/50" />
+                <p className="text-base font-semibold text-white">Aucun événement à venir pour le moment</p>
+                <p className="text-xs text-gray-500 max-w-md mx-auto">
+                  Toutes les réunions prévues s&apos;afficheront ici. Vous pouvez consulter les séances passées et leurs PV officiels dans le calendrier ou les archives ci-dessous.
+                </p>
+                <button
+                  onClick={() => setIsCalendarModalOpen(true)}
+                  className="mt-2 px-4 py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/40 text-purple-300 text-xs font-bold inline-flex items-center gap-2 transition-all shadow-sm"
+                >
+                  <CalendarDays size={14} />
+                  <span>Explorer le Calendrier Mensuel</span>
+                </button>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                {upcomingEvents.map((evt) => renderEventCard(evt, false))}
+              </div>
+            )}
+          </div>
 
-            return (
-              <div
-                key={evt.id}
-                className="p-6 sm:p-7 rounded-3xl bg-[#121217] border border-white/10 shadow-xl flex flex-col justify-between gap-5 hover:border-purple-500/30 transition-all"
-              >
-                {/* Top Section: Date & Details + RSVP */}
-                <div className="flex flex-col md:flex-row items-start md:items-center justify-between gap-6">
-                  {/* Left: Date Badge & Details */}
-                  <div className="flex items-start gap-4">
-                    {/* Calendar Date Block */}
-                    <div className="w-16 h-16 rounded-2xl bg-gradient-to-b from-purple-900/40 to-black/60 border border-purple-500/30 flex flex-col items-center justify-center shrink-0 shadow-lg text-center">
-                      <span className="text-[10px] uppercase font-bold text-purple-400 tracking-wider">
-                        {monthStr}
-                      </span>
-                      <span className="text-xl font-black text-white leading-none">
-                        {dayNum}
-                      </span>
-                    </div>
-
-                    <div className="space-y-1.5">
-                      <div className="flex flex-wrap items-center gap-2">
-                        <span className={`px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider border ${badge.bg}`}>
-                          {badge.label}
-                        </span>
-                        <span className="text-xs text-gray-400 capitalize">{weekdayStr}</span>
-                      </div>
-
-                      <h2 className="text-lg font-bold text-white tracking-tight">{evt.title}</h2>
-
-                      <div className="flex flex-wrap items-center gap-4 text-xs text-gray-400 pt-1">
-                        {evt.start_time && (
-                          <div className="flex items-center gap-1.5 text-gray-300">
-                            <Clock size={13} className="text-purple-400" />
-                            <span>{evt.start_time} {evt.end_time ? `- ${evt.end_time}` : ""}</span>
-                          </div>
-                        )}
-                        {evt.location && (
-                          <div className="flex items-center gap-1.5 text-gray-300">
-                            <MapPin size={13} className="text-pink-400" />
-                            <span>{evt.location}</span>
-                          </div>
-                        )}
-                      </div>
-
-                      {evt.description && (
-                        <div className="pt-2 text-xs leading-relaxed max-w-xl">
-                          <span className="text-[10px] uppercase font-bold text-purple-400 block mb-1">
-                            Ordre du jour :
-                          </span>
-                          <p className="whitespace-pre-line text-gray-300 bg-white/[0.03] p-3 rounded-xl border border-white/5">
-                            {evt.description}
-                          </p>
-                        </div>
-                      )}
-                    </div>
-                  </div>
-
-                  {/* Right: RSVP & Attendance */}
-                  <div className="w-full md:w-auto flex flex-col sm:flex-row md:flex-col items-start md:items-end justify-between gap-4 shrink-0 border-t md:border-t-0 pt-4 md:pt-0 border-white/5">
-                    {/* Attendance counters */}
-                    <div className="flex items-center gap-2 text-[11px] font-medium">
-                      <span className="px-2.5 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300">
-                        ✓ {evt.presentCount || 0} présent{(evt.presentCount || 0) > 1 ? "s" : ""}
-                      </span>
-                      {(evt.maybeCount || 0) > 0 && (
-                        <span className="px-2.5 py-1 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300">
-                          ? {evt.maybeCount}
-                        </span>
-                      )}
-                      {(evt.absentCount || 0) > 0 && (
-                        <span className="px-2.5 py-1 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300">
-                          ✕ {evt.absentCount}
-                        </span>
-                      )}
-                    </div>
-
-                    {/* Interactive RSVP buttons OR Locked status if event is already done */}
-                    {isDone ? (
-                      <div className="flex items-center gap-2">
-                        {evt.userRsvp === "present" ? (
-                          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 text-xs font-semibold shadow-sm">
-                            <CheckCircle2 size={13} className="text-emerald-400" />
-                            <span>Votre présence : Confirmé ✓</span>
-                          </div>
-                        ) : evt.userRsvp === "absent" ? (
-                          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 text-xs font-semibold shadow-sm">
-                            <XCircle size={13} className="text-red-400" />
-                            <span>Votre présence : Noté absent</span>
-                          </div>
-                        ) : evt.userRsvp === "peut_etre" ? (
-                          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 text-xs font-semibold shadow-sm">
-                            <HelpCircle size={13} className="text-amber-400" />
-                            <span>Votre présence : Était indécis</span>
-                          </div>
-                        ) : (
-                          <div className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/[0.04] border border-white/10 text-gray-400 text-xs font-medium">
-                            <Lock size={12} className="text-gray-400" />
-                            <span>Présences clôturées</span>
-                          </div>
-                        )}
-                      </div>
-                    ) : (
-                      <div className="flex items-center gap-1.5 bg-black/40 p-1 rounded-2xl border border-white/10">
-                        <button
-                          onClick={() => handleRsvp(evt.id, "present")}
-                          className={`px-3 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1.5 ${
-                            evt.userRsvp === "present"
-                              ? "bg-emerald-600 text-white shadow-md shadow-emerald-600/30"
-                              : "text-gray-400 hover:text-white hover:bg-white/5"
-                          }`}
-                        >
-                          <CheckCircle2 size={13} />
-                          <span>Je participe</span>
-                        </button>
-
-                        <button
-                          onClick={() => handleRsvp(evt.id, "peut_etre")}
-                          className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
-                            evt.userRsvp === "peut_etre"
-                              ? "bg-amber-600 text-white shadow-md shadow-amber-600/30"
-                              : "text-gray-400 hover:text-white hover:bg-white/5"
-                          }`}
-                        >
-                          <HelpCircle size={13} />
-                          <span>Peut-être</span>
-                        </button>
-
-                        <button
-                          onClick={() => handleRsvp(evt.id, "absent")}
-                          className={`px-2.5 py-1.5 rounded-xl text-xs font-bold transition-all flex items-center gap-1 ${
-                            evt.userRsvp === "absent"
-                              ? "bg-red-600 text-white shadow-md shadow-red-600/30"
-                              : "text-gray-400 hover:text-white hover:bg-white/5"
-                          }`}
-                        >
-                          <XCircle size={13} />
-                          <span>Absent</span>
-                        </button>
-                      </div>
-                    )}
-
-                    {/* Bureau/Creator delete */}
-                    {isBureau && (
-                      <button
-                        onClick={() => handleDeleteEvent(evt.id, evt.title)}
-                        className="text-gray-500 hover:text-red-400 text-xs flex items-center gap-1 transition-colors self-end"
-                      >
-                        <Trash2 size={12} />
-                        <span>Supprimer</span>
-                      </button>
-                    )}
-                  </div>
+          {/* Section 2: Past Events & Archives (Collapsible) */}
+          {pastEvents.length > 0 && (
+            <div className="space-y-6 pt-4 border-t border-white/10">
+              <div className="flex items-center justify-between">
+                <div className="flex items-center gap-2.5">
+                  <Archive size={16} className="text-amber-400" />
+                  <h2 className="text-sm font-bold text-gray-300 uppercase tracking-wider">
+                    Historique des Réunions & PV Archivés
+                  </h2>
+                  <span className="px-2 py-0.5 rounded-full text-[11px] bg-amber-500/15 text-amber-300 border border-amber-500/30 font-mono">
+                    {pastEvents.length}
+                  </span>
                 </div>
 
-                {/* Bottom Section: Procès-Verbal (PV) Bar */}
-                <div className="pt-3.5 border-t border-white/5 flex flex-col sm:flex-row items-start sm:items-center justify-between gap-3 bg-white/[0.015] -mx-6 sm:-mx-7 -mb-6 sm:-mb-7 px-6 sm:px-7 py-3.5 rounded-b-3xl">
-                  {evt.pv_file_url || evt.pv_content ? (
-                    <div className="flex flex-wrap items-center gap-3 w-full justify-between">
-                      <div className="flex flex-wrap items-center gap-2.5">
-                        <button
-                          onClick={() => handleOpenPvReader(evt)}
-                          className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500/25 to-purple-600/25 hover:from-amber-500/40 hover:to-purple-600/40 border border-amber-500/40 text-amber-200 hover:text-white text-xs font-bold transition-all flex items-center gap-2 shadow-md shadow-amber-900/10"
-                        >
-                          <FileText size={15} className="text-amber-400" />
-                          <span>Consulter / Télécharger le PV {evt.event_type === "ag" ? "(AG)" : "(Réunion)"}</span>
-                        </button>
+                <button
+                  onClick={() => setShowPastEvents(!showPastEvents)}
+                  className="px-3.5 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-gray-300 hover:text-white text-xs font-semibold flex items-center gap-1.5 transition-all"
+                >
+                  <span>{showPastEvents ? "Réduire" : `Afficher (${pastEvents.length})`}</span>
+                  {showPastEvents ? <ChevronUp size={14} /> : <ChevronDown size={14} />}
+                </button>
+              </div>
 
-                        {evt.pv_file_name && (
-                          <span className="inline-flex items-center gap-1.5 px-2.5 py-1 rounded-lg bg-white/5 text-[11px] text-gray-300 border border-white/10 font-mono">
-                            <Paperclip size={12} className="text-purple-400" />
-                            <span className="truncate max-w-[200px]">{evt.pv_file_name}</span>
-                          </span>
-                        )}
+              {showPastEvents && (
+                <div className="space-y-6 animate-in fade-in slide-in-from-top-2 duration-200">
+                  <div className="p-3.5 rounded-2xl bg-amber-500/10 border border-amber-500/20 text-xs text-amber-200/90 flex items-center gap-2.5">
+                    <CheckCircle2 size={16} className="text-amber-400 shrink-0" />
+                    <span>
+                      Ces séances sont déjà tenues. Vous pouvez consulter les comptes-rendus, votes et procès-verbaux officiels (PV) en cliquant sur chaque réunion.
+                    </span>
+                  </div>
 
-                        <span className="hidden sm:inline-block text-xs text-gray-400">
-                          Joint par <strong className="text-purple-300 font-medium">{evt.pv_author_name || "Secrétariat"}</strong>
-                        </span>
-                      </div>
+                  <div className="space-y-6">
+                    {pastEvents.map((evt) => renderEventCard(evt, true))}
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+        </div>
+      )}
 
-                      {isBureau && (
-                        <button
-                          onClick={() => handleOpenPvEditor(evt)}
-                          className="text-xs text-purple-400 hover:text-purple-300 underline underline-offset-4 flex items-center gap-1"
-                        >
-                          <Edit3 size={13} />
-                          <span>Remplacer le fichier PV</span>
-                        </button>
-                      )}
-                    </div>
-                  ) : isPastOrToday && isMeetingOrAg ? (
-                    <div className="flex flex-wrap items-center justify-between gap-3 w-full">
-                      <div className="flex items-center gap-2 text-xs text-amber-300/80 bg-amber-500/10 border border-amber-500/20 px-3 py-1.5 rounded-xl">
-                        <Clock size={13} className="text-amber-400 shrink-0" />
-                        <span>PV en attente de dépôt du document (PDF / Word)</span>
-                      </div>
-
-                      {isBureau && (
-                        <button
-                          onClick={() => handleOpenPvEditor(evt)}
-                          className="px-4 py-2 rounded-xl bg-gradient-to-r from-amber-500/20 to-purple-600/30 hover:from-amber-500/35 hover:to-purple-600/45 border border-amber-500/40 text-amber-200 hover:text-white text-xs font-bold transition-all flex items-center gap-2 shadow-sm"
-                        >
-                          <UploadCloud size={14} className="text-amber-400" />
-                          <span>Joindre le fichier PV (PDF / Word)</span>
-                        </button>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="flex items-center gap-2 text-[11px] text-gray-400 italic">
-                      <Clock size={12} className="text-gray-500" />
-                      <span>Séance à venir — Le document officiel du PV sera joint et publié après la réunion.</span>
-                    </div>
-                  )}
+      {/* Monthly Calendar Modal */}
+      {isCalendarModalOpen && (
+        <div className="fixed inset-0 z-40 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-200">
+          <div className="w-full max-w-5xl bg-[#101016] border border-white/15 rounded-3xl shadow-2xl overflow-hidden flex flex-col max-h-[92vh]">
+            {/* Modal Top Bar */}
+            <div className="px-5 sm:px-7 py-4 border-b border-white/10 flex items-center justify-between bg-white/[0.02]">
+              <div className="flex items-center gap-3">
+                <div className="w-9 h-9 rounded-xl bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-400">
+                  <CalendarDays size={18} />
+                </div>
+                <div>
+                  <h3 className="text-base sm:text-lg font-bold text-white flex items-center gap-2">
+                    <span>Calendrier Mensuel du Club</span>
+                  </h3>
+                  <p className="text-[11px] text-gray-400 hidden sm:block">
+                    Sélectionnez un jour pour explorer les réunions, workshops et PV archivés.
+                  </p>
                 </div>
               </div>
-            );
-          })}
+
+              {/* Close Button */}
+              <button
+                onClick={() => setIsCalendarModalOpen(false)}
+                className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-colors"
+              >
+                ✕
+              </button>
+            </div>
+
+            {/* Modal Body: Split view on Desktop, Stacked on Mobile */}
+            <div className="p-3.5 sm:p-7 overflow-y-auto flex-1 grid grid-cols-1 lg:grid-cols-12 gap-5 sm:gap-6">
+              {/* Left Side: Calendar Month View (lg:col-span-7) */}
+              <div className="lg:col-span-7 flex flex-col justify-between space-y-4">
+                {/* Month Navigation Header */}
+                <div className="flex items-center justify-between pb-3 border-b border-white/5">
+                  <div className="flex items-center gap-1.5 sm:gap-2">
+                    <button
+                      onClick={goToPreviousMonth}
+                      className="p-1.5 sm:p-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 transition-colors"
+                      title="Mois précédent"
+                    >
+                      <ChevronLeft size={16} />
+                    </button>
+                    <h4 className="text-sm sm:text-lg font-extrabold text-white tracking-tight min-w-[120px] sm:min-w-[150px] text-center capitalize">
+                      {MONTH_NAMES[currentMonthDate.getMonth()]} {currentMonthDate.getFullYear()}
+                    </h4>
+                    <button
+                      onClick={goToNextMonth}
+                      className="p-1.5 sm:p-2 rounded-xl bg-white/5 hover:bg-white/10 text-gray-300 hover:text-white border border-white/10 transition-colors"
+                      title="Mois suivant"
+                    >
+                      <ChevronRight size={16} />
+                    </button>
+                  </div>
+
+                  <button
+                    onClick={goToToday}
+                    className="px-3 py-1.5 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-purple-300 text-xs font-semibold transition-all"
+                  >
+                    Aujourd&apos;hui
+                  </button>
+                </div>
+
+                {/* Weekday Labels Header */}
+                <div className="grid grid-cols-7 gap-1 text-center">
+                  {WEEK_DAYS.map((wd) => (
+                    <span key={wd} className="text-[11px] font-bold text-gray-400 uppercase tracking-wider py-1">
+                      {wd}
+                    </span>
+                  ))}
+                </div>
+
+                {/* Calendar Grid Tiles */}
+                <div className="grid grid-cols-7 gap-1 sm:gap-1.5">
+                  {calendarGridDays.map((cell, idx) => {
+                    const cellEvents = events.filter((e) => e.event_date === cell.dateStr);
+                    const isSelected = cell.dateStr === selectedDateStr;
+                    const isToday = cell.dateStr === todayStr;
+
+                    return (
+                      <button
+                        key={`${cell.dateStr}-${idx}`}
+                        onClick={() => {
+                          setSelectedDateStr(cell.dateStr);
+                          if (cell.isPrevMonth) goToPreviousMonth();
+                          if (cell.isNextMonth) goToNextMonth();
+                        }}
+                        className={`min-h-[50px] sm:min-h-[64px] p-1.5 sm:p-2 rounded-xl sm:rounded-2xl flex flex-col items-center justify-between transition-all relative ${
+                          cell.isCurrentMonth ? "text-white" : "text-gray-600 opacity-40 hover:opacity-75"
+                        } ${
+                          isSelected
+                            ? "bg-purple-600 text-white font-bold ring-2 ring-purple-400 shadow-lg shadow-purple-600/30 scale-[1.02] z-10"
+                            : isToday
+                            ? "bg-purple-950/40 border border-purple-500/50 hover:bg-white/10"
+                            : cellEvents.length > 0
+                            ? "bg-white/[0.04] border border-white/10 hover:bg-white/[0.08]"
+                            : "bg-white/[0.015] border border-white/5 hover:bg-white/5"
+                        }`}
+                      >
+                        <span className={`text-xs sm:text-sm ${isToday && !isSelected ? "text-purple-300 font-extrabold" : ""}`}>
+                          {cell.day}
+                        </span>
+
+                        {/* Dots for event types */}
+                        <div className="flex flex-wrap items-center justify-center gap-1 mt-1 min-h-[8px]">
+                          {cellEvents.slice(0, 3).map((evt) => (
+                            <span
+                              key={evt.id}
+                              className={`w-1.5 h-1.5 sm:w-2 sm:h-2 rounded-full ${getDotColor(evt.event_type)} ring-1 ring-black/40`}
+                              title={`${evt.title} (${getTypeBadge(evt.event_type).label})`}
+                            />
+                          ))}
+                          {cellEvents.length > 3 && (
+                            <span className="text-[8px] leading-none text-purple-300 font-bold">
+                              +{cellEvents.length - 3}
+                            </span>
+                          )}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+
+                {/* Color Legend */}
+                <div className="pt-3 border-t border-white/5 flex flex-wrap items-center justify-between gap-3 text-[11px] text-gray-400">
+                  <span className="font-semibold text-gray-400">Légende :</span>
+                  <div className="flex flex-wrap items-center gap-3">
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-purple-500 shadow-[0_0_6px_rgba(168,85,247,0.8)]" />
+                      <span>Réunion</span>
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-amber-400 shadow-[0_0_6px_rgba(251,191,36,0.8)]" />
+                      <span>Assemblée Générale</span>
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-blue-400 shadow-[0_0_6px_rgba(96,165,250,0.8)]" />
+                      <span>Workshop</span>
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-red-400 shadow-[0_0_6px_rgba(248,113,113,0.8)]" />
+                      <span>Deadline</span>
+                    </span>
+                    <span className="flex items-center gap-1.5">
+                      <span className="w-2 h-2 rounded-full bg-pink-400 shadow-[0_0_6px_rgba(244,114,182,0.8)]" />
+                      <span>Teambuilding</span>
+                    </span>
+                  </div>
+                </div>
+              </div>
+
+              {/* Right Side on Desktop: Side Details Panel (lg:col-span-5) */}
+              <div className="hidden lg:flex lg:col-span-5 flex-col bg-[#14141c] border border-white/10 rounded-2xl p-5 overflow-y-auto max-h-[600px] shadow-inner">
+                {renderSelectedDayEventsContent()}
+              </div>
+
+              {/* Mobile View: Renders directly below the grid (lg:hidden) */}
+              <div className="block lg:hidden mt-4 pt-4 border-t border-white/10">
+                {renderSelectedDayEventsContent()}
+              </div>
+            </div>
+          </div>
         </div>
       )}
 
@@ -1189,6 +1786,13 @@ export default function CalendrierPage() {
                   className="w-full p-3 bg-white/[0.04] border border-white/10 rounded-xl text-white text-xs focus:outline-none focus:border-purple-500 leading-relaxed resize-y font-sans"
                 />
               </div>
+
+              {statusMsg && statusMsg.type === "error" && (
+                <div className="p-3 bg-red-500/10 border border-red-500/30 rounded-xl text-red-300 text-xs flex items-center gap-2">
+                  <AlertCircle size={15} className="shrink-0 text-red-400" />
+                  <span>{statusMsg.text}</span>
+                </div>
+              )}
 
               <div className="flex items-center justify-end gap-3 pt-4 border-t border-white/10">
                 <button

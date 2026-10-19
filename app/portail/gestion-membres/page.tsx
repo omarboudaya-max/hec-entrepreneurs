@@ -8,6 +8,7 @@ import {
 import { usePortailAuth } from "@/contexts/PortailAuthContext";
 import { supabase } from "@/lib/supabase";
 import { ClubProfile, ClubRole } from "@/types/portail";
+import { sortClubProfiles } from "@/lib/member-sorting";
 
 export default function GestionMembresPage() {
   const { isDeveloper, isBureau } = usePortailAuth();
@@ -45,7 +46,7 @@ export default function GestionMembresPage() {
       });
       const data = await res.json();
       if (data.profiles) {
-        setMembers(data.profiles);
+        setMembers(sortClubProfiles(data.profiles));
       }
     } catch (err) {
       console.error("Error loading members:", err);

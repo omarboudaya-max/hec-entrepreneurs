@@ -90,34 +90,34 @@
 | Nom Complet | Nom d'utilisateur (Username) | Email | Mot de Passe Initial | Rôle | Poste |
 | :--- | :--- | :--- | :--- | :--- | :--- |
 | **Omar Boudaya** | `omarboudaya` | `omarboudaya1@gmail.com` | `omarboudaya5471` | developpeur | Lead Développeur |
-| **Youssef Drira** | `youssefdrira` | `youssef.drira@hec.tn` | `youssefdrira3897` | bureau | Président |
-| **Yassmin Zghal** | `yassminzghal` | `yassmin.zghal@hec.tn` | `yassminzghal2442` | bureau | Secrétaire Générale |
-| **Melek Kammoun** | `melekkammoun` | `melek.kammoun@hec.tn` | `melekkammoun9633` | bureau | Trésorier |
-| **Nourhene Ben Amor** | `nourhenebenamor` | `nourhene.benamor@hec.tn` | `nourhenebenamor8079` | bureau | Vice-Présidente chargée des Adhérents |
-| **Noura Derbel** | `nouraderbel` | `noura.derbel@hec.tn` | `nouraderbel3929` | bureau | Vice-Présidente chargée des Relations Extérieures |
-| **Ines Trabelsi** | `inestrabelsi` | `ines.trabelsi@hec.tn` | `inestrabelsi1493` | bureau | Vice-Présidente chargée de la Communication |
-| **Edam Guermazi** | `edamguermazi` | `edam.guermazi@hec.tn` | `edamguermazi5360` | responsable | Responsable Événements & Projets |
-| **Rihem Abbessi** | `rihemabbessi` | `rihem.abbessi@hec.tn` | `rihemabbessi7393` | responsable | Responsable Développement & Innovation |
-| **Mohamed Hammemi** | `mohamedhammemi` | `mohamed.hammemi@hec.tn` | `mohamedhammemi1520` | responsable | Trésorier Adjoint |
-| **Khadija Houidi** | `khadijahouidi` | `khadija.houidi@hec.tn` | `khadijahouidi5575` | responsable | Responsable Intégration & Expérience Membre |
-| **Achref Jenni** | `achrefjenni` | `achref.jenni@hec.tn` | `achrefjenni8670` | responsable | Responsable Protocole Interne |
-| **Adem Awedi** | `ademawedi` | `adem.awedi@hec.tn` | `ademawedi6560` | responsable | Responsable Sponsoring |
-| **Tesnim Mehdi** | `tesnimmehdi` | `tesnim.mehdi@hec.tn` | `tesnimmehdi9525` | responsable | Responsable Protocole Externe |
-| **Eya Cherif** | `eyacherif` | `eya.cherif@hec.tn` | `eyacherif8876` | responsable | Responsable Planification & Diffusion |
-| **Maryem Khelifi** | `maryemkhelifi` | `maryem.khelifi@hec.tn` | `maryemkhelifi8673` | responsable | Responsable Création de Contenu |
-| **Adem Kammoun** | `ademkammoun` | `adem.kammoun@hec.tn` | `ademkammoun1909` | membre | Membre |
-| **Ahmed Lachiheb** | `ahmedlachiheb` | `ahmed.lachiheb@hec.tn` | `ahmedlachiheb7463` | membre | Membre |
-| **Anis Ayedi** | `anisayedi` | `anis.ayedi@hec.tn` | `anisayedi3809` | membre | Membre |
-| **Asma Hamda** | `asmahamda` | `asma.hamda@hec.tn` | `asmahamda1420` | membre | Membre |
-| **Dhia Ourir** | `dhiaourir` | `dhia.ourir@hec.tn` | `dhiaourir6273` | membre | Membre |
-| **Eya Ferjani** | `eyaferjani` | `eya.ferjani@hec.tn` | `eyaferjani7686` | membre | Membre |
+| **Youssef Drira** | `youssefdrira` | `yousarsif.drira@gmail.com` | `youssefdrira3897` | bureau | Président |
+| **Yassmin Zghal** | `yassminzghal` | `yassminzghal7@gmail.com` | `yassminzghal2442` | bureau | Secrétaire Générale |
+| **Melek Kammoun** | `melekkammoun` | `kamounmelek40@gmail.com` | `melekkammoun9633` | bureau | Trésorier |
+| **Nourhene Ben Amor** | `nourhenebenamor` | `benamornourhene90@gmail.com` | `nourhenebenamor8079` | bureau | Vice-Présidente chargée des Adhérents |
+| **Noura Derbel** | `nouraderbel` | `nouraderbel900@gmail.com` | `nouraderbel3929` | bureau | Vice-Présidente chargée des Relations Extérieures |
+| **Ines Trabelsi** | `inestrabelsi` | `inestrabelsi792@gmail.com` | `inestrabelsi1493` | bureau | Vice-Présidente chargée de la Communication |
+| **Edam Guermazi** | `edamguermazi` | `edamguermazi0312@gmail.com` | `edamguermazi5360` | responsable | Responsable Événements & Projets |
+| **Rihem Abbessi** | `rihemabbessi` | `abbessirihem55@gmail.com` | `rihemabbessi7393` | responsable | Responsable Développement & Innovation |
+| **Mohamed Hammemi** | `mohamedhammemi` | `hammemimohamed597@gmail.com` | `mohamedhammemi1520` | responsable | Trésorier Adjoint |
+| **Khadija Houidi** | `khadijahouidi` | `khadijahouidi0@gmail.com` | `khadijahouidi5575` | responsable | Responsable Intégration & Expérience Membre |
+| **Achref Jenni** | `achrefjenni` | `jenniachref@gmail.com` | `achrefjenni8670` | responsable | Responsable Protocole Interne |
+| **Adem Awedi** | `ademawedi` | `titantitan009i@gmail.com` | `ademawedi6560` | responsable | Responsable Sponsoring |
+| **Tesnim Mehdi** | `tesnimmehdi` | `elmehditesnim@gmail.com` | `tesnimmehdi9525` | responsable | Responsable Protocole Externe |
+| **Eya Cherif** | `eyacherif` | `eyacherif001@gmail.com` | `eyacherif8876` | responsable | Responsable Planification & Diffusion |
+| **Maryem Khelifi** | `maryemkhelifi` | `khlifi.maryeem@gmail.com` | `maryemkhelifi8673` | responsable | Responsable Création de Contenu |
+| **Adem Kammoun** | `ademkammoun` | `ademkamoun18@gmail.com` | `ademkammoun1909` | membre | Membre |
+| **Ahmed Lachiheb** | `ahmedlachiheb` | `ahmedxlachiheb@gmail.com` | `ahmedlachiheb7463` | membre | Membre |
+| **Anis Ayedi** | `anisayedi` | `anisayedi535@gmail.com` | `anisayedi3809` | membre | Membre |
+| **Asma Hamda** | `asmahamda` | `asma.hamda.2025@ihec.ucar.tn` | `asmahamda1420` | membre | Membre |
+| **Dhia Ourir** | `dhiaourir` | `dhia.ourir@gmail.com` | `dhiaourir6273` | membre | Membre |
+| **Eya Ferjani** | `eyaferjani` | `eyaferjani79@gmail.com` | `eyaferjani7686` | membre | Membre |
 | **Faten Kalia** | `fatenkalia` | `faten.kalia@hec.tn` | `fatenkalia6300` | membre | Membre |
-| **Ghadine Swalhia** | `ghadineswalhia` | `ghadine.swalhia@hec.tn` | `ghadineswalhia7773` | membre | Membre |
-| **Ibtihel Haddaoui** | `ibtihelhaddaoui` | `ibtihel.haddaoui@hec.tn` | `ibtihelhaddaoui9193` | membre | Membre |
-| **Jamila Msallem** | `jamilamsallem` | `jamila.msallem@hec.tn` | `jamilamsallem1527` | membre | Membre |
-| **Jassim Abrougui** | `jassimabrougui` | `jassim.abrougui@hec.tn` | `jassimabrougui7689` | membre | Membre |
-| **Laameri Touka** | `laameritouka` | `laameri.touka@hec.tn` | `laameritouka1289` | membre | Membre |
-| **Mariem Chaouachi** | `mariemchaouachi` | `mariem.chaouachi@hec.tn` | `mariemchaouachi5844` | membre | Membre |
+| **Ghadine Swalhia** | `ghadineswalhia` | `ghadinesoualhia1@gmail.com` | `ghadineswalhia7773` | membre | Membre |
+| **Ibtihel Haddaoui** | `ibtihelhaddaoui` | `ibtihel.haddaoui782005@gmail.com` | `ibtihelhaddaoui9193` | membre | Membre |
+| **Jamila Msallem** | `jamilamsallem` | `jamila.msallem@gmail.com` | `jamilamsallem1527` | membre | Membre |
+| **Jassim Abrougui** | `jassimabrougui` | `mohamedjassim.abrougui.2025@ihec.ucar.tn` | `jassimabrougui7689` | membre | Membre |
+| **Laameri Touka** | `laameritouka` | `toukalaameri833@gmail.com` | `laameritouka1289` | membre | Membre |
+| **Mariem Chaouachi** | `mariemchaouachi` | `mariemchaouachi57@gmail.com` | `mariemchaouachi5844` | membre | Membre |
 | **Mariem Khamassi** | `mariemkhamassi` | `mariem.khamassi@hec.tn` | `mariemkhamassi5116` | membre | Membre |
-| **Ons Cherni** | `onscherni` | `ons.cherni@hec.tn` | `onscherni8084` | membre | Membre |
-| **Tasnim Daadoucha** | `tasnimdaadoucha` | `tasnim.daadoucha@hec.tn` | `tasnimdaadoucha9878` | membre | Membre |
+| **Ons Cherni** | `onscherni` | `onscherni18@gmail.com` | `onscherni8084` | membre | Membre |
+| **Tasnim Daadoucha** | `tasnimdaadoucha` | `tasnimdaadoucha@gmail.com` | `tasnimdaadoucha9878` | membre | Membre |

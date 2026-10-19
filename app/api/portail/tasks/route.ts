@@ -45,11 +45,19 @@ let memoryTasks: any[] = [
   }
 ];
 
+import { isTaskVisibleToUser, getAllowedPolesForUser } from "@/lib/pole-permissions";
+
 // GET /api/portail/tasks
 export async function GET(req: NextRequest) {
   try {
     const user = await getAuthUser(req);
     if (!user) return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
+
+    const { data: userProfile } = await supabaseAdmin
+      .from("club_profiles")
+      .select("role, poste")
+      .eq("id", user.id)
+      .single();
 
     const { data: tasks, error } = await supabaseAdmin
       .from("club_tasks")
@@ -57,7 +65,10 @@ export async function GET(req: NextRequest) {
       .order("created_at", { ascending: false });
 
     if (error || !tasks) {
-      return NextResponse.json({ tasks: memoryTasks, isFallback: true });
+      const visibleMemoryTasks = memoryTasks.filter((t) =>
+        isTaskVisibleToUser(t, user.id, user.email, userProfile?.poste, userProfile?.role)
+      );
+      return NextResponse.json({ tasks: visibleMemoryTasks, isFallback: true });
     }
 
     // Attach assignee profiles
@@ -74,7 +85,12 @@ export async function GET(req: NextRequest) {
       assignee: t.assigned_to ? profileMap.get(t.assigned_to) : null,
     }));
 
-    return NextResponse.json({ tasks: enrichedTasks });
+    // Filter tasks based on user permissions
+    const visibleTasks = enrichedTasks.filter((t) =>
+      isTaskVisibleToUser(t, user.id, user.email, userProfile?.poste, userProfile?.role)
+    );
+
+    return NextResponse.json({ tasks: visibleTasks });
   } catch (err: any) {
     return NextResponse.json({ error: err.message }, { status: 500 });
   }
@@ -89,7 +105,7 @@ export async function POST(req: NextRequest) {
     const isOmar = user.email?.toLowerCase() === "omarboudaya1@gmail.com";
     const { data: profile } = await supabaseAdmin
       .from("club_profiles")
-      .select("role")
+      .select("role, poste")
       .eq("id", user.id)
       .single();
 
@@ -111,6 +127,15 @@ export async function POST(req: NextRequest) {
 
     if (!title) return NextResponse.json({ error: "Titre requis." }, { status: 400 });
 
+    // Validate pole permissions (Marketing removed, department VPs/responsibles only their pole or Général)
+    const targetPole = pole === "Marketing" ? "Général" : pole;
+    const userAllowedPoles = getAllowedPolesForUser(user.email, profile?.poste, profile?.role);
+    if (!userAllowedPoles.includes(targetPole) && targetPole !== "Général") {
+      return NextResponse.json({
+        error: `Vous n'avez pas l'autorisation d'assigner des tâches au pôle ${targetPole}.`
+      }, { status: 403 });
+    }
+
     let createdTask: any = null;
 
     const { data, error } = await supabaseAdmin
@@ -118,7 +143,7 @@ export async function POST(req: NextRequest) {
       .insert({
         title: title.trim(),
         description: description?.trim() || null,
-        pole,
+        pole: targetPole,
         assigned_to: assigned_to || null,
         status,
         priority,
@@ -133,7 +158,7 @@ export async function POST(req: NextRequest) {
         id: `tsk-${Date.now()}`,
         title: title.trim(),
         description: description?.trim() || null,
-        pole,
+        pole: targetPole,
         assigned_to: assigned_to || null,
         status,
         priority,

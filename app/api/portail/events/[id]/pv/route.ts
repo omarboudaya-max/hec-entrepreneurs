@@ -64,47 +64,82 @@ export async function POST(
     const now = new Date().toISOString();
     const authorName = pv_author_name?.trim() || profile?.full_name || "Secrétariat Général";
 
-    const updatePayload: any = {
+    // Format presence tag if custom counts are provided
+    let presenceTag = "";
+    if (custom_present_count !== undefined && custom_present_count !== null && custom_present_count !== "") {
+      const pres = Number(custom_present_count);
+      const abs = custom_absent_count !== undefined && custom_absent_count !== null && custom_absent_count !== "" ? Number(custom_absent_count) : 0;
+      presenceTag = `[PRESENCES:present=${pres},absent=${abs}]`;
+    }
+
+    let combinedContent = pv_content ? pv_content.trim() : (pv_file_name ? `Fichier officiel joint : ${pv_file_name}` : "");
+    if (presenceTag && !combinedContent.includes("[PRESENCES:")) {
+      combinedContent = `${presenceTag}\n\n${combinedContent}`.trim();
+    }
+
+    const fullPayload: any = {
       pv_file_url: pv_file_url || null,
       pv_file_name: pv_file_name || null,
-      pv_content: pv_content ? pv_content.trim() : (pv_file_name ? `Fichier officiel joint : ${pv_file_name}` : null),
+      pv_content: combinedContent || null,
       pv_author_name: authorName,
       pv_decisions: pv_decisions?.trim() || null,
       pv_updated_at: now,
     };
 
-    if (custom_present_count !== undefined) {
-      updatePayload.custom_present_count = custom_present_count !== "" && custom_present_count !== null ? Number(custom_present_count) : null;
+    if (custom_present_count !== undefined && custom_present_count !== null && custom_present_count !== "") {
+      fullPayload.custom_present_count = Number(custom_present_count);
     }
-    if (custom_absent_count !== undefined) {
-      updatePayload.custom_absent_count = custom_absent_count !== "" && custom_absent_count !== null ? Number(custom_absent_count) : null;
+    if (custom_absent_count !== undefined && custom_absent_count !== null && custom_absent_count !== "") {
+      fullPayload.custom_absent_count = Number(custom_absent_count);
     }
 
-    // Attempt Supabase update
+    // Attempt Supabase update with full payload
     let { data: updatedEvent, error: dbError } = await supabaseAdmin
       .from("club_events")
-      .update(updatePayload)
+      .update(fullPayload)
       .eq("id", id)
       .select()
       .single();
 
-    // If error because pv_file_url column doesn't exist yet, retry with legacy columns
-    if (dbError && (dbError.message?.includes("pv_file_url") || dbError.message?.includes("column"))) {
-      const fallbackPayload = {
-        pv_content: pv_file_url ? `[FICHIER_PV:${pv_file_name || 'document'}](${pv_file_url})\n\n${pv_content || ''}`.trim() : pv_content?.trim(),
+    // If error because custom_present_count or custom_absent_count columns do not exist yet in SQL:
+    if (dbError && (dbError.message?.includes("custom_present_count") || dbError.message?.includes("custom_absent_count") || dbError.message?.includes("column"))) {
+      const standardPayload: any = {
+        pv_file_url: pv_file_url || null,
+        pv_file_name: pv_file_name || null,
+        pv_content: combinedContent || null,
         pv_author_name: authorName,
         pv_decisions: pv_decisions?.trim() || null,
         pv_updated_at: now,
       };
-      const retry = await supabaseAdmin
+
+      const retryStandard = await supabaseAdmin
         .from("club_events")
-        .update(fallbackPayload)
+        .update(standardPayload)
         .eq("id", id)
         .select()
         .single();
-      if (!retry.error) {
-        updatedEvent = { ...retry.data, pv_file_url, pv_file_name };
+
+      if (!retryStandard.error) {
+        updatedEvent = retryStandard.data;
         dbError = null;
+      } else if (retryStandard.error.message?.includes("pv_file_url")) {
+        // Fallback only if pv_file_url column itself doesn't exist
+        const legacyPayload = {
+          pv_content: pv_file_url ? `[FICHIER_PV:${pv_file_name || 'document'}](${pv_file_url})\n\n${combinedContent || ''}`.trim() : combinedContent || null,
+          pv_author_name: authorName,
+          pv_decisions: pv_decisions?.trim() || null,
+          pv_updated_at: now,
+        };
+        const retryLegacy = await supabaseAdmin
+          .from("club_events")
+          .update(legacyPayload)
+          .eq("id", id)
+          .select()
+          .single();
+        if (!retryLegacy.error) {
+          updatedEvent = { ...retryLegacy.data, pv_file_url, pv_file_name };
+          dbError = null;
+        }
       }
     }
 
@@ -118,7 +153,7 @@ export async function POST(
       if (idx !== -1) {
         global.__memoryEvents[idx] = {
           ...global.__memoryEvents[idx],
-          ...updatePayload,
+          ...fullPayload,
         };
       }
     }
@@ -127,7 +162,7 @@ export async function POST(
       success: true,
       event: updatedEvent || {
         id,
-        ...updatePayload,
+        ...fullPayload,
       },
     });
   } catch (err: any) {

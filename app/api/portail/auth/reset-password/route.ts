@@ -19,10 +19,12 @@ export async function POST(req: NextRequest) {
     let targetProfile: { id: string; email: string; full_name: string } | null = null;
 
     if (cleanInput.includes("@")) {
+      const emailLower = cleanInput.toLowerCase();
+      const resolvedEmail = emailLower === "asma.hamda0@gmail.com" ? "asma.hamda.2025@ihec.ucar.tn" : emailLower;
       const { data } = await supabaseAdmin
         .from("club_profiles")
         .select("id, email, full_name")
-        .ilike("email", cleanInput.toLowerCase())
+        .ilike("email", resolvedEmail)
         .maybeSingle();
       targetProfile = data;
     } else {
