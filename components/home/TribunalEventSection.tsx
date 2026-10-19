@@ -14,7 +14,7 @@ export default function TribunalEventSection() {
   const backgroundOpacity = useTransform(eventScroll, [0, 1], [0.3, 1]);
 
   return (
-    <section ref={eventRef} className="py-16 md:py-36 relative overflow-hidden flex items-center min-h-0 md:min-h-[85vh]">
+    <section id="projets" ref={eventRef} className="py-16 md:py-36 relative overflow-hidden flex items-center min-h-0 md:min-h-[85vh] scroll-mt-24">
       {/* Background photo faded */}
       <motion.div 
         className="absolute inset-0 z-0 bg-[url('/event-tribunal.jpg')] bg-cover bg-center bg-no-repeat"
@@ -65,9 +65,14 @@ export default function TribunalEventSection() {
             </div>
 
             <div className="inline-block">
-              <div className="inline-flex items-center gap-2 text-amber-900 dark:text-[#d4af37] bg-amber-500/15 dark:bg-[#d4af37]/10 px-3.5 py-1.5 rounded-full border border-amber-600/30 dark:border-[#d4af37]/30 mb-4 text-xs font-serif uppercase tracking-widest shadow-sm">
-                <Award className="w-4 h-4 text-amber-700 dark:text-[#d4af37]" />
-                <span>Meilleur Événement 2026</span>
+              <div className="flex flex-wrap items-center gap-2 mb-4 justify-center md:justify-start">
+                <span className="px-3.5 py-1.5 rounded-full bg-purple-600/15 dark:bg-purple-500/20 text-purple-800 dark:text-purple-300 border border-purple-500/30 text-xs font-mono uppercase tracking-[0.2em] font-semibold">
+                  Nos Projets
+                </span>
+                <div className="inline-flex items-center gap-2 text-amber-900 dark:text-[#d4af37] bg-amber-500/15 dark:bg-[#d4af37]/10 px-3.5 py-1.5 rounded-full border border-amber-600/30 dark:border-[#d4af37]/30 text-xs font-serif uppercase tracking-widest shadow-sm">
+                  <Award className="w-4 h-4 text-amber-700 dark:text-[#d4af37]" />
+                  <span>Meilleur Événement 2026</span>
+                </div>
               </div>
               <h2 className="text-2xl sm:text-4xl md:text-5xl lg:text-6xl font-serif text-stone-900 dark:text-[#ece2d0] uppercase tracking-tight sm:tracking-[0.1em] drop-shadow-sm leading-tight border-b border-amber-600/30 dark:border-[#d4af37]/30 pb-4 break-words">
                 LE TRIBUNAL DE<br/><span className="text-amber-700 dark:text-[#d4af37]">L&apos;ENTREPRENEURIAT</span>

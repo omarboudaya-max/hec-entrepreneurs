@@ -594,7 +594,7 @@ export default function About() {
                     </div>
                     
                     {/* Projects Section */}
-                    <div className="mb-32 mt-32">
+                    <div id="projets" className="mb-32 mt-32 scroll-mt-24">
                         <div className="text-center mb-16">
                             <h2 className="text-3xl sm:text-4xl md:text-6xl font-thin uppercase tracking-[0.1em] italic mb-4">
                                 <span className="text-wave">NOS PROJETS</span>

@@ -78,11 +78,18 @@ export default function Hero() {
                     </motion.p>
 
                     <div className="flex flex-col sm:flex-row gap-4 md:gap-6 justify-center items-center">
-                        <Link href="/entrepreuneuriat" className="w-full sm:w-auto">
+                        <a
+                            href="#projets"
+                            onClick={(e) => {
+                                e.preventDefault();
+                                document.getElementById("projets")?.scrollIntoView({ behavior: "smooth" });
+                            }}
+                            className="w-full sm:w-auto"
+                        >
                             <button className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-white/60 dark:bg-transparent border border-slate-300 dark:border-white/40 hover:bg-slate-100 dark:hover:bg-white/5 text-slate-900 dark:text-white font-medium text-base backdrop-blur-sm transition-all tracking-[0.15em] uppercase shadow-sm">
                                 Découvrir nos projets
                             </button>
-                        </Link>
+                        </a>
                         <Link href="/join" className="w-full sm:w-auto">
                             <button className="w-full sm:w-auto px-8 py-4 rounded-2xl bg-purple-600/15 dark:bg-[#7c3aed]/20 hover:bg-purple-600/25 dark:hover:bg-[#7c3aed]/35 border border-purple-500/40 dark:border-[#7c3aed]/50 text-purple-900 dark:text-white font-semibold text-base transition-all hover:shadow-[0_0_30px_rgba(124,58,237,0.2)] tracking-[0.15em] uppercase flex items-center justify-center gap-3">
                                 <span className="w-2.5 h-2.5 rounded-full bg-amber-500 dark:bg-amber-400 animate-pulse" />

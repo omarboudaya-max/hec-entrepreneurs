@@ -262,7 +262,7 @@ export default function AutresCreneauxPage() {
 
               <div className="flex flex-wrap items-center justify-center gap-3 pt-2">
                 <Link
-                  href="/entrepreuneuriat"
+                  href="/#projets"
                   className="px-7 py-3.5 rounded-2xl bg-purple-600 hover:bg-purple-700 text-white font-bold text-xs uppercase tracking-widest transition-all shadow-md shadow-purple-600/25 hover:scale-105"
                 >
                   Découvrir nos projets

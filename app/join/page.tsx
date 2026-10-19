@@ -477,7 +477,7 @@ export default function Join() {
 
                             <div className="flex flex-wrap items-center justify-center gap-4 pt-2">
                                 <Link
-                                    href="/entrepreuneuriat"
+                                    href="/#projets"
                                     className="px-8 py-3.5 rounded-2xl bg-primary hover:bg-primary/90 text-white font-medium text-xs uppercase tracking-widest transition-all shadow-lg shadow-primary/20 hover:scale-105"
                                 >
                                     Découvrir nos projets
