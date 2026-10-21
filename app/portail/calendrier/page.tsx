@@ -1,15 +1,54 @@
 "use client";
 
 import React, { useState, useEffect, useMemo } from "react";
+import Image from "next/image";
 import {
   Calendar as CalendarIcon, Clock, MapPin, Users, Plus, CheckCircle2,
   XCircle, HelpCircle, Trash2, Send, AlertCircle, Sparkles, Filter,
   FileText, Printer, Copy, Check, Edit3, ShieldAlert, Lock,
   UploadCloud, Download, ExternalLink, Paperclip, FileCheck,
-  ChevronLeft, ChevronRight, CalendarDays, ChevronDown, ChevronUp, Archive
+  ChevronLeft, ChevronRight, CalendarDays, ChevronDown, ChevronUp, Archive,
+  ShieldCheck, Search, X
 } from "lucide-react";
 import { usePortailAuth } from "@/contexts/PortailAuthContext";
 import { supabase } from "@/lib/supabase";
+import { EventRsvpItem } from "@/types/portail";
+
+function RoleBadgeSmall({ role, poste }: { role?: string; poste?: string }) {
+  if (role === "nouveau_membre" || poste?.toLowerCase() === "nouveau membre" || poste?.toLowerCase().includes("nouveau membre")) {
+    return (
+      <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-emerald-500/20 text-emerald-300 border border-emerald-500/30">
+        Nouveau Membre
+      </span>
+    );
+  }
+  if (role === "developpeur") {
+    return (
+      <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-red-500/20 text-red-400 border border-red-500/30">
+        Développeur
+      </span>
+    );
+  }
+  if (role === "bureau") {
+    return (
+      <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-400 border border-amber-500/30">
+        Bureau
+      </span>
+    );
+  }
+  if (role === "responsable") {
+    return (
+      <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-purple-500/20 text-purple-400 border border-purple-500/30">
+        Responsable
+      </span>
+    );
+  }
+  return (
+    <span className="px-2 py-0.5 rounded-full text-[9px] font-bold uppercase tracking-wider bg-blue-500/20 text-blue-400 border border-blue-500/30">
+      Membre
+    </span>
+  );
+}
 
 interface EventItem {
   id: string;
@@ -33,13 +72,20 @@ interface EventItem {
   pv_author_name?: string | null;
   pv_decisions?: string | null;
   pv_updated_at?: string | null;
+  rsvps?: EventRsvpItem[];
 }
 
 export default function CalendrierPage() {
-  const { user, isResponsable, isBureau } = usePortailAuth();
+  const { user, profile, isResponsable, isBureau } = usePortailAuth();
   const [events, setEvents] = useState<EventItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [filterType, setFilterType] = useState<string>("all");
+
+  // Attendees Modal State (Bureau Exécutif Only)
+  const [selectedEventForAttendees, setSelectedEventForAttendees] = useState<EventItem | null>(null);
+  const [attendeesTab, setAttendeesTab] = useState<"present" | "peut_etre" | "absent">("present");
+  const [attendeesSearch, setAttendeesSearch] = useState("");
+  const [copiedAttendees, setCopiedAttendees] = useState(false);
 
   // Monthly Calendar Modal State
   const [isCalendarModalOpen, setIsCalendarModalOpen] = useState(false);
@@ -188,12 +234,38 @@ export default function CalendrierPage() {
         if (status === "absent") aCount += 1;
         if (status === "peut_etre") mCount += 1;
 
+        let updatedRsvps = evt.rsvps ? [...evt.rsvps] : undefined;
+        if (user && evt.rsvps) {
+          const userIdx = evt.rsvps.findIndex((r) => r.user_id === user.id);
+          const newRsvp: EventRsvpItem = {
+            event_id: eventId,
+            user_id: user.id,
+            status,
+            created_at: new Date().toISOString(),
+            profile: profile
+              ? {
+                  id: profile.id,
+                  full_name: profile.full_name,
+                  role: profile.role,
+                  poste: profile.poste,
+                  avatar_url: profile.avatar_url,
+                }
+              : null,
+          };
+          if (userIdx >= 0) {
+            updatedRsvps![userIdx] = newRsvp;
+          } else {
+            updatedRsvps!.push(newRsvp);
+          }
+        }
+
         return {
           ...evt,
           userRsvp: status,
           presentCount: pCount,
           absentCount: aCount,
           maybeCount: mCount,
+          rsvps: updatedRsvps,
         };
       })
     );
@@ -612,21 +684,86 @@ export default function CalendrierPage() {
           {/* Right: RSVP & Attendance */}
           <div className="w-full md:w-auto flex flex-col sm:flex-row md:flex-col items-start md:items-end justify-between gap-4 shrink-0 border-t md:border-t-0 pt-4 md:pt-0 border-white/5">
             {/* Attendance counters */}
-            <div className="flex items-center gap-2 text-[11px] font-medium">
-              <span className="px-2.5 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300">
-                ✓ {evt.presentCount || 0} présent{(evt.presentCount || 0) > 1 ? "s" : ""}
-              </span>
-              {(evt.maybeCount || 0) > 0 && (
-                <span className="px-2.5 py-1 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300">
-                  ? {evt.maybeCount}
+            <div className="flex flex-wrap items-center gap-2 text-[11px] font-medium">
+              {isBureau ? (
+                <button
+                  type="button"
+                  onClick={() => {
+                    setSelectedEventForAttendees(evt);
+                    setAttendeesTab("present");
+                    setAttendeesSearch("");
+                  }}
+                  title="Bureau Exécutif : Cliquer pour voir qui est présent"
+                  className="px-2.5 py-1 rounded-xl bg-emerald-500/15 border border-emerald-500/30 text-emerald-300 hover:bg-emerald-500/25 transition-all flex items-center gap-1.5 cursor-pointer shadow-sm group"
+                >
+                  <span>✓ {evt.presentCount || 0} présent{(evt.presentCount || 0) > 1 ? "s" : ""}</span>
+                  <Users size={11} className="text-emerald-400 group-hover:scale-110 transition-transform" />
+                </button>
+              ) : (
+                <span className="px-2.5 py-1 rounded-xl bg-emerald-500/10 border border-emerald-500/20 text-emerald-300">
+                  ✓ {evt.presentCount || 0} présent{(evt.presentCount || 0) > 1 ? "s" : ""}
                 </span>
+              )}
+              {(evt.maybeCount || 0) > 0 && (
+                isBureau ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedEventForAttendees(evt);
+                      setAttendeesTab("peut_etre");
+                      setAttendeesSearch("");
+                    }}
+                    title="Bureau Exécutif : Cliquer pour voir les indécis"
+                    className="px-2.5 py-1 rounded-xl bg-amber-500/15 border border-amber-500/30 text-amber-300 hover:bg-amber-500/25 transition-all flex items-center gap-1 cursor-pointer shadow-sm"
+                  >
+                    <span>? {evt.maybeCount}</span>
+                  </button>
+                ) : (
+                  <span className="px-2.5 py-1 rounded-xl bg-amber-500/10 border border-amber-500/20 text-amber-300">
+                    ? {evt.maybeCount}
+                  </span>
+                )
               )}
               {(evt.absentCount || 0) > 0 && (
-                <span className="px-2.5 py-1 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300">
-                  ✕ {evt.absentCount}
-                </span>
+                isBureau ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedEventForAttendees(evt);
+                      setAttendeesTab("absent");
+                      setAttendeesSearch("");
+                    }}
+                    title="Bureau Exécutif : Cliquer pour voir les absents"
+                    className="px-2.5 py-1 rounded-xl bg-red-500/15 border border-red-500/30 text-red-300 hover:bg-red-500/25 transition-all flex items-center gap-1 cursor-pointer shadow-sm"
+                  >
+                    <span>✕ {evt.absentCount}</span>
+                  </button>
+                ) : (
+                  <span className="px-2.5 py-1 rounded-xl bg-red-500/10 border border-red-500/20 text-red-300">
+                    ✕ {evt.absentCount}
+                  </span>
+                )
               )}
             </div>
+
+            {/* Bureau-Only Button: "Voir les présences" */}
+            {isBureau && (
+              <button
+                type="button"
+                onClick={() => {
+                  setSelectedEventForAttendees(evt);
+                  setAttendeesTab("present");
+                  setAttendeesSearch("");
+                }}
+                className="flex items-center gap-1.5 px-3 py-1.5 rounded-xl text-xs font-semibold bg-gradient-to-r from-purple-900/40 to-indigo-900/40 hover:from-purple-800/60 hover:to-indigo-800/60 text-purple-200 border border-purple-500/30 hover:border-purple-400 transition-all shadow-sm"
+              >
+                <Users size={13} className="text-purple-400" />
+                <span>Voir les présences</span>
+                <span className="px-1.5 py-0.2 rounded-md bg-purple-500/20 text-[10px] text-purple-300 font-mono">
+                  Bureau
+                </span>
+              </button>
+            )}
 
             {/* Interactive RSVP buttons OR Locked status if event is already done */}
             {isDone ? (
@@ -870,9 +1007,25 @@ export default function CalendrierPage() {
 
                   {/* Attendance Summary */}
                   <div className="flex items-center gap-2 text-[11px] pt-1">
-                    <span className="px-2 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
-                      ✓ {evt.presentCount || 0} présent{(evt.presentCount || 0) > 1 ? "s" : ""}
-                    </span>
+                    {isBureau ? (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          setSelectedEventForAttendees(evt);
+                          setAttendeesTab("present");
+                          setAttendeesSearch("");
+                        }}
+                        className="px-2 py-0.5 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25 transition-all flex items-center gap-1 cursor-pointer"
+                        title="Bureau Exécutif : Voir la liste des présences"
+                      >
+                        <span>✓ {evt.presentCount || 0} présent{(evt.presentCount || 0) > 1 ? "s" : ""}</span>
+                        <Users size={10} className="text-emerald-400" />
+                      </button>
+                    ) : (
+                      <span className="px-2 py-0.5 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/20">
+                        ✓ {evt.presentCount || 0} présent{(evt.presentCount || 0) > 1 ? "s" : ""}
+                      </span>
+                    )}
                     {(evt.absentCount || 0) > 0 && (
                       <span className="px-2 py-0.5 rounded-lg bg-red-500/10 text-red-300 border border-red-500/20">
                         ✕ {evt.absentCount}
@@ -1504,9 +1657,25 @@ export default function CalendrierPage() {
             <div className="p-3.5 rounded-2xl bg-white/[0.02] border border-white/5 flex flex-wrap items-center justify-between gap-3 text-xs">
               <span className="text-gray-400 font-medium">Émargement & Présences :</span>
               <div className="flex items-center gap-2">
-                <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-bold">
-                  ✓ {selectedEventForPv.presentCount || 0} Présent{(selectedEventForPv.presentCount || 0) > 1 ? "s" : ""}
-                </span>
+                {isBureau ? (
+                  <button
+                    type="button"
+                    onClick={() => {
+                      setSelectedEventForAttendees(selectedEventForPv);
+                      setAttendeesTab("present");
+                      setAttendeesSearch("");
+                    }}
+                    className="px-2.5 py-1 rounded-lg bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 hover:bg-emerald-500/25 transition-all font-bold flex items-center gap-1.5 cursor-pointer"
+                    title="Bureau Exécutif : Voir la liste nominative des présences"
+                  >
+                    <span>✓ {selectedEventForPv.presentCount || 0} Présent{(selectedEventForPv.presentCount || 0) > 1 ? "s" : ""}</span>
+                    <Users size={11} className="text-emerald-400" />
+                  </button>
+                ) : (
+                  <span className="px-2.5 py-1 rounded-lg bg-emerald-500/10 text-emerald-300 border border-emerald-500/20 font-bold">
+                    ✓ {selectedEventForPv.presentCount || 0} Présent{(selectedEventForPv.presentCount || 0) > 1 ? "s" : ""}
+                  </span>
+                )}
                 <span className="px-2.5 py-1 rounded-lg bg-red-500/10 text-red-300 border border-red-500/20 font-bold">
                   ✕ {selectedEventForPv.absentCount || 0} Absent{(selectedEventForPv.absentCount || 0) > 1 ? "s" : ""}
                 </span>
@@ -1845,6 +2014,347 @@ export default function CalendrierPage() {
           </div>
         </div>
       )}
+      {/* Bureau-Only Attendees Modal */}
+      {isBureau && selectedEventForAttendees && (() => {
+        const evt = events.find((e) => e.id === selectedEventForAttendees.id) || selectedEventForAttendees;
+        const allRsvps = evt.rsvps || [];
+        const presentList = allRsvps.filter((r) => r.status === "present");
+        const maybeList = allRsvps.filter((r) => r.status === "peut_etre");
+        const absentList = allRsvps.filter((r) => r.status === "absent");
+
+        const currentList =
+          attendeesTab === "present"
+            ? presentList
+            : attendeesTab === "peut_etre"
+            ? maybeList
+            : absentList;
+
+        const filteredList = currentList.filter((item) => {
+          if (!attendeesSearch.trim()) return true;
+          const q = attendeesSearch.toLowerCase();
+          const name = item.profile?.full_name?.toLowerCase() || "";
+          const poste = item.profile?.poste?.toLowerCase() || "";
+          const role = item.profile?.role?.toLowerCase() || "";
+          return name.includes(q) || poste.includes(q) || role.includes(q);
+        });
+
+        const dateObj = new Date(evt.event_date);
+        const dateFormatted = dateObj.toLocaleDateString("fr-FR", {
+          weekday: "long",
+          day: "numeric",
+          month: "long",
+          year: "numeric",
+        });
+
+        const handleCopyList = () => {
+          const lines = [
+            `📋 Présences — ${evt.title}`,
+            `📅 Date : ${dateFormatted}${evt.start_time ? ` à ${evt.start_time}` : ""}`,
+            `📍 Lieu : ${evt.location || "Non précisé"}`,
+            "",
+            `✓ Présents (${presentList.length}) :`,
+            ...(presentList.length > 0
+              ? presentList.map(
+                  (r, i) =>
+                    `${i + 1}. ${r.profile?.full_name || "Membre"} (${r.profile?.poste || r.profile?.role || "Membre"})`
+                )
+              : ["(Aucun membre enregistré)"]),
+            "",
+            `? Peut-être (${maybeList.length}) :`,
+            ...(maybeList.length > 0
+              ? maybeList.map((r, i) => `${i + 1}. ${r.profile?.full_name || "Membre"}`)
+              : ["(Aucun)"]),
+            "",
+            `✕ Absents (${absentList.length}) :`,
+            ...(absentList.length > 0
+              ? absentList.map((r, i) => `${i + 1}. ${r.profile?.full_name || "Membre"}`)
+              : ["(Aucun)"]),
+          ];
+          navigator.clipboard.writeText(lines.join("\n"));
+          setCopiedAttendees(true);
+          setTimeout(() => setCopiedAttendees(false), 2500);
+        };
+
+        return (
+          <div
+            className="fixed inset-0 z-50 flex items-center justify-center p-3 sm:p-6 bg-black/85 backdrop-blur-md animate-in fade-in duration-200"
+            onClick={(e) => {
+              if (e.target === e.currentTarget) setSelectedEventForAttendees(null);
+            }}
+          >
+            <div className="w-full max-w-2xl bg-[#101016] border border-purple-500/30 rounded-3xl shadow-2xl shadow-purple-950/40 overflow-hidden flex flex-col max-h-[92vh]">
+              {/* Modal Top Bar */}
+              <div className="px-5 sm:px-7 py-4 border-b border-white/10 flex items-start justify-between bg-white/[0.02]">
+                <div className="flex items-start gap-3">
+                  <div className="w-10 h-10 rounded-2xl bg-gradient-to-tr from-purple-600 to-indigo-600 flex items-center justify-center text-white shadow-md shadow-purple-600/30 shrink-0 mt-0.5">
+                    <Users size={20} />
+                  </div>
+                  <div>
+                    <div className="flex items-center gap-2 mb-1">
+                      <span className="px-2 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-amber-500/20 text-amber-300 border border-amber-500/30 flex items-center gap-1">
+                        <ShieldCheck size={11} /> Bureau Exécutif
+                      </span>
+                      <span className="text-[11px] text-gray-400 capitalize">
+                        {dateFormatted}
+                      </span>
+                    </div>
+                    <h3 className="text-base sm:text-lg font-bold text-white tracking-tight">
+                      {evt.title}
+                    </h3>
+                    <p className="text-xs text-gray-400 mt-0.5">
+                      Liste nominative des présences confirmées par les membres
+                    </p>
+                  </div>
+                </div>
+
+                <button
+                  onClick={() => setSelectedEventForAttendees(null)}
+                  className="w-8 h-8 rounded-xl bg-white/5 hover:bg-white/10 text-gray-400 hover:text-white flex items-center justify-center transition-colors shrink-0 ml-3"
+                  aria-label="Fermer"
+                >
+                  <X size={16} />
+                </button>
+              </div>
+
+              {/* Tabs Switcher */}
+              <div className="p-4 sm:p-5 pb-2 border-b border-white/10 bg-black/20 space-y-3">
+                <div className="grid grid-cols-3 gap-2">
+                  <button
+                    onClick={() => {
+                      setAttendeesTab("present");
+                      setAttendeesSearch("");
+                    }}
+                    className={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 ${
+                      attendeesTab === "present"
+                        ? "bg-emerald-500/20 text-emerald-300 border border-emerald-500/40 shadow-sm shadow-emerald-500/20"
+                        : "bg-white/[0.03] text-gray-400 hover:text-white hover:bg-white/5 border border-white/5"
+                    }`}
+                  >
+                    <CheckCircle2 size={14} className={attendeesTab === "present" ? "text-emerald-400" : "text-gray-500"} />
+                    <span>Présents</span>
+                    <span
+                      className={`px-2 py-0.2 rounded-full text-[10px] font-mono ${
+                        attendeesTab === "present" ? "bg-emerald-500/30 text-emerald-200" : "bg-white/5 text-gray-400"
+                      }`}
+                    >
+                      {presentList.length}
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setAttendeesTab("peut_etre");
+                      setAttendeesSearch("");
+                    }}
+                    className={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 ${
+                      attendeesTab === "peut_etre"
+                        ? "bg-amber-500/20 text-amber-300 border border-amber-500/40 shadow-sm shadow-amber-500/20"
+                        : "bg-white/[0.03] text-gray-400 hover:text-white hover:bg-white/5 border border-white/5"
+                    }`}
+                  >
+                    <HelpCircle size={14} className={attendeesTab === "peut_etre" ? "text-amber-400" : "text-gray-500"} />
+                    <span>Peut-être</span>
+                    <span
+                      className={`px-2 py-0.2 rounded-full text-[10px] font-mono ${
+                        attendeesTab === "peut_etre" ? "bg-amber-500/30 text-amber-200" : "bg-white/5 text-gray-400"
+                      }`}
+                    >
+                      {maybeList.length}
+                    </span>
+                  </button>
+
+                  <button
+                    onClick={() => {
+                      setAttendeesTab("absent");
+                      setAttendeesSearch("");
+                    }}
+                    className={`py-2 px-3 rounded-xl text-xs font-bold transition-all flex flex-col sm:flex-row items-center justify-center gap-1.5 ${
+                      attendeesTab === "absent"
+                        ? "bg-red-500/20 text-red-300 border border-red-500/40 shadow-sm shadow-red-500/20"
+                        : "bg-white/[0.03] text-gray-400 hover:text-white hover:bg-white/5 border border-white/5"
+                    }`}
+                  >
+                    <XCircle size={14} className={attendeesTab === "absent" ? "text-red-400" : "text-gray-500"} />
+                    <span>Absents</span>
+                    <span
+                      className={`px-2 py-0.2 rounded-full text-[10px] font-mono ${
+                        attendeesTab === "absent" ? "bg-red-500/30 text-red-200" : "bg-white/5 text-gray-400"
+                      }`}
+                    >
+                      {absentList.length}
+                    </span>
+                  </button>
+                </div>
+
+                {/* Search Bar */}
+                <div className="relative">
+                  <Search size={14} className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-500" />
+                  <input
+                    type="text"
+                    value={attendeesSearch}
+                    onChange={(e) => setAttendeesSearch(e.target.value)}
+                    placeholder={`Rechercher parmi les ${currentList.length} ${
+                      attendeesTab === "present" ? "présents" : attendeesTab === "peut_etre" ? "indécis" : "absents"
+                    }...`}
+                    className="w-full pl-9 pr-8 py-2 bg-white/[0.04] border border-white/10 rounded-xl text-xs text-white placeholder-gray-500 focus:outline-none focus:border-purple-500 transition-colors"
+                  />
+                  {attendeesSearch && (
+                    <button
+                      onClick={() => setAttendeesSearch("")}
+                      className="absolute right-2.5 top-1/2 -translate-y-1/2 text-gray-400 hover:text-white"
+                    >
+                      <X size={13} />
+                    </button>
+                  )}
+                </div>
+              </div>
+
+              {/* Members List */}
+              <div className="p-4 sm:p-5 overflow-y-auto space-y-2.5 flex-1 max-h-[48vh] [scrollbar-width:thin]">
+                {/* Physical count notice if manual override is larger */}
+                {attendeesTab === "present" &&
+                  evt.custom_present_count != null &&
+                  evt.custom_present_count > presentList.length && (
+                    <div className="p-3 rounded-2xl bg-purple-500/10 border border-purple-500/20 text-xs text-purple-200/90 flex items-start gap-2.5 mb-3">
+                      <Sparkles size={15} className="text-purple-400 shrink-0 mt-0.5" />
+                      <div>
+                        <span className="font-bold text-white block">
+                          Effectif total constaté : {evt.custom_present_count} participants
+                        </span>
+                        <span className="text-[11px] text-gray-400">
+                          {presentList.length} membre{presentList.length > 1 ? "s ont" : " a"} formellement cliqué sur le portail. Le reste correspond aux présences physiques en séance.
+                        </span>
+                      </div>
+                    </div>
+                  )}
+
+                {filteredList.length === 0 ? (
+                  <div className="py-12 text-center text-gray-500 space-y-2">
+                    <Users size={32} className="mx-auto text-gray-600 opacity-50" />
+                    <p className="text-sm font-semibold text-gray-400">
+                      {attendeesSearch ? "Aucun membre ne correspond à votre recherche" : "Aucun membre enregistré"}
+                    </p>
+                    <p className="text-xs text-gray-500">
+                      {attendeesSearch
+                        ? "Essayez un autre mot-clé ou réinitialisez le filtre."
+                        : "Les membres qui voteront apparaîtront ici."}
+                    </p>
+                  </div>
+                ) : (
+                  filteredList.map((rsvp, idx) => {
+                    const prof = rsvp.profile;
+                    const fullName = prof?.full_name || "Membre";
+                    const initials = fullName
+                      .split(" ")
+                      .map((n) => n[0])
+                      .join("")
+                      .toUpperCase()
+                      .slice(0, 2);
+
+                    return (
+                      <div
+                        key={rsvp.user_id || idx}
+                        className="p-3 rounded-2xl bg-white/[0.03] hover:bg-white/[0.06] border border-white/5 flex items-center justify-between gap-3 transition-colors"
+                      >
+                        <div className="flex items-center gap-3 min-w-0">
+                          {/* Avatar or initials */}
+                          <div className="relative w-10 h-10 rounded-full overflow-hidden shrink-0 bg-gradient-to-tr from-purple-700 to-indigo-600 flex items-center justify-center text-white font-bold text-xs shadow-md border border-white/10">
+                            {prof?.avatar_url ? (
+                              <Image
+                                src={prof.avatar_url}
+                                alt={fullName}
+                                fill
+                                className="object-cover"
+                                unoptimized
+                              />
+                            ) : (
+                              <span>{initials}</span>
+                            )}
+                          </div>
+
+                          {/* Member info */}
+                          <div className="min-w-0">
+                            <div className="flex items-center gap-2 flex-wrap">
+                              <span className="text-xs sm:text-sm font-bold text-white truncate">
+                                {fullName}
+                              </span>
+                              <RoleBadgeSmall role={prof?.role} poste={prof?.poste} />
+                            </div>
+                            <span className="text-[11px] text-gray-400 block truncate">
+                              {prof?.poste || "Membre actif"}
+                            </span>
+                          </div>
+                        </div>
+
+                        {/* Status pill & date */}
+                        <div className="text-right shrink-0">
+                          {rsvp.status === "present" && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-emerald-500/15 text-emerald-300 border border-emerald-500/30 flex items-center gap-1 justify-end">
+                              <CheckCircle2 size={11} /> Confirmé
+                            </span>
+                          )}
+                          {rsvp.status === "peut_etre" && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-amber-500/15 text-amber-300 border border-amber-500/30 flex items-center gap-1 justify-end">
+                              <HelpCircle size={11} /> Indécis
+                            </span>
+                          )}
+                          {rsvp.status === "absent" && (
+                            <span className="px-2 py-0.5 rounded-full text-[10px] font-bold bg-red-500/15 text-red-300 border border-red-500/30 flex items-center gap-1 justify-end">
+                              <XCircle size={11} /> Absent
+                            </span>
+                          )}
+                          {rsvp.created_at && (
+                            <span className="text-[9px] text-gray-500 block mt-0.5 font-mono">
+                              {new Date(rsvp.created_at).toLocaleDateString("fr-FR", {
+                                day: "numeric",
+                                month: "short",
+                              })}
+                            </span>
+                          )}
+                        </div>
+                      </div>
+                    );
+                  })
+                )}
+              </div>
+
+              {/* Modal Bottom Actions */}
+              <div className="px-5 sm:px-7 py-3.5 border-t border-white/10 bg-white/[0.02] flex items-center justify-between gap-3">
+                <span className="text-xs text-gray-400 hidden sm:inline">
+                  Total réponses portail : <strong className="text-white">{allRsvps.length}</strong>
+                </span>
+
+                <div className="flex items-center gap-2 w-full sm:w-auto justify-end">
+                  <button
+                    onClick={handleCopyList}
+                    disabled={presentList.length === 0}
+                    className="px-3.5 py-2 rounded-xl bg-purple-600/20 hover:bg-purple-600/30 border border-purple-500/30 text-purple-200 text-xs font-bold transition-all flex items-center gap-1.5 disabled:opacity-40"
+                  >
+                    {copiedAttendees ? (
+                      <>
+                        <Check size={13} className="text-emerald-400" />
+                        <span className="text-emerald-300">Liste copiée !</span>
+                      </>
+                    ) : (
+                      <>
+                        <Copy size={13} />
+                        <span>Copier la liste</span>
+                      </>
+                    )}
+                  </button>
+
+                  <button
+                    onClick={() => setSelectedEventForAttendees(null)}
+                    className="px-4 py-2 rounded-xl bg-white/10 hover:bg-white/15 text-white text-xs font-bold transition-colors"
+                  >
+                    Fermer
+                  </button>
+                </div>
+              </div>
+            </div>
+          </div>
+        );
+      })()}
     </div>
   );
 }

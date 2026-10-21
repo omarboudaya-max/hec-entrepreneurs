@@ -57,6 +57,22 @@ export interface ClubDocument {
   updated_at: string;
 }
 
+export interface EventRsvpProfile {
+  id: string;
+  full_name: string;
+  role: ClubRole;
+  poste?: string;
+  avatar_url?: string | null;
+}
+
+export interface EventRsvpItem {
+  event_id: string;
+  user_id: string;
+  status: "present" | "absent" | "peut_etre";
+  created_at: string;
+  profile?: EventRsvpProfile | null;
+}
+
 export interface ClubEventItem {
   id: string;
   title: string;
@@ -71,7 +87,7 @@ export interface ClubEventItem {
   presentCount?: number;
   absentCount?: number;
   maybeCount?: number;
-  rsvps?: any[];
+  rsvps?: EventRsvpItem[];
   custom_present_count?: number | null;
   custom_absent_count?: number | null;
   pv_file_url?: string | null;
@@ -81,4 +97,5 @@ export interface ClubEventItem {
   pv_decisions?: string | null;
   pv_updated_at?: string | null;
 }
+
 

@@ -90,6 +90,16 @@ export async function GET(req: NextRequest) {
       return NextResponse.json({ error: "Non authentifié" }, { status: 401 });
     }
 
+    // Check if the requester is Bureau Exécutif or Developer
+    const isOmar = user.email?.toLowerCase() === "omarboudaya1@gmail.com";
+    const { data: userProfile } = await supabaseAdmin
+      .from("club_profiles")
+      .select("role")
+      .eq("id", user.id)
+      .single();
+
+    const isBureauUser = isOmar || userProfile?.role === "bureau" || userProfile?.role === "developpeur";
+
     // Try fetching from database
     const { data: events, error } = await supabaseAdmin
       .from("club_events")
@@ -104,6 +114,7 @@ export async function GET(req: NextRequest) {
           userRsvp: evt.rsvps?.find((r: any) => r.user_id === user.id)?.status || null,
           presentCount: evt.custom_present_count != null ? evt.custom_present_count : (evt.rsvps?.filter((r: any) => r.status === "present").length || 0),
           absentCount: evt.custom_absent_count != null ? evt.custom_absent_count : (evt.rsvps?.filter((r: any) => r.status === "absent").length || 0),
+          rsvps: isBureauUser ? evt.rsvps : undefined,
         })),
         isFallback: true
       });
@@ -130,7 +141,7 @@ export async function GET(req: NextRequest) {
         .filter((r) => r.event_id === evt.id)
         .map((r) => ({
           ...r,
-          profile: profileMap.get(r.user_id)
+          profile: profileMap.get(r.user_id) || null
         }));
 
       const userRsvp = evtRsvps.find((r) => r.user_id === user.id)?.status || null;
@@ -171,7 +182,7 @@ export async function GET(req: NextRequest) {
         pv_file_url: fileUrl,
         pv_file_name: fileName,
         pv_content: cleanContent,
-        rsvps: evtRsvps,
+        rsvps: isBureauUser ? evtRsvps : undefined,
         userRsvp,
         presentCount,
         absentCount,

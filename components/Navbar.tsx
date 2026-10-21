@@ -122,13 +122,15 @@ export default function Navbar() {
                 <div className="flex justify-end items-center z-20 gap-2.5">
                     <ThemeToggle />
                     
-                    <Link
-                        href="/portail"
-                        className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold tracking-wider uppercase bg-purple-600 hover:bg-purple-700 text-white dark:bg-gradient-to-r dark:from-purple-600 dark:to-indigo-600 dark:hover:from-purple-500 dark:hover:to-indigo-500 dark:text-white border border-purple-500/50 dark:border-purple-400/50 shadow-md shadow-purple-600/30 dark:shadow-purple-900/40 transition-all backdrop-blur-md"
-                    >
-                        <Shield className="w-3.5 h-3.5 text-white" />
-                        <span>Espace Membre</span>
-                    </Link>
+                    {pathname === "/" && (
+                        <Link
+                            href="/portail"
+                            className="hidden md:inline-flex items-center gap-2 px-4 py-2 rounded-full text-xs font-bold tracking-wider uppercase bg-purple-600 hover:bg-purple-700 text-white dark:bg-gradient-to-r dark:from-purple-600 dark:to-indigo-600 dark:hover:from-purple-500 dark:hover:to-indigo-500 dark:text-white border border-purple-500/50 dark:border-purple-400/50 shadow-md shadow-purple-600/30 dark:shadow-purple-900/40 transition-all backdrop-blur-md"
+                        >
+                            <Shield className="w-3.5 h-3.5 text-white" />
+                            <span>Espace Membre</span>
+                        </Link>
+                    )}
 
                     {isStore && (
                         <div className="hidden lg:flex items-center gap-2">
@@ -162,14 +164,16 @@ export default function Navbar() {
                                 <ThemeToggle />
                             </div>
 
-                            <Link
-                                href="/portail"
-                                onClick={() => setIsOpen(false)}
-                                className="px-6 py-3 rounded-2xl text-xs font-bold uppercase tracking-[0.1em] transition-all text-center bg-purple-600 hover:bg-purple-700 text-white dark:bg-gradient-to-r dark:from-purple-600 dark:to-indigo-600 dark:hover:from-purple-500 dark:hover:to-indigo-500 dark:text-white border border-purple-500/50 dark:border-purple-400/50 shadow-md shadow-purple-600/30 flex items-center justify-center gap-2 mb-1"
-                            >
-                                <Shield className="w-3.5 h-3.5 text-white" />
-                                <span>Espace Membre</span>
-                            </Link>
+                            {pathname === "/" && (
+                                <Link
+                                    href="/portail"
+                                    onClick={() => setIsOpen(false)}
+                                    className="px-6 py-3 rounded-2xl text-xs font-bold uppercase tracking-[0.1em] transition-all text-center bg-purple-600 hover:bg-purple-700 text-white dark:bg-gradient-to-r dark:from-purple-600 dark:to-indigo-600 dark:hover:from-purple-500 dark:hover:to-indigo-500 dark:text-white border border-purple-500/50 dark:border-purple-400/50 shadow-md shadow-purple-600/30 flex items-center justify-center gap-2 mb-1"
+                                >
+                                    <Shield className="w-3.5 h-3.5 text-white" />
+                                    <span>Espace Membre</span>
+                                </Link>
+                            )}
                             {isStore && (
                                 <div className="p-2 mb-2 border-b border-slate-200 dark:border-white/10">
                                     <input

@@ -593,18 +593,12 @@ export default function AutresCreneauxPage() {
                   Veuillez vous présenter 5 minutes à l&apos;avance devant la salle du club.
                 </p>
 
-                <div className="pt-4 flex flex-col sm:flex-row items-center justify-center gap-3">
+                <div className="pt-4 flex items-center justify-center">
                   <Link
                     href="/"
-                    className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-white/10 dark:hover:bg-white/15 dark:text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-sm"
+                    className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-slate-100 hover:bg-slate-200 text-slate-800 dark:bg-white/10 dark:hover:bg-white/15 dark:text-white text-xs font-bold uppercase tracking-wider transition-colors shadow-sm text-center"
                   >
                     Retour à l&apos;accueil
-                  </Link>
-                  <Link
-                    href="/portail"
-                    className="w-full sm:w-auto px-6 py-3 rounded-2xl bg-gradient-to-r from-purple-600 to-indigo-600 text-white text-xs font-bold uppercase tracking-wider shadow-md shadow-purple-600/20 hover:opacity-90 transition-opacity"
-                  >
-                    Espace Membres
                   </Link>
                 </div>
               </motion.div>
