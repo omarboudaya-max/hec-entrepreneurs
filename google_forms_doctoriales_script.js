@@ -15,17 +15,16 @@
  */
 
 function creerGoogleFormDoctoriales() {
-  const formTitle = "HEC Doctoriales : Atelier IA et Prise de Décisions à l'IHEC";
+  const formTitle = "HEC Doctoriales — Faire de la recherche doctorale un levier d'excellence";
   
   // 1. Création du formulaire Google Forms
   const form = FormApp.create(formTitle);
   
   // Description détaillée avec consignes & prérequis (Chrome & Zip)
   form.setDescription(
-    "Bienvenue à l'atelier 'IA et Prise de Décisions' organisé dans le cadre des HEC Doctoriales à l'IHEC Carthage.\n\n" +
-    "⏱️ Durée de l'atelier : 3 heures complètes de formation pratique et d'études de cas décisionnelles.\n" +
-    "📍 Lieu : IHEC Carthage.\n" +
-    "⚠️ NB : Inscription obligatoire (places limitées).\n\n" +
+    "Bienvenue aux HEC Doctoriales (14e édition) — « Faire de la recherche doctorale un levier d'excellence ».\n\n" +
+    "📅 Dates : 5 & 6 novembre 2026 (Sessions de spécialités de 3 heures le Vendredi 6 novembre de 09h00 à 12h30).\n" +
+    "📍 Lieu : IHEC Carthage.\n\n" +
     "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n" +
     "🔴 PRÉREQUIS TECHNIQUES INDISPENSABLES POUR CHAQUE PARTICIPANT :\n" +
     "1. Disposer d'un ordinateur portable fonctionnel avec son chargeur.\n" +
@@ -36,8 +35,8 @@ function creerGoogleFormDoctoriales() {
   );
   
   form.setConfirmationMessage(
-    "Votre inscription à l'atelier 'IA et Prise de Décisions' (HEC Doctoriales) a bien été enregistrée !\n\n" +
-    "Rappel important : Pensez à venir avec votre ordinateur portable, chargeur, et assurez-vous d'avoir téléchargé Google Chrome et un outil Zip."
+    "Votre inscription aux HEC Doctoriales a bien été enregistrée !\n\n" +
+    "Rappel : Assurez-vous d'avoir téléchargé Google Chrome et un outil Zip avant la session."
   );
   
   form.setAllowResponseEdits(false);
@@ -66,13 +65,19 @@ function creerGoogleFormDoctoriales() {
     .showOtherOption(true) // Option 'Autre'
     .setRequired(true);
 
-  // Question 4 : Niveau d’études
+  // Question 4 : Établissement
   const q4 = form.addMultipleChoiceItem();
-  q4.setTitle("4. Niveau d’études")
+  q4.setTitle("4. Établissement")
     .setChoiceValues([
-      "Licence L1",
-      "Licence L2",
-      "Licence L3",
+      "IHEC Carthage"
+    ])
+    .showOtherOption(true) // Option 'Autre à préciser'
+    .setRequired(true);
+
+  // Question 5 : Niveau d’études
+  const q5 = form.addMultipleChoiceItem();
+  q5.setTitle("5. Niveau d’études")
+    .setChoiceValues([
       "Master M1",
       "Master M2",
       "Doctorat"
@@ -80,9 +85,9 @@ function creerGoogleFormDoctoriales() {
     .showOtherOption(true) // Option 'Autre'
     .setRequired(true);
 
-  // Question 5 : Formation ou spécialité
-  const q5 = form.addMultipleChoiceItem();
-  q5.setTitle("5. Formation ou spécialité")
+  // Question 6 : Formation ou spécialité
+  const q6 = form.addMultipleChoiceItem();
+  q6.setTitle("6. Formation ou spécialité")
     .setChoiceValues([
       "Marketing",
       "Management",
@@ -94,9 +99,20 @@ function creerGoogleFormDoctoriales() {
     .showOtherOption(true) // Option 'Autre'
     .setRequired(true);
 
-  // Question 6 : Disposez-vous d’un ordinateur portable et de son chargeur ?
-  const q6 = form.addMultipleChoiceItem();
-  q6.setTitle("6. Disposez-vous d’un ordinateur portable et de son chargeur ?")
+  // Question 7 : Session souhaitée
+  const q7 = form.addMultipleChoiceItem();
+  q7.setTitle("7. La session à laquelle vous souhaitez participer")
+    .setChoiceValues([
+      "Finance",
+      "Comptabilité",
+      "Marketing",
+      "Management"
+    ])
+    .setRequired(true);
+
+  // Question 8 : Disposez-vous d’un ordinateur portable et de son chargeur ?
+  const q8 = form.addMultipleChoiceItem();
+  q8.setTitle("8. Disposez-vous d’un ordinateur portable et de son chargeur ?")
     .setHelpText("L'atelier comprend des cas pratiques sur machine.")
     .setChoiceValues([
       "Oui",
@@ -104,9 +120,9 @@ function creerGoogleFormDoctoriales() {
     ])
     .setRequired(true);
 
-  // Question 7 : Pouvez-vous participer pendant les trois heures complètes ?
-  const q7 = form.addMultipleChoiceItem();
-  q7.setTitle("7. Pouvez-vous participer pendant les trois heures complètes ?")
+  // Question 9 : Pouvez-vous participer pendant les trois heures complètes ?
+  const q9 = form.addMultipleChoiceItem();
+  q9.setTitle("9. Pouvez-vous participer pendant les trois heures complètes ?")
     .setHelpText("Une présence continue est requise pour bénéficier pleinement de l'atelier.")
     .setChoiceValues([
       "Oui",
@@ -115,9 +131,9 @@ function creerGoogleFormDoctoriales() {
     ])
     .setRequired(true);
 
-  // Question 8 : Quelle est votre langue préférée pour l’atelier ?
-  const q8 = form.addMultipleChoiceItem();
-  q8.setTitle("8. Quelle est votre langue préférée pour l’atelier ? (NB: Inscription obligatoire)")
+  // Question 10 : Quelle est votre langue préférée pour l’atelier ?
+  const q10 = form.addMultipleChoiceItem();
+  q10.setTitle("10. Quelle est votre langue préférée pour l’atelier ?")
     .setChoiceValues([
       "Français",
       "Arabe",
@@ -125,17 +141,17 @@ function creerGoogleFormDoctoriales() {
     ])
     .setRequired(true);
 
-  // Question 9 (Checklist Prérequis Chrome & Zip)
-  const q9 = form.addCheckboxItem();
-  q9.setTitle("Prérequis indispensables : Google Chrome & Utilitaire Zip")
-    .setHelpText("Cochez la case ci-dessous pour confirmer que vous aurez bien Google Chrome et un outil Zip installés sur votre PC pour l'atelier.")
+  // Question 11 (Checklist Prérequis Chrome & Zip)
+  const q11 = form.addCheckboxItem();
+  q11.setTitle("Prérequis indispensables : Google Chrome & Utilitaire Zip")
+    .setHelpText("Cochez la case ci-dessous pour confirmer que vous aurez bien Google Chrome et un outil Zip installés.")
     .setChoiceValues([
-      "J'ai bien noté et je m'engage à télécharger Google Chrome et un outil Zip avant de venir à l'atelier."
+      "Je confirme avoir bien pris connaissance des consignes de l'atelier et avoir téléchargé Google Chrome ainsi qu'un logiciel Zip."
     ])
     .setRequired(true);
 
   // 2. Création automatique de la feuille Google Sheets pour les réponses
-  const ss = SpreadsheetApp.create("HEC Doctoriales 2026 - Réponses Formulaire IA");
+  const ss = SpreadsheetApp.create("HEC Doctoriales 2026 - Réponses Formulaire");
   form.setDestination(FormApp.DestinationType.SPREADSHEET, ss.getId());
 
   const editUrl = form.getEditUrl();

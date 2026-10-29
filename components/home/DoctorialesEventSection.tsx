@@ -35,10 +35,10 @@ export default function DoctorialesEventSection() {
               <div className="absolute bottom-4 left-4 right-4 flex items-center justify-between text-xs text-white">
                 <span className="px-3 py-1 rounded-full bg-purple-900/80 backdrop-blur-md border border-purple-400/30 font-semibold flex items-center gap-1.5">
                   <BrainCircuit className="w-3.5 h-3.5 text-cyan-400" />
-                  Atelier IA & Décisions
+                  HEC Doctoriales • 14e Édition
                 </span>
                 <span className="px-3 py-1 rounded-full bg-slate-900/80 backdrop-blur-md border border-slate-700 font-mono text-[11px] text-slate-300">
-                  IHEC Carthage
+                  5 &amp; 6 Novembre 2026
                 </span>
               </div>
             </div>
@@ -52,31 +52,47 @@ export default function DoctorialesEventSection() {
             viewport={{ margin: "-50px", once: true }}
             transition={{ duration: 0.7, delay: 0.2 }}
           >
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-semibold uppercase tracking-wider">
-              <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-              <span>HEC Doctoriales 2026 • Inscriptions Ouvertes</span>
+            <div className="flex items-center justify-center lg:justify-between gap-4 max-w-xl mx-auto lg:mx-0">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-purple-500/10 border border-purple-500/30 text-purple-300 text-xs font-semibold uppercase tracking-wider">
+                <Sparkles className="w-3.5 h-3.5 text-purple-400" />
+                <span>HEC Doctoriales Series • 5 &amp; 6 Novembre 2026</span>
+              </div>
+
+              <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-white border-2 border-purple-500/40 shadow-[0_0_25px_rgba(168,85,247,0.3)] shrink-0">
+                <Image
+                  src="/ecole-doctorale-logo.jpg"
+                  alt="École Doctorale IHEC Carthage"
+                  fill
+                  className="object-contain p-1"
+                />
+              </div>
             </div>
 
-            <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-stone-900 dark:text-white tracking-tight leading-tight">
-              Atelier IA &amp; <br />
-              <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-400">
-                Prise de Décisions
-              </span>
-            </h2>
+            <div>
+              <h2 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-stone-900 dark:text-white tracking-tight leading-tight">
+                HEC{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-500 via-pink-500 to-cyan-400">
+                  Doctoriales
+                </span>
+              </h2>
+              <p className="text-purple-600 dark:text-purple-300 italic font-serif text-base sm:text-lg mt-2">
+                « Faire de la recherche doctorale un levier d&apos;excellence »
+              </p>
+            </div>
 
             <p className="text-stone-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed max-w-xl mx-auto lg:mx-0 font-normal">
-              Organisé dans le cadre des prestigieuses <strong>Doctoriales de l&apos;IHEC Carthage</strong>, cet atelier exclusif de <strong>3 heures</strong> initie les participants aux méthodologies d&apos;intelligence artificielle appliquées à la prise de décision stratégique et analytique.
+              Organisées par l&apos;<strong>École Doctorale de l&apos;IHEC Carthage</strong> les <strong>5 &amp; 6 novembre 2026</strong>, les <strong>HEC Doctoriales</strong> réunissent chercheurs, docteurs et étudiants autour de panels transversaux, séminaires et sessions de spécialités (Finance, Comptabilité, Marketing &amp; Management).
             </p>
 
             {/* Quick Points */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3 text-xs text-stone-700 dark:text-slate-300 max-w-lg mx-auto lg:mx-0">
               <div className="flex items-center gap-2 p-2.5 rounded-xl bg-purple-500/5 dark:bg-purple-950/20 border border-purple-500/20">
                 <Clock className="w-4 h-4 text-purple-500 shrink-0" />
-                <span>Format immersif de 3 heures</span>
+                <span>5 &amp; 6 Novembre 2026 (09h00 – 17h30)</span>
               </div>
               <div className="flex items-center gap-2 p-2.5 rounded-xl bg-cyan-500/5 dark:bg-cyan-950/20 border border-cyan-500/20">
                 <Laptop className="w-4 h-4 text-cyan-500 shrink-0" />
-                <span>Exercices pratiques sur PC</span>
+                <span>Panels, Séminaires &amp; Sessions</span>
               </div>
               <div className="flex items-center gap-2 p-2.5 rounded-xl bg-slate-500/5 dark:bg-slate-900/60 border border-slate-700/40">
                 <MapPin className="w-4 h-4 text-pink-500 shrink-0" />
@@ -84,7 +100,7 @@ export default function DoctorialesEventSection() {
               </div>
               <div className="flex items-center gap-2 p-2.5 rounded-xl bg-emerald-500/5 dark:bg-emerald-950/20 border border-emerald-500/20">
                 <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>Places limitées sur inscription</span>
+                <span>Finance, Comptabilité, Marketing, Management</span>
               </div>
             </div>
 

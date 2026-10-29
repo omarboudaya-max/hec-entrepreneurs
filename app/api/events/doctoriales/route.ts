@@ -21,10 +21,13 @@ export async function POST(req: NextRequest) {
       email,
       status,
       statusCustom,
+      institution,
+      institutionCustom,
       educationLevel,
       educationLevelCustom,
       specialty,
       specialtyCustom,
+      sessionChoice,
       hasLaptopAndCharger,
       canAttendFullSession,
       preferredLanguage,
@@ -32,7 +35,7 @@ export async function POST(req: NextRequest) {
     } = body;
 
     // Validation des champs obligatoires
-    if (!fullName || !email || !status || !educationLevel || !specialty || !hasLaptopAndCharger || !canAttendFullSession || !preferredLanguage) {
+    if (!fullName || !email || !status || !institution || !educationLevel || !specialty || !sessionChoice || !hasLaptopAndCharger || !canAttendFullSession || !preferredLanguage) {
       return NextResponse.json(
         { success: false, message: "Tous les champs obligatoires doivent être renseignés." },
         { status: 400 }
@@ -43,7 +46,12 @@ export async function POST(req: NextRequest) {
     const randomSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
     const registrationId = `DOC-IA-${Date.now().toString(36).toUpperCase()}-${randomSuffix}`;
 
-    const submissionRecord = {
+    const resolvedInstitution =
+      institution === "Autre" && institutionCustom
+        ? `Autre: ${institutionCustom.trim()}`
+        : institution;
+
+    const baseRecord = {
       full_name: fullName.trim(),
       email: email.trim().toLowerCase(),
       status: status === "Autre" && statusCustom ? `Autre: ${statusCustom.trim()}` : status,
@@ -59,7 +67,14 @@ export async function POST(req: NextRequest) {
       qr_code_id: registrationId,
     };
 
-    // 1. Sauvegarde dans Supabase
+    const submissionRecord = {
+      ...baseRecord,
+      institution: resolvedInstitution,
+      institution_custom: institutionCustom || null,
+      session_choice: sessionChoice,
+    };
+
+    // 1. Sauvegarde dans Supabase (avec fallback si la migration SQL des nouvelles colonnes n'a pas encore été jouée)
     let supabaseSuccess = false;
     try {
       const { error: dbError } = await supabaseAdmin
@@ -67,7 +82,13 @@ export async function POST(req: NextRequest) {
         .insert([submissionRecord]);
 
       if (dbError) {
-        console.warn("Supabase insertion notice (check if table exists):", dbError.message);
+        console.warn("Supabase full insertion notice, retrying with base columns:", dbError.message);
+        const { error: fallbackError } = await supabaseAdmin
+          .from("doctoriales_registrations")
+          .insert([baseRecord]);
+        if (!fallbackError) {
+          supabaseSuccess = true;
+        }
       } else {
         supabaseSuccess = true;
       }
@@ -83,7 +104,7 @@ export async function POST(req: NextRequest) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            event: "HEC Doctoriales - Atelier IA et Prise de Décisions",
+            event: "HEC Doctoriales - Faire de la recherche doctorale un levier d'excellence",
             registrationId,
             ...submissionRecord,
             submittedAt: new Date().toISOString(),
@@ -108,7 +129,7 @@ export async function POST(req: NextRequest) {
               .header { background: linear-gradient(135deg, #4c1d95 0%, #1e1b4b 100%); padding: 36px 24px; text-align: center; border-bottom: 2px solid #8b5cf640; }
               .badge { display: inline-block; background: #8b5cf625; color: #c4b5fd; padding: 4px 14px; border-radius: 9999px; font-size: 11px; font-weight: 700; letter-spacing: 2px; text-transform: uppercase; border: 1px solid #8b5cf650; margin-bottom: 12px; }
               h1 { margin: 0; color: #ffffff; font-size: 24px; font-weight: 700; letter-spacing: 0.5px; }
-              .subtitle { color: #a78bfa; font-size: 14px; margin-top: 6px; }
+              .subtitle { color: #a78bfa; font-size: 14px; margin-top: 6px; font-style: italic; }
               .body-content { padding: 30px 24px; line-height: 1.6; font-size: 14px; color: #cbd5e1; }
               .ticket-box { background: #1b1933; border: 1px dashed #8b5cf680; border-radius: 12px; padding: 18px; margin: 20px 0; text-align: center; }
               .ticket-id { font-family: monospace; font-size: 18px; font-weight: bold; color: #38bdf8; letter-spacing: 2px; }
@@ -129,13 +150,13 @@ export async function POST(req: NextRequest) {
           <body>
             <div class="card">
               <div class="header">
-                <div class="badge">Pass Officiel Confirmé</div>
+                <div class="badge">Pass Officiel Confirmé • 14e Édition</div>
                 <h1>HEC DOCTORIALES</h1>
-                <div class="subtitle">Atelier IA & Prise de Décisions • IHEC Carthage</div>
+                <div class="subtitle">« Faire de la recherche doctorale un levier d'excellence »</div>
               </div>
               <div class="body-content">
                 <p>Bonjour <strong>${fullName}</strong>,</p>
-                <p>Votre inscription à l'atelier exclusif <strong>IA et Prise de Décisions</strong> a été validée avec succès.</p>
+                <p>Votre inscription aux <strong>HEC Doctoriales</strong> (Session <strong>${sessionChoice}</strong>) a été validée avec succès.</p>
                 
                 <div class="ticket-box">
                   <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8; letter-spacing: 1.5px; margin-bottom: 4px;">Numéro d'enregistrement</div>
@@ -152,6 +173,10 @@ export async function POST(req: NextRequest) {
                     <span class="info-val">${submissionRecord.status}</span>
                   </div>
                   <div class="info-row">
+                    <span class="info-label">Établissement :</span>
+                    <span class="info-val">${resolvedInstitution}</span>
+                  </div>
+                  <div class="info-row">
                     <span class="info-label">Niveau d’études :</span>
                     <span class="info-val">${submissionRecord.education_level}</span>
                   </div>
@@ -160,8 +185,12 @@ export async function POST(req: NextRequest) {
                     <span class="info-val">${submissionRecord.specialty}</span>
                   </div>
                   <div class="info-row">
-                    <span class="info-label">Durée :</span>
-                    <span class="info-val">3 heures complètes</span>
+                    <span class="info-label">Session choisie :</span>
+                    <span class="info-val" style="color: #38bdf8;">${sessionChoice}</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Dates :</span>
+                    <span class="info-val">5 & 6 Novembre 2026 (09h00 – 17h30)</span>
                   </div>
                   <div class="info-row">
                     <span class="info-label">Lieu :</span>
@@ -174,13 +203,13 @@ export async function POST(req: NextRequest) {
                 </div>
 
                 <div class="prereq-alert">
-                  <div class="prereq-title">⚠️ RAPPEL INDISPENSABLE POUR L'ATELIER :</div>
+                  <div class="prereq-title">⚠️ RAPPEL POUR L'ATELIER :</div>
                   <p style="margin: 4px 0 10px 0; font-size: 13px;">
-                    Chaque participant doit impérativement disposer d'un <strong>ordinateur portable avec son chargeur</strong> et installer au préalable :
+                    Nous vous invitons à installer au préalable :
                   </p>
                   <ul style="margin: 0; padding-left: 20px; font-size: 13px;">
-                    <li><strong>Google Chrome</strong> (navigateur requis pour la manipulation des modèles et interfaces)</li>
-                    <li><strong>Un utilitaire d'archive Zip</strong> (7-Zip ou WinRAR) pour extraire les datasets et scripts de travail</li>
+                    <li><strong>Google Chrome</strong></li>
+                    <li><strong>Un utilitaire d'archive Zip</strong> (7-Zip ou WinRAR)</li>
                   </ul>
                   <div class="btn-group" style="margin-top: 14px;">
                     <a href="https://www.google.com/chrome/" class="btn btn-chrome">📥 Télécharger Google Chrome</a>
@@ -193,8 +222,8 @@ export async function POST(req: NextRequest) {
                 </p>
               </div>
               <div class="footer">
-                HEC Entrepreneurs • IHEC Carthage<br/>
-                Former les leaders et décideurs à l'ère de l'Intelligence Artificielle.
+                HEC Doctoriales • École Doctorale IHEC Carthage<br/>
+                Faire de la recherche doctorale un levier d'excellence.
               </div>
             </div>
           </body>
@@ -204,7 +233,7 @@ export async function POST(req: NextRequest) {
         await transporter.sendMail({
           from: `"HEC Doctoriales | IHEC" <${process.env.GMAIL_USER}>`,
           to: email,
-          subject: "Confirmation d'inscription : Atelier IA & Prise de Décisions (HEC Doctoriales)",
+          subject: `Confirmation d'inscription : HEC Doctoriales — Session ${sessionChoice}`,
           html: mailHtml,
         });
       } catch (mailErr) {
@@ -222,7 +251,9 @@ export async function POST(req: NextRequest) {
         email,
         registrationId,
         status: submissionRecord.status,
+        institution: resolvedInstitution,
         specialty: submissionRecord.specialty,
+        sessionChoice,
         preferredLanguage,
       },
     });

@@ -4,6 +4,7 @@ import { Suspense, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
+import Image from "next/image";
 import { QRCodeCanvas } from "qrcode.react";
 import {
   BrainCircuit,
@@ -26,6 +27,8 @@ function SuccessTicketContent() {
   const name = searchParams.get("name") || "Participant";
   const email = searchParams.get("email") || "";
   const status = searchParams.get("status") || "Participant";
+  const institution = searchParams.get("institution") || "IHEC Carthage";
+  const session = searchParams.get("session") || "Management";
   const lang = searchParams.get("lang") || "Français";
   const specialty = searchParams.get("specialty") || "Non spécifié";
 
@@ -36,7 +39,7 @@ function SuccessTicketContent() {
       const pngUrl = canvas.toDataURL("image/png");
       const downloadLink = document.createElement("a");
       downloadLink.href = pngUrl;
-      downloadLink.download = `Pass-Doctoriales-IA-${name.replace(/\s+/g, "_")}.png`;
+      downloadLink.download = `Pass-HEC-Doctoriales-${name.replace(/\s+/g, "_")}.png`;
       document.body.appendChild(downloadLink);
       downloadLink.click();
       document.body.removeChild(downloadLink);
@@ -48,12 +51,14 @@ function SuccessTicketContent() {
     const icsContent = [
       "BEGIN:VCALENDAR",
       "VERSION:2.0",
-      "PRODID:-//HEC Entrepreneurs//Doctoriales AI Workshop//FR",
+      "PRODID:-//HEC Entrepreneurs//HEC Doctoriales 2026//FR",
       "CALSCALE:GREGORIAN",
       "METHOD:PUBLISH",
       "BEGIN:VEVENT",
-      `SUMMARY:HEC Doctoriales - Atelier IA et Prise de Décisions`,
-      `DESCRIPTION:Atelier pratique IA & Prise de Décisions à l'IHEC Carthage.\\nParticipant: ${name}\\nNuméro de pass: ${id}\\nIMPORTANT: Venir avec un ordinateur portable chargé, Google Chrome installé et un utilitaire Zip.`,
+      "DTSTART:20261106T080000Z",
+      "DTEND:20261106T113000Z",
+      `SUMMARY:HEC Doctoriales - Session ${session}`,
+      `DESCRIPTION:HEC Doctoriales (5 & 6 novembre 2026) - Faire de la recherche doctorale un levier d'excellence.\\nSession: ${session}\\nParticipant: ${name}\\nÉtablissement: ${institution}\\nNuméro de pass: ${id}`,
       `LOCATION:IHEC Carthage, Tunis`,
       `STATUS:CONFIRMED`,
       "END:VEVENT",
@@ -63,7 +68,7 @@ function SuccessTicketContent() {
     const blob = new Blob([icsContent], { type: "text/calendar;charset=utf-8" });
     const link = document.createElement("a");
     link.href = window.URL.createObjectURL(blob);
-    link.setAttribute("download", "HEC-Doctoriales-Atelier-IA.ics");
+    link.setAttribute("download", "HEC-Doctoriales-2026.ics");
     document.body.appendChild(link);
     link.click();
     document.body.removeChild(link);
@@ -89,7 +94,7 @@ function SuccessTicketContent() {
           Votre place est réservée !
         </h1>
         <p className="text-slate-400 text-sm sm:text-base mt-2 max-w-lg mx-auto">
-          Félicitations <strong>{name}</strong>, votre inscription à l&apos;Atelier <strong>IA & Prise de Décisions</strong> des HEC Doctoriales est bien validée.
+          Félicitations <strong>{name}</strong>, votre inscription aux <strong>HEC Doctoriales</strong> (Session <strong>{session}</strong>) est bien validée.
         </p>
       </motion.div>
 
@@ -101,22 +106,27 @@ function SuccessTicketContent() {
         className="rounded-3xl border border-purple-500/30 bg-gradient-to-b from-[#13122c] to-[#0d0c1e] shadow-[0_25px_60px_rgba(0,0,0,0.8)] overflow-hidden relative"
       >
         {/* Ticket Header */}
-        <div className="bg-gradient-to-r from-purple-900/60 via-indigo-900/40 to-slate-900/80 p-6 border-b border-purple-500/20 flex items-center justify-between">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 rounded-xl bg-purple-600/30 border border-purple-400/30 flex items-center justify-center text-purple-300">
-              <BrainCircuit className="w-5 h-5" />
+        <div className="bg-gradient-to-r from-purple-900/60 via-indigo-900/40 to-slate-900/80 p-6 border-b border-purple-500/20 flex items-center justify-between gap-4">
+          <div className="flex items-center gap-3.5">
+            <div className="relative w-14 h-14 rounded-full overflow-hidden bg-white border-2 border-purple-400/50 shadow-md shrink-0">
+              <Image
+                src="/ecole-doctorale-logo.jpg"
+                alt="École Doctorale IHEC Carthage"
+                fill
+                className="object-contain p-1"
+              />
             </div>
             <div>
               <div className="text-[11px] font-bold uppercase tracking-wider text-purple-300">
-                HEC Doctoriales 2026
+                HEC Doctoriales • 14e Édition
               </div>
-              <div className="text-base sm:text-lg font-bold text-white leading-none mt-0.5">
-                Atelier IA & Décisions
+              <div className="text-sm sm:text-base font-bold text-white leading-tight mt-0.5">
+                Faire de la recherche doctorale un levier d&apos;excellence
               </div>
             </div>
           </div>
 
-          <div className="text-right">
+          <div className="text-right shrink-0">
             <span className="text-[11px] font-mono px-2.5 py-1 rounded-md bg-purple-500/20 text-purple-200 border border-purple-500/40 font-semibold">
               PASS OFFICIEL
             </span>
@@ -130,7 +140,7 @@ function SuccessTicketContent() {
             <div className="bg-white p-3 rounded-xl shadow-lg shrink-0">
               <QRCodeCanvas
                 id="doctoriales-qr"
-                value={`HEC-DOCTORIALES-AI|ID:${id}|NAME:${name}|STATUS:${status}|LANG:${lang}`}
+                value={`HEC-DOCTORIALES|ID:${id}|NAME:${name}|SESSION:${session}|INST:${institution}|STATUS:${status}|LANG:${lang}`}
                 size={140}
                 level={"H"}
                 includeMargin={true}
@@ -154,6 +164,14 @@ function SuccessTicketContent() {
                   <span className="text-white font-medium truncate block">{status}</span>
                 </div>
                 <div>
+                  <span className="text-slate-500 block">Établissement</span>
+                  <span className="text-white font-medium truncate block">{institution}</span>
+                </div>
+                <div>
+                  <span className="text-slate-500 block">Session choisie</span>
+                  <span className="text-cyan-300 font-semibold truncate block">{session}</span>
+                </div>
+                <div>
                   <span className="text-slate-500 block">Spécialité</span>
                   <span className="text-white font-medium truncate block">{specialty}</span>
                 </div>
@@ -169,7 +187,7 @@ function SuccessTicketContent() {
           <div className="grid grid-cols-2 gap-3 text-xs">
             <div className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-300">
               <Clock className="w-4 h-4 text-purple-400 shrink-0" />
-              <span>3 heures complètes d&apos;atelier</span>
+              <span>5 &amp; 6 Novembre 2026 (09h00 – 17h30)</span>
             </div>
             <div className="flex items-center gap-2.5 p-3 rounded-xl bg-slate-900/80 border border-slate-800 text-slate-300">
               <MapPin className="w-4 h-4 text-cyan-400 shrink-0" />

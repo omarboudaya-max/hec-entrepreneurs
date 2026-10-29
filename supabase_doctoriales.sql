@@ -1,5 +1,5 @@
 -- =========================================================
--- HEC DOCTORIALES - ATELIER IA ET PRISE DE DÉCISIONS
+-- HEC DOCTORIALES - FAIRE DE LA RECHERCHE DOCTORALE UN LEVIER D'EXCELLENCE
 -- TABLE SUPABASE : doctoriales_registrations
 -- =========================================================
 
@@ -9,10 +9,13 @@ CREATE TABLE IF NOT EXISTS public.doctoriales_registrations (
   email TEXT NOT NULL,
   status TEXT NOT NULL,
   status_custom TEXT,
+  institution TEXT NOT NULL DEFAULT 'IHEC Carthage',
+  institution_custom TEXT,
   education_level TEXT NOT NULL,
   education_level_custom TEXT,
   specialty TEXT NOT NULL,
   specialty_custom TEXT,
+  session_choice TEXT NOT NULL DEFAULT 'Management',
   has_laptop_and_charger TEXT NOT NULL,
   can_attend_full_session TEXT NOT NULL,
   preferred_language TEXT NOT NULL,
@@ -20,6 +23,11 @@ CREATE TABLE IF NOT EXISTS public.doctoriales_registrations (
   qr_code_id TEXT,
   created_at TIMESTAMP WITH TIME ZONE DEFAULT timezone('utc'::text, now()) NOT NULL
 );
+
+-- Mise à jour si la table existait déjà
+ALTER TABLE public.doctoriales_registrations ADD COLUMN IF NOT EXISTS institution TEXT DEFAULT 'IHEC Carthage';
+ALTER TABLE public.doctoriales_registrations ADD COLUMN IF NOT EXISTS institution_custom TEXT;
+ALTER TABLE public.doctoriales_registrations ADD COLUMN IF NOT EXISTS session_choice TEXT DEFAULT 'Management';
 
 -- Index pour recherche rapide
 CREATE INDEX IF NOT EXISTS idx_doctoriales_email ON public.doctoriales_registrations(email);

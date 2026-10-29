@@ -33,10 +33,13 @@ export default function DoctorialesRegistrationPage() {
     email: "",
     status: "",
     statusCustom: "",
+    institution: "",
+    institutionCustom: "",
     educationLevel: "",
     educationLevelCustom: "",
     specialty: "",
     specialtyCustom: "",
+    sessionChoice: "",
     hasLaptopAndCharger: "",
     canAttendFullSession: "",
     preferredLanguage: "",
@@ -54,11 +57,14 @@ export default function DoctorialesRegistrationPage() {
     "Autre",
   ];
 
-  // Education Level choices
+  // Institution choices
+  const institutionOptions = [
+    "IHEC Carthage",
+    "Autre",
+  ];
+
+  // Education Level choices (L1, L2, L3 removed)
   const educationLevelOptions = [
-    "Licence L1",
-    "Licence L2",
-    "Licence L3",
     "Master M1",
     "Master M2",
     "Doctorat",
@@ -74,6 +80,14 @@ export default function DoctorialesRegistrationPage() {
     "Finance",
     "Informatique et technologies de l’information",
     "Autre",
+  ];
+
+  // Session choices
+  const sessionOptions = [
+    "Finance",
+    "Comptabilité",
+    "Marketing",
+    "Management",
   ];
 
   // Attendance choices
@@ -116,6 +130,15 @@ export default function DoctorialesRegistrationPage() {
       return;
     }
 
+    if (!formData.institution) {
+      setErrorMessage("Veuillez sélectionner votre établissement.");
+      return;
+    }
+    if (formData.institution === "Autre" && !formData.institutionCustom.trim()) {
+      setErrorMessage("Veuillez préciser votre établissement.");
+      return;
+    }
+
     if (!formData.educationLevel) {
       setErrorMessage("Veuillez sélectionner votre niveau d’études.");
       return;
@@ -131,6 +154,11 @@ export default function DoctorialesRegistrationPage() {
     }
     if (formData.specialty === "Autre" && !formData.specialtyCustom.trim()) {
       setErrorMessage("Veuillez préciser votre formation ou spécialité.");
+      return;
+    }
+
+    if (!formData.sessionChoice) {
+      setErrorMessage("Veuillez choisir la session à laquelle vous souhaitez participer.");
       return;
     }
 
@@ -190,6 +218,8 @@ export default function DoctorialesRegistrationPage() {
         name: formData.fullName,
         email: formData.email,
         status: formData.status === "Autre" ? formData.statusCustom : formData.status,
+        institution: formData.institution === "Autre" ? formData.institutionCustom : formData.institution,
+        session: formData.sessionChoice,
         lang: formData.preferredLanguage,
         specialty: formData.specialty === "Autre" ? formData.specialtyCustom : formData.specialty,
       }).toString();
@@ -235,7 +265,7 @@ export default function DoctorialesRegistrationPage() {
           <div className="flex items-center gap-3">
             <span className="hidden sm:inline-flex items-center gap-1.5 px-3 py-1 rounded-full text-xs font-semibold bg-purple-500/10 border border-purple-500/30 text-purple-300">
               <Sparkles className="w-3.5 h-3.5 text-purple-400" />
-              HEC Carthage
+              École Doctorale • IHEC Carthage
             </span>
           </div>
         </motion.div>
@@ -251,7 +281,7 @@ export default function DoctorialesRegistrationPage() {
           <div className="absolute top-0 right-0 w-full md:w-2/3 h-full opacity-30 md:opacity-40 pointer-events-none">
             <Image
               src="/hec-doctoriales-banner.jpg"
-              alt="HEC Doctoriales IA"
+              alt="HEC Doctoriales"
               fill
               className="object-cover object-right mix-blend-screen"
               priority
@@ -259,35 +289,51 @@ export default function DoctorialesRegistrationPage() {
           </div>
           <div className="absolute inset-0 bg-gradient-to-r from-[#070712] via-[#070712]/90 to-transparent" />
 
-          <div className="relative z-10 max-w-2xl">
-            {/* Event Tag */}
-            <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-purple-500/20 to-cyan-500/20 border border-purple-500/30 text-purple-200 text-xs font-semibold uppercase tracking-wider mb-4">
-              <BrainCircuit className="w-4 h-4 text-cyan-400 animate-pulse" />
-              <span>HEC Doctoriales 2026</span>
+          <div className="relative z-10">
+            {/* Event Tag & Round Logo aligned opposite each other */}
+            <div className="flex items-center justify-between gap-4 mb-3">
+              <div className="inline-flex items-center gap-2 px-3.5 py-1.5 rounded-full bg-gradient-to-r from-purple-500/20 to-cyan-500/20 border border-purple-500/30 text-purple-200 text-xs font-semibold uppercase tracking-wider">
+                <BrainCircuit className="w-4 h-4 text-cyan-400 animate-pulse" />
+                <span>HEC Doctoriales Series • 14e Édition</span>
+              </div>
+
+              <div className="relative w-16 h-16 sm:w-20 sm:h-20 rounded-full overflow-hidden bg-white border-2 border-purple-400/50 shadow-[0_0_25px_rgba(168,85,247,0.35)] shrink-0">
+                <Image
+                  src="/ecole-doctorale-logo.jpg"
+                  alt="École Doctorale IHEC Carthage"
+                  fill
+                  className="object-contain p-1"
+                />
+              </div>
             </div>
 
-            {/* Title */}
-            <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight mb-4">
-              Atelier <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-300">IA & Prise de Décisions</span>
-            </h1>
+            {/* Title & Slogan */}
+            <div className="mb-4">
+              <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight mb-1.5">
+                HEC <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-300">Doctoriales</span>
+              </h1>
+              <p className="text-purple-200/90 italic font-serif text-base sm:text-lg">
+                « Faire de la recherche doctorale un levier d&apos;excellence »
+              </p>
+            </div>
 
-            <p className="text-slate-300 text-sm sm:text-base leading-relaxed mb-6 font-normal">
-              Rejoignez cet atelier d&apos;excellence à l&apos;<strong>IHEC Carthage</strong> conçu pour les étudiants, chercheurs et docteurs. Découvrez comment exploiter l&apos;Intelligence Artificielle pour modéliser, optimiser et accélérer vos prises de décisions stratégiques et managériales.
+            <p className="text-slate-300 text-sm sm:text-base leading-relaxed mb-6 font-normal max-w-2xl">
+              Rejoignez la 14<sup>e</sup> édition des <strong>HEC Doctoriales</strong> les <strong>5 &amp; 6 novembre 2026</strong> à l&apos;<strong>IHEC Carthage</strong>. Inscrivez-vous aux panels transversaux, séminaires de recherche et sessions de spécialités (Finance, Comptabilité, Marketing &amp; Management).
             </p>
 
             {/* Quick Badges */}
-            <div className="grid grid-cols-2 sm:grid-cols-3 gap-3 text-xs text-slate-300 pt-2 border-t border-slate-800/80">
+            <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 text-xs text-slate-300 pt-2 border-t border-slate-800/80">
               <div className="flex items-center gap-2">
                 <Clock className="w-4 h-4 text-purple-400 shrink-0" />
-                <span>3 heures complètes</span>
+                <span>5 &amp; 6 Novembre 2026 (09h00 – 17h30)</span>
               </div>
               <div className="flex items-center gap-2">
                 <MapPin className="w-4 h-4 text-cyan-400 shrink-0" />
                 <span>IHEC Carthage</span>
               </div>
-              <div className="flex items-center gap-2 col-span-2 sm:col-span-1">
+              <div className="flex items-center gap-2">
                 <ShieldCheck className="w-4 h-4 text-emerald-400 shrink-0" />
-                <span>Inscription obligatoire</span>
+                <span>Panels, Séminaires &amp; Sessions</span>
               </div>
             </div>
           </div>
@@ -358,7 +404,7 @@ export default function DoctorialesRegistrationPage() {
             </div>
 
             <div className="px-3 py-1.5 rounded-full bg-slate-900 border border-slate-800 text-[11px] text-slate-400 w-fit">
-              Atelier Interactif • 3 Heures
+              5 &amp; 6 Novembre 2026 • IHEC Carthage
             </div>
           </div>
 
@@ -457,12 +503,66 @@ export default function DoctorialesRegistrationPage() {
               </AnimatePresence>
             </div>
 
-            {/* QUESTION 4: Niveau d’études */}
+            {/* QUESTION 4: Établissement */}
             <div className="space-y-3">
               <label className="text-sm font-semibold text-slate-200 block">
-                4. Niveau d’études <span className="text-pink-400">*</span>
+                4. Établissement <span className="text-pink-400">*</span>
               </label>
-              <div className="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-4 gap-2.5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {institutionOptions.map((inst) => (
+                  <button
+                    key={inst}
+                    type="button"
+                    onClick={() =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        institution: inst,
+                        institutionCustom: inst !== "Autre" ? "" : prev.institutionCustom,
+                      }))
+                    }
+                    className={`flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-medium transition-all text-left ${
+                      formData.institution === inst
+                        ? "bg-purple-600/20 border-purple-500 text-white shadow-sm ring-1 ring-purple-500"
+                        : "bg-[#121226] border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white"
+                    }`}
+                  >
+                    <span>{inst === "Autre" ? "Autre (à préciser)" : inst}</span>
+                    {formData.institution === inst && (
+                      <CheckCircle2 className="w-4 h-4 text-purple-400 shrink-0" />
+                    )}
+                  </button>
+                ))}
+              </div>
+
+              {/* Champ conditionnel pour 'Autre' établissement */}
+              <AnimatePresence>
+                {formData.institution === "Autre" && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="pt-2 overflow-hidden"
+                  >
+                    <input
+                      type="text"
+                      name="institutionCustom"
+                      required
+                      value={formData.institutionCustom}
+                      onChange={handleInputChange}
+                      placeholder="Précisez votre établissement ou université"
+                      className="w-full bg-[#14142e] border border-purple-500/50 focus:border-purple-400 focus:ring-2 focus:ring-purple-500/30 px-4 py-3 rounded-xl text-white placeholder:text-slate-400 text-sm outline-none"
+                    />
+                  </motion.div>
+                )}
+              </AnimatePresence>
+            </div>
+
+            {/* QUESTION 5: Niveau d’études */}
+            <div className="space-y-3">
+              <label className="text-sm font-semibold text-slate-200 block">
+                5. Niveau d’études <span className="text-pink-400">*</span>
+              </label>
+              <div className="grid grid-cols-2 sm:grid-cols-4 gap-2.5">
                 {educationLevelOptions.map((lvl) => (
                   <button
                     key={lvl}
@@ -512,10 +612,10 @@ export default function DoctorialesRegistrationPage() {
               </AnimatePresence>
             </div>
 
-            {/* QUESTION 5: Formation ou spécialité */}
+            {/* QUESTION 6: Formation ou spécialité */}
             <div className="space-y-3">
               <label className="text-sm font-semibold text-slate-200 block">
-                5. Formation ou spécialité <span className="text-pink-400">*</span>
+                6. Formation ou spécialité <span className="text-pink-400">*</span>
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
                 {specialtyOptions.map((spec) => (
@@ -528,6 +628,9 @@ export default function DoctorialesRegistrationPage() {
                         specialty: spec,
                         specialtyCustom:
                           spec !== "Autre" ? "" : prev.specialtyCustom,
+                        sessionChoice: sessionOptions.includes(spec)
+                          ? spec
+                          : prev.sessionChoice,
                       }))
                     }
                     className={`flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-medium transition-all text-left ${
@@ -567,10 +670,46 @@ export default function DoctorialesRegistrationPage() {
               </AnimatePresence>
             </div>
 
-            {/* QUESTION 6: Disposez-vous d’un ordinateur portable et de son chargeur ? */}
+            {/* QUESTION 7: Session souhaitée */}
+            <div className="space-y-3">
+              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
+                <label className="text-sm font-semibold text-slate-200 block">
+                  7. La session à laquelle vous souhaitez participer <span className="text-pink-400">*</span>
+                </label>
+                <span className="text-xs text-slate-400">
+                  5 &amp; 6 Novembre (09h00 – 17h30)
+                </span>
+              </div>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
+                {sessionOptions.map((sess) => (
+                  <button
+                    key={sess}
+                    type="button"
+                    onClick={() =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        sessionChoice: sess,
+                      }))
+                    }
+                    className={`flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-medium transition-all text-left ${
+                      formData.sessionChoice === sess
+                        ? "bg-cyan-500/20 border-cyan-400 text-cyan-200 shadow-sm ring-1 ring-cyan-400"
+                        : "bg-[#121226] border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white"
+                    }`}
+                  >
+                    <span>{sess}</span>
+                    {formData.sessionChoice === sess && (
+                      <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
+                    )}
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* QUESTION 8: Disposez-vous d’un ordinateur portable et de son chargeur ? */}
             <div className="space-y-3 pt-2">
               <label className="text-sm font-semibold text-slate-200 block">
-                6. Disposez-vous d’un ordinateur portable et de son chargeur ?{" "}
+                8. Disposez-vous d’un ordinateur portable et de son chargeur ?{" "}
                 <span className="text-pink-400">*</span>
               </label>
               <div className="grid grid-cols-2 gap-3">
@@ -614,10 +753,10 @@ export default function DoctorialesRegistrationPage() {
               )}
             </div>
 
-            {/* QUESTION 7: Pouvez-vous participer pendant les trois heures complètes ? */}
+            {/* QUESTION 9: Pouvez-vous participer pendant les trois heures complètes ? */}
             <div className="space-y-3">
               <label className="text-sm font-semibold text-slate-200 block">
-                7. Pouvez-vous participer pendant les trois heures complètes ?{" "}
+                9. Pouvez-vous participer pendant les trois heures complètes ?{" "}
                 <span className="text-pink-400">*</span>
               </label>
               <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
@@ -640,16 +779,13 @@ export default function DoctorialesRegistrationPage() {
               </div>
             </div>
 
-            {/* QUESTION 8: Quelle est votre langue préférée pour l’atelier ? */}
+            {/* QUESTION 10: Quelle est votre langue préférée pour l’atelier ? */}
             <div className="space-y-3">
               <div className="flex items-center justify-between">
                 <label className="text-sm font-semibold text-slate-200">
-                  8. Quelle est votre langue préférée pour l’atelier ?{" "}
+                  10. Quelle est votre langue préférée pour l’atelier ?{" "}
                   <span className="text-pink-400">*</span>
                 </label>
-                <span className="text-[11px] font-semibold text-purple-400 uppercase tracking-wider bg-purple-500/10 border border-purple-500/20 px-2 py-0.5 rounded-md">
-                  Inscription obligatoire
-                </span>
               </div>
               <div className="grid grid-cols-3 gap-2.5">
                 {languageOptions.map((lang) => (
@@ -672,7 +808,7 @@ export default function DoctorialesRegistrationPage() {
               </div>
             </div>
 
-            {/* CONFIRMATION CHECKLIST (Chrome & Zip) */}
+            {/* CONFIRMATION CHECKLIST (sans mention du PC) */}
             <div className="pt-4 border-t border-slate-800/80">
               <label className="relative flex items-start gap-3.5 p-4 rounded-xl bg-purple-950/20 border border-purple-800/40 hover:border-purple-600/60 transition-all cursor-pointer">
                 <input
@@ -683,7 +819,7 @@ export default function DoctorialesRegistrationPage() {
                   className="mt-1 w-4 h-4 rounded text-purple-600 focus:ring-purple-500 bg-[#121226] border-slate-700"
                 />
                 <span className="text-xs sm:text-sm text-slate-300 leading-snug">
-                  Je confirme avoir bien pris connaissance des consignes et je m&apos;engage à venir avec mon ordinateur portable et avoir téléchargé <strong>Google Chrome</strong> ainsi qu&apos;un <strong>logiciel Zip</strong>.
+                  Je confirme avoir bien pris connaissance des consignes de l&apos;atelier et avoir téléchargé <strong>Google Chrome</strong> ainsi qu&apos;un <strong>logiciel Zip</strong>.
                 </span>
               </label>
             </div>
