@@ -4,6 +4,7 @@ import Footer from "@/components/Footer";
 import PromiseSection from "@/components/home/PromiseSection";
 import DifferentiatorsSection from "@/components/home/DifferentiatorsSection";
 import TribunalEventSection from "@/components/home/TribunalEventSection";
+import DoctorialesEventSection from "@/components/home/DoctorialesEventSection";
 import PartnersSection from "@/components/home/PartnersSection";
 
 export default function Home() {
@@ -16,6 +17,11 @@ export default function Home() {
 
       {/* Visual Separator */}
       <div className="w-full h-px bg-gradient-to-r from-transparent via-white/10 to-transparent my-10" />
+
+      {/* HEC Doctoriales Workshop Section */}
+      <DoctorialesEventSection />
+
+      <div className="w-full h-px bg-gradient-to-r from-transparent via-secondary/20 to-transparent my-10" />
 
       <DifferentiatorsSection />
 

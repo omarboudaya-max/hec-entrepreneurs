@@ -11,7 +11,7 @@ import Navbar from "@/components/Navbar";
 import Footer from "@/components/Footer";
 
 // Statut de la campagne de recrutement (basculer à true si une nouvelle session s'ouvre)
-export const IS_RECRUITMENT_OPEN = false;
+const IS_RECRUITMENT_OPEN = false;
 
 type DayOption = "Lundi" | "Mardi";
 

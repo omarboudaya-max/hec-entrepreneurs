@@ -16,7 +16,7 @@ export const dynamic = "force-dynamic";
 // - 14h, 14h30 : 1 slot each
 // - 15h30, 16h, 16h30 : 1 slot each
 
-export const LUNDI_RULES: Record<string, number> = {
+const LUNDI_RULES: Record<string, number> = {
   "10:00 - 10:30": 1,
   "10:30 - 11:00": 1,
   "11:00 - 11:30": 1,
@@ -28,9 +28,9 @@ export const LUNDI_RULES: Record<string, number> = {
   "16:00 - 16:30": 1,
   "16:30 - 17:00": 1,
 };
-export const LUNDI_COMBINED_13H_MAX = 8; // 13:00 - 13:30 et 13:30 - 14:00 combinés
+const LUNDI_COMBINED_13H_MAX = 8; // 13:00 - 13:30 et 13:30 - 14:00 combinés
 
-export const MARDI_RULES: Record<string, number> = {
+const MARDI_RULES: Record<string, number> = {
   "10:00 - 10:30": 5,
   "10:30 - 11:00": 5,
   "11:00 - 11:30": 5,
@@ -41,7 +41,7 @@ export const MARDI_RULES: Record<string, number> = {
   "16:00 - 16:30": 1,
   "16:30 - 17:00": 1,
 };
-export const MARDI_COMBINED_13H_MAX = 9; // 13:00 - 13:30 et 13:30 - 14:00 combinés
+const MARDI_COMBINED_13H_MAX = 9; // 13:00 - 13:30 et 13:30 - 14:00 combinés
 
 // In-memory fallback
 declare global {
@@ -52,7 +52,7 @@ if (!global.__autresCreneaux) {
   global.__autresCreneaux = [];
 }
 
-export function normalizeSlot(slot: string): string {
+function normalizeSlot(slot: string): string {
   if (!slot) return "";
   const s = slot.trim().toLowerCase();
 
@@ -91,7 +91,7 @@ export function normalizeSlot(slot: string): string {
   return slot.trim();
 }
 
-export function isSlotFull(day: string, slotId: string, bookedCounts: Record<string, number>): boolean {
+function isSlotFull(day: string, slotId: string, bookedCounts: Record<string, number>): boolean {
   const normSlot = normalizeSlot(slotId);
 
   if (day === "Lundi") {
@@ -122,7 +122,7 @@ export function isSlotFull(day: string, slotId: string, bookedCounts: Record<str
 }
 
 // Flag de clôture du recrutement
-export const IS_RECRUITMENT_OPEN = false;
+const IS_RECRUITMENT_OPEN = false;
 
 export async function GET() {
   if (!IS_RECRUITMENT_OPEN) {
