@@ -206,13 +206,12 @@ export async function POST(req: NextRequest) {
                   </div>
                 </div>
 
+                ${
+                  isManagementWorkshop
+                    ? `
                 <div class="prereq-alert">
                   <div class="prereq-title">💻 Informations pratiques & Prérequis</div>
-                  ${
-                    isManagementWorkshop
-                      ? `<p style="margin: 4px 0 8px 0; font-size: 13px;">L’atelier Management se déroule sur l’ensemble de la matinée, de <strong>09h00 à 12h30</strong>.</p>`
-                      : ""
-                  }
+                  <p style="margin: 4px 0 8px 0; font-size: 13px;">L’atelier se déroule sur l’ensemble de la matinée, de <strong>09h00 à 12h30</strong>.</p>
                   <p style="margin: 4px 0 10px 0; font-size: 13px;">
                     Pour participer aux activités pratiques, il est recommandé de prévoir un <strong>ordinateur portable avec chargeur</strong> et d'installer au préalable <strong>Google Chrome</strong>.
                   </p>
@@ -223,7 +222,9 @@ export async function POST(req: NextRequest) {
                     <a href="https://www.google.com/chrome/" class="btn btn-chrome">📥 Google Chrome</a>
                     <a href="https://hec-entrepreneurs.vercel.app/evenements/doctoriales/zip" class="btn" style="background: #7c3aed; color: #ffffff;">🗜️ Outil .ZIP en ligne</a>
                   </div>
-                </div>
+                </div>`
+                    : ""
+                }
 
                 <p style="font-size: 13px; color: #94a3b8;">
                   Présentez ce mail ou votre pass QR à l'accueil lors de l'émargement.

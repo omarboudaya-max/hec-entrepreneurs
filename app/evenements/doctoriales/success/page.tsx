@@ -225,53 +225,53 @@ function SuccessTicketContent() {
           </div>
         </div>
 
-        {/* PREREQUISITES REMINDER BOX INSIDE PASS (Pour tous les participants) */}
-        <div className="bg-amber-500/10 border-t border-amber-500/20 p-5 sm:p-6 space-y-3">
-          <div className="flex items-center gap-2 text-amber-300 text-xs sm:text-sm font-bold uppercase tracking-wider">
-            <Laptop className="w-4 h-4 text-amber-400" />
-            <span>Informations pratiques &amp; Prérequis</span>
-          </div>
+        {/* PREREQUISITES REMINDER BOX INSIDE PASS (Uniquement si IA & Prise de décision est sélectionné) */}
+        {isMgmt && (
+          <div className="bg-amber-500/10 border-t border-amber-500/20 p-5 sm:p-6 space-y-3">
+            <div className="flex items-center gap-2 text-amber-300 text-xs sm:text-sm font-bold uppercase tracking-wider">
+              <Laptop className="w-4 h-4 text-amber-400" />
+              <span>Informations pratiques &amp; Prérequis</span>
+            </div>
 
-          {isMgmt && (
             <p className="text-xs text-slate-200 leading-relaxed">
-              L’atelier Management se déroule sur l’ensemble de la matinée, de <strong>09h00 à 12h30</strong>.
+              L’atelier se déroule sur l’ensemble de la matinée, de <strong>09h00 à 12h30</strong>.
             </p>
-          )}
 
-          <p className="text-xs text-slate-300 leading-relaxed">
-            Pour participer aux activités pratiques, il est recommandé de prévoir un <strong>ordinateur portable avec chargeur</strong> et d&apos;installer au préalable <strong>Google Chrome</strong>.
-          </p>
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Pour participer aux activités pratiques, il est recommandé de prévoir un <strong>ordinateur portable avec chargeur</strong> et d&apos;installer au préalable <strong>Google Chrome</strong>.
+            </p>
 
-          <p className="text-xs text-amber-200/90 leading-relaxed">
-            📌 À la fin de l’activité, vous devrez télécharger <strong>deux fichiers</strong> et les regrouper dans un seul dossier compressé au format <strong>.zip</strong>. Si vous rencontrez des difficultés, utilisez directement notre outil en ligne :
-          </p>
+            <p className="text-xs text-amber-200/90 leading-relaxed">
+              📌 À la fin de l’activité, vous devrez télécharger <strong>deux fichiers</strong> et les regrouper dans un seul dossier compressé au format <strong>.zip</strong>. Si vous rencontrez des difficultés, utilisez directement notre outil en ligne :
+            </p>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-            <a
-              href="https://www.google.com/chrome/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/90 border border-slate-700 hover:border-blue-500 text-xs text-slate-200 transition-all group"
-            >
-              <div className="flex items-center gap-2">
-                <Chrome className="w-4 h-4 text-yellow-300" />
-                <span>Google Chrome</span>
-              </div>
-              <Download className="w-3.5 h-3.5 text-blue-400 group-hover:translate-y-0.5 transition-transform" />
-            </a>
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+              <a
+                href="https://www.google.com/chrome/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/90 border border-slate-700 hover:border-blue-500 text-xs text-slate-200 transition-all group"
+              >
+                <div className="flex items-center gap-2">
+                  <Chrome className="w-4 h-4 text-yellow-300" />
+                  <span>Google Chrome</span>
+                </div>
+                <Download className="w-3.5 h-3.5 text-blue-400 group-hover:translate-y-0.5 transition-transform" />
+              </a>
 
-            <Link
-              href="/evenements/doctoriales/zip"
-              className="flex items-center justify-between p-2.5 rounded-lg bg-purple-950/60 border border-purple-500/40 hover:border-purple-400 text-xs text-purple-200 transition-all group"
-            >
-              <div className="flex items-center gap-2">
-                <FileArchive className="w-4 h-4 text-cyan-300" />
-                <span>Outil de création .ZIP en ligne</span>
-              </div>
-              <Sparkles className="w-3.5 h-3.5 text-purple-300" />
-            </Link>
+              <Link
+                href="/evenements/doctoriales/zip"
+                className="flex items-center justify-between p-2.5 rounded-lg bg-purple-950/60 border border-purple-500/40 hover:border-purple-400 text-xs text-purple-200 transition-all group"
+              >
+                <div className="flex items-center gap-2">
+                  <FileArchive className="w-4 h-4 text-cyan-300" />
+                  <span>Outil de création .ZIP en ligne</span>
+                </div>
+                <Sparkles className="w-3.5 h-3.5 text-purple-300" />
+              </Link>
+            </div>
           </div>
-        </div>
+        )}
       </motion.div>
 
       {/* Return to home link */}

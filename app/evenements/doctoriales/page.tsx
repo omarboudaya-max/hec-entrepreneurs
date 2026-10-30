@@ -200,8 +200,10 @@ export default function DoctorialesRegistrationPage() {
       return {
         ...prev,
         sessionVendredi09h: nextVal,
-        // Si Management est sélectionné, il couvre 09h00 à 12h30 donc on vide le créneau 11h00-12h30
+        // Si IA & Prise de décision est sélectionné, il couvre 09h00 à 12h30 donc on vide le créneau 11h00-12h30
         sessionVendredi11h: isMgmt ? "" : prev.sessionVendredi11h,
+        hasLaptopAndCharger: isMgmt ? prev.hasLaptopAndCharger : "",
+        confirmedPrerequisites: isMgmt ? prev.confirmedPrerequisites : false,
       };
     });
   };
@@ -291,14 +293,14 @@ export default function DoctorialesRegistrationPage() {
       return;
     }
 
-    if (!formData.hasLaptopAndCharger) {
+    if (isManagementSelected && !formData.hasLaptopAndCharger) {
       setErrorMessage(
         "Veuillez indiquer si vous disposez d'un ordinateur portable et de son chargeur."
       );
       return;
     }
 
-    if (!formData.confirmedPrerequisites) {
+    if (isManagementSelected && !formData.confirmedPrerequisites) {
       setErrorMessage(
         "Veuillez cocher la case de confirmation relative aux consignes et prérequis."
       );
@@ -1012,148 +1014,161 @@ export default function DoctorialesRegistrationPage() {
               </div>
             </div>
 
-            {/* QUESTION 8: Disposez-vous d’un ordinateur portable et de son chargeur ? */}
-            <div className="space-y-3 pt-2">
-              <label className="text-sm font-semibold text-slate-200 block">
-                8. Disposez-vous d’un ordinateur portable et de son chargeur ?{" "}
-                <span className="text-pink-400">*</span>
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      hasLaptopAndCharger: "Oui",
-                    }))
-                  }
-                  className={`flex items-center justify-center gap-2.5 p-4 rounded-xl border font-semibold text-sm transition-all ${
-                    formData.hasLaptopAndCharger === "Oui"
-                      ? "bg-emerald-500/20 border-emerald-500 text-emerald-300 shadow-md ring-1 ring-emerald-500"
-                      : "bg-[#121226] border-slate-800 text-slate-300 hover:border-slate-700"
-                  }`}
+            {/* QUESTION 8 + INFORMATIONS PRATIQUES & PRÉREQUIS (Uniquement si IA & Prise de décision est sélectionné) */}
+            <AnimatePresence>
+              {isManagementSelected && (
+                <motion.div
+                  initial={{ opacity: 0, y: 12, height: 0 }}
+                  animate={{ opacity: 1, y: 0, height: "auto" }}
+                  exit={{ opacity: 0, y: -12, height: 0 }}
+                  className="space-y-6 overflow-hidden pt-2"
                 >
-                  <Laptop className="w-4 h-4" />
-                  <span>Oui</span>
-                </button>
+                  {/* QUESTION 8: Disposez-vous d’un ordinateur portable et de son chargeur ? */}
+                  <div className="space-y-3">
+                    <label className="text-sm font-semibold text-slate-200 block">
+                      8. Disposez-vous d’un ordinateur portable et de son
+                      chargeur ? <span className="text-pink-400">*</span>
+                    </label>
+                    <div className="grid grid-cols-2 gap-3">
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            hasLaptopAndCharger: "Oui",
+                          }))
+                        }
+                        className={`flex items-center justify-center gap-2.5 p-4 rounded-xl border font-semibold text-sm transition-all ${
+                          formData.hasLaptopAndCharger === "Oui"
+                            ? "bg-emerald-500/20 border-emerald-500 text-emerald-300 shadow-md ring-1 ring-emerald-500"
+                            : "bg-[#121226] border-slate-800 text-slate-300 hover:border-slate-700"
+                        }`}
+                      >
+                        <Laptop className="w-4 h-4" />
+                        <span>Oui</span>
+                      </button>
 
-                <button
-                  type="button"
-                  onClick={() =>
-                    setFormData((prev) => ({
-                      ...prev,
-                      hasLaptopAndCharger: "Non",
-                    }))
-                  }
-                  className={`flex items-center justify-center gap-2.5 p-4 rounded-xl border font-semibold text-sm transition-all ${
-                    formData.hasLaptopAndCharger === "Non"
-                      ? "bg-rose-500/20 border-rose-500 text-rose-300 shadow-md ring-1 ring-rose-500"
-                      : "bg-[#121226] border-slate-800 text-slate-300 hover:border-slate-700"
-                  }`}
-                >
-                  <span>Non</span>
-                </button>
-              </div>
+                      <button
+                        type="button"
+                        onClick={() =>
+                          setFormData((prev) => ({
+                            ...prev,
+                            hasLaptopAndCharger: "Non",
+                          }))
+                        }
+                        className={`flex items-center justify-center gap-2.5 p-4 rounded-xl border font-semibold text-sm transition-all ${
+                          formData.hasLaptopAndCharger === "Non"
+                            ? "bg-rose-500/20 border-rose-500 text-rose-300 shadow-md ring-1 ring-rose-500"
+                            : "bg-[#121226] border-slate-800 text-slate-300 hover:border-slate-700"
+                        }`}
+                      >
+                        <span>Non</span>
+                      </button>
+                    </div>
 
-              {formData.hasLaptopAndCharger === "Non" && (
-                <p className="text-xs text-amber-400/90 bg-amber-500/10 border border-amber-500/20 p-2.5 rounded-lg flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 shrink-0" />
-                  <span>
-                    Note : Les cas pratiques nécessitent un ordinateur portable.
-                    Nous vous invitons vivement à en emprunter un pour la
-                    session.
-                  </span>
-                </p>
+                    {formData.hasLaptopAndCharger === "Non" && (
+                      <p className="text-xs text-amber-400/90 bg-amber-500/10 border border-amber-500/20 p-2.5 rounded-lg flex items-center gap-2">
+                        <AlertTriangle className="w-4 h-4 shrink-0" />
+                        <span>
+                          Note : Les cas pratiques nécessitent un ordinateur
+                          portable. Nous vous invitons vivement à en emprunter
+                          un pour la session.
+                        </span>
+                      </p>
+                    )}
+                  </div>
+
+                  {/* INFORMATIONS PRATIQUES & PRÉREQUIS */}
+                  <div className="rounded-2xl border-2 border-amber-500/40 bg-gradient-to-br from-amber-500/10 via-purple-900/15 to-slate-900/95 p-5 sm:p-7 space-y-5 shadow-lg">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2.5 text-amber-300 font-bold text-base sm:text-lg">
+                        <Laptop className="w-5 h-5 text-amber-400 shrink-0" />
+                        <span>Informations pratiques &amp; Prérequis</span>
+                      </div>
+
+                      <p className="text-xs sm:text-sm text-amber-200 font-medium leading-relaxed">
+                        L’atelier se déroule sur l’ensemble de la matinée, de{" "}
+                        <strong>09h00 à 12h30</strong>.
+                      </p>
+
+                      <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                        Pour participer aux activités pratiques, il est
+                        recommandé de prévoir un{" "}
+                        <strong>ordinateur portable avec chargeur</strong> et
+                        d&apos;installer au préalable{" "}
+                        <strong>Google Chrome</strong> :
+                      </p>
+                    </div>
+
+                    {/* Outil à installer */}
+                    <div className="flex flex-wrap gap-3">
+                      <a
+                        href="https://www.google.com/chrome/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-blue-600/90 hover:bg-blue-600 text-white font-medium text-xs sm:text-sm transition-all hover:scale-105 shadow-md shadow-blue-500/20"
+                      >
+                        <Chrome className="w-4 h-4 text-yellow-300" />
+                        <span>Google Chrome</span>
+                        <Download className="w-3.5 h-3.5 opacity-80" />
+                      </a>
+                    </div>
+
+                    {/* Précision sur la création du dossier ZIP + Outil en ligne du site */}
+                    <div className="rounded-xl bg-slate-950/70 border border-purple-500/30 p-4 space-y-3">
+                      <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                        📌 <strong>Important :</strong> À la fin de l’activité,
+                        vous devrez télécharger <strong>deux fichiers</strong>{" "}
+                        et les{" "}
+                        <strong>
+                          regrouper dans un seul dossier compressé au format{" "}
+                          <code className="text-amber-300">.zip</code>
+                        </strong>
+                        . Merci de vérifier au préalable que vous disposez bien
+                        de cette fonctionnalité sur votre ordinateur.
+                      </p>
+
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-800/80">
+                        <span className="text-xs text-slate-300">
+                          💡 Si vous rencontrez des difficultés pour créer un
+                          dossier <strong>.zip</strong> sur votre ordinateur,
+                          utilisez directement notre outil sur le site :
+                        </span>
+                        <Link
+                          href="/evenements/doctoriales/zip"
+                          target="_blank"
+                          className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 border border-purple-400/50 text-purple-200 font-semibold text-xs transition-all shrink-0"
+                        >
+                          <FileArchive className="w-3.5 h-3.5 text-cyan-300" />
+                          <span>Outil de création .ZIP en ligne</span>
+                          <ArrowRight className="w-3.5 h-3.5" />
+                        </Link>
+                      </div>
+                    </div>
+
+                    {/* Case de confirmation relative à ces prérequis */}
+                    <div className="pt-2 border-t border-amber-500/20">
+                      <label className="relative flex items-start gap-3.5 p-3.5 rounded-xl bg-slate-950/60 border border-amber-500/30 hover:border-amber-400/60 transition-all cursor-pointer">
+                        <input
+                          type="checkbox"
+                          name="confirmedPrerequisites"
+                          checked={formData.confirmedPrerequisites}
+                          onChange={handleCheckboxChange}
+                          className="mt-0.5 w-4 h-4 rounded text-purple-600 focus:ring-purple-500 bg-[#121226] border-slate-700"
+                        />
+                        <span className="text-xs sm:text-sm text-slate-200 leading-snug">
+                          Je confirme avoir pris connaissance des consignes
+                          pratiques et des prérequis (
+                          <strong>Google Chrome</strong> et création d&apos;un
+                          dossier <strong>.zip</strong>).{" "}
+                          <span className="text-pink-400">*</span>
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </motion.div>
               )}
-            </div>
-
-            {/* INFORMATIONS PRATIQUES & PRÉREQUIS (Pour tous les participants) */}
-            <div className="rounded-2xl border-2 border-amber-500/40 bg-gradient-to-br from-amber-500/10 via-purple-900/15 to-slate-900/95 p-5 sm:p-7 space-y-5 shadow-lg">
-              <div className="space-y-2">
-                <div className="flex items-center gap-2.5 text-amber-300 font-bold text-base sm:text-lg">
-                  <Laptop className="w-5 h-5 text-amber-400 shrink-0" />
-                  <span>Informations pratiques &amp; Prérequis</span>
-                </div>
-
-                {isManagementSelected && (
-                  <p className="text-xs sm:text-sm text-amber-200 font-medium leading-relaxed">
-                    L’atelier Management se déroule sur l’ensemble de la
-                    matinée, de <strong>09h00 à 12h30</strong>.
-                  </p>
-                )}
-
-                <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
-                  Pour participer aux activités pratiques, il est recommandé de
-                  prévoir un <strong>ordinateur portable avec chargeur</strong>{" "}
-                  et d&apos;installer au préalable{" "}
-                  <strong>Google Chrome</strong> :
-                </p>
-              </div>
-
-              {/* Outil à installer */}
-              <div className="flex flex-wrap gap-3">
-                <a
-                  href="https://www.google.com/chrome/"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-blue-600/90 hover:bg-blue-600 text-white font-medium text-xs sm:text-sm transition-all hover:scale-105 shadow-md shadow-blue-500/20"
-                >
-                  <Chrome className="w-4 h-4 text-yellow-300" />
-                  <span>Google Chrome</span>
-                  <Download className="w-3.5 h-3.5 opacity-80" />
-                </a>
-              </div>
-
-              {/* Précision sur la création du dossier ZIP + Outil en ligne du site */}
-              <div className="rounded-xl bg-slate-950/70 border border-purple-500/30 p-4 space-y-3">
-                <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
-                  📌 <strong>Important :</strong> À la fin de l’activité, vous
-                  devrez télécharger <strong>deux fichiers</strong> et les{" "}
-                  <strong>
-                    regrouper dans un seul dossier compressé au format{" "}
-                    <code className="text-amber-300">.zip</code>
-                  </strong>
-                  . Merci de vérifier au préalable que vous disposez bien de
-                  cette fonctionnalité sur votre ordinateur.
-                </p>
-
-                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3 pt-2 border-t border-slate-800/80">
-                  <span className="text-xs text-slate-300">
-                    💡 Si vous rencontrez des difficultés pour créer un dossier{" "}
-                    <strong>.zip</strong> sur votre ordinateur, utilisez
-                    directement notre outil sur le site :
-                  </span>
-                  <Link
-                    href="/evenements/doctoriales/zip"
-                    target="_blank"
-                    className="inline-flex items-center justify-center gap-2 px-4 py-2 rounded-xl bg-purple-600/30 hover:bg-purple-600/50 border border-purple-400/50 text-purple-200 font-semibold text-xs transition-all shrink-0"
-                  >
-                    <FileArchive className="w-3.5 h-3.5 text-cyan-300" />
-                    <span>Outil de création .ZIP en ligne</span>
-                    <ArrowRight className="w-3.5 h-3.5" />
-                  </Link>
-                </div>
-              </div>
-
-              {/* Case de confirmation relative à ces prérequis */}
-              <div className="pt-2 border-t border-amber-500/20">
-                <label className="relative flex items-start gap-3.5 p-3.5 rounded-xl bg-slate-950/60 border border-amber-500/30 hover:border-amber-400/60 transition-all cursor-pointer">
-                  <input
-                    type="checkbox"
-                    name="confirmedPrerequisites"
-                    checked={formData.confirmedPrerequisites}
-                    onChange={handleCheckboxChange}
-                    className="mt-0.5 w-4 h-4 rounded text-purple-600 focus:ring-purple-500 bg-[#121226] border-slate-700"
-                  />
-                  <span className="text-xs sm:text-sm text-slate-200 leading-snug">
-                    Je confirme avoir pris connaissance des consignes pratiques
-                    et des prérequis (<strong>Google Chrome</strong> et
-                    création d&apos;un dossier <strong>.zip</strong>).{" "}
-                    <span className="text-pink-400">*</span>
-                  </span>
-                </label>
-              </div>
-            </div>
+            </AnimatePresence>
 
             {/* Error Message */}
             {errorMessage && (
