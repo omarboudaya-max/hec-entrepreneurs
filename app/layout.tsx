@@ -24,11 +24,11 @@ export const metadata: Metadata = {
   authors: [{ name: "HEC Entrepreneurs" }],
   icons: {
     icon: [
-      { url: "/icon.png?v=2", type: "image/png" },
-      { url: "/favicon.ico?v=2", sizes: "any" },
+      { url: "/icon.png?v=3", type: "image/png" },
+      { url: "/favicon.ico?v=3", sizes: "any" },
     ],
-    shortcut: "/icon.png?v=2",
-    apple: "/icon.png?v=2",
+    shortcut: "/icon.png?v=3",
+    apple: "/icon.png?v=3",
   },
   openGraph: {
     title: "HEC Entrepreneurs",
