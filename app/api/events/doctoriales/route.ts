@@ -28,6 +28,8 @@ export async function POST(req: NextRequest) {
       specialty,
       specialtyCustom,
       sessionChoice,
+      selectedSessions,
+      isManagementWorkshop,
       hasLaptopAndCharger,
       canAttendFullSession,
       preferredLanguage,
@@ -35,7 +37,7 @@ export async function POST(req: NextRequest) {
     } = body;
 
     // Validation des champs obligatoires
-    if (!fullName || !email || !status || !institution || !educationLevel || !specialty || !sessionChoice || !hasLaptopAndCharger || !canAttendFullSession || !preferredLanguage) {
+    if (!fullName || !email || !status || !institution || !educationLevel || !specialty || !sessionChoice) {
       return NextResponse.json(
         { success: false, message: "Tous les champs obligatoires doivent être renseignés." },
         { status: 400 }
@@ -44,7 +46,7 @@ export async function POST(req: NextRequest) {
 
     // Génération d'un identifiant unique de pass
     const randomSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
-    const registrationId = `DOC-IA-${Date.now().toString(36).toUpperCase()}-${randomSuffix}`;
+    const registrationId = `DOC-${Date.now().toString(36).toUpperCase()}-${randomSuffix}`;
 
     const resolvedInstitution =
       institution === "Autre" && institutionCustom
@@ -60,9 +62,9 @@ export async function POST(req: NextRequest) {
       education_level_custom: educationLevelCustom || null,
       specialty: specialty === "Autre" && specialtyCustom ? `Autre: ${specialtyCustom.trim()}` : specialty,
       specialty_custom: specialtyCustom || null,
-      has_laptop_and_charger: hasLaptopAndCharger,
-      can_attend_full_session: canAttendFullSession,
-      preferred_language: preferredLanguage,
+      has_laptop_and_charger: hasLaptopAndCharger || (isManagementWorkshop ? "Oui (Atelier Management)" : "Non applicable"),
+      can_attend_full_session: canAttendFullSession || "Oui",
+      preferred_language: preferredLanguage || "Français",
       confirmed_prerequisites: Boolean(confirmedPrerequisites),
       qr_code_id: registrationId,
     };
@@ -104,7 +106,7 @@ export async function POST(req: NextRequest) {
           method: "POST",
           headers: { "Content-Type": "application/json" },
           body: JSON.stringify({
-            event: "HEC Doctoriales - Faire de la recherche doctorale un levier d'excellence",
+            event: "HEC Doctoriales Series",
             registrationId,
             ...submissionRecord,
             submittedAt: new Date().toISOString(),
@@ -114,6 +116,10 @@ export async function POST(req: NextRequest) {
         console.warn("Sheets webhook sync failed:", sheetsErr);
       }
     }
+
+    const sessionsListHtml = Array.isArray(selectedSessions) && selectedSessions.length > 0
+      ? `<ul style="margin: 6px 0 0 0; padding-left: 18px; color: #38bdf8; font-weight: 600;">${selectedSessions.map((s: string) => `<li style="margin-bottom: 4px;">${s}</li>`).join("")}</ul>`
+      : `<span class="info-val" style="color: #38bdf8;">${sessionChoice}</span>`;
 
     // 3. Envoi de l'e-mail de confirmation officiel au participant
     if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
@@ -139,7 +145,7 @@ export async function POST(req: NextRequest) {
               .info-label { color: #94a3b8; }
               .info-val { color: #f8fafc; font-weight: 600; }
               .prereq-alert { background: #3b076440; border-left: 4px solid #a855f7; border-radius: 8px; padding: 16px; margin: 24px 0; }
-              .prereq-title { color: #f43f5e; font-weight: bold; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; display: flex; align-items: center; gap: 6px; }
+              .prereq-title { color: #fbbf24; font-weight: bold; font-size: 13px; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 8px; }
               .btn-group { display: flex; gap: 10px; margin-top: 12px; }
               .btn { display: inline-block; padding: 8px 14px; border-radius: 6px; text-decoration: none; font-size: 12px; font-weight: 600; text-align: center; }
               .btn-chrome { background: #2563eb; color: #ffffff; }
@@ -151,12 +157,12 @@ export async function POST(req: NextRequest) {
             <div class="card">
               <div class="header">
                 <div class="badge">Pass Officiel Confirmé • 14e Édition</div>
-                <h1>HEC DOCTORIALES</h1>
+                <h1>HEC DOCTORIALES SERIES</h1>
                 <div class="subtitle">« Faire de la recherche doctorale un levier d'excellence »</div>
               </div>
               <div class="body-content">
                 <p>Bonjour <strong>${fullName}</strong>,</p>
-                <p>Votre inscription aux <strong>HEC Doctoriales</strong> (Session <strong>${sessionChoice}</strong>) a été validée avec succès.</p>
+                <p>Votre inscription aux <strong>HEC Doctoriales Series</strong> a été validée avec succès.</p>
                 
                 <div class="ticket-box">
                   <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8; letter-spacing: 1.5px; margin-bottom: 4px;">Numéro d'enregistrement</div>
@@ -185,10 +191,6 @@ export async function POST(req: NextRequest) {
                     <span class="info-val">${submissionRecord.specialty}</span>
                   </div>
                   <div class="info-row">
-                    <span class="info-label">Session choisie :</span>
-                    <span class="info-val" style="color: #38bdf8;">${sessionChoice}</span>
-                  </div>
-                  <div class="info-row">
                     <span class="info-label">Dates :</span>
                     <span class="info-val">5 & 6 Novembre 2026 (09h00 – 17h30)</span>
                   </div>
@@ -196,26 +198,35 @@ export async function POST(req: NextRequest) {
                     <span class="info-label">Lieu :</span>
                     <span class="info-val">IHEC Carthage</span>
                   </div>
-                  <div class="info-row">
-                    <span class="info-label">Langue préférée :</span>
-                    <span class="info-val">${preferredLanguage}</span>
+                  <div style="padding-top: 10px; font-size: 13px;">
+                    <div class="info-label" style="margin-bottom: 4px;">Sessions sélectionnées :</div>
+                    ${sessionsListHtml}
                   </div>
                 </div>
 
+                ${
+                  isManagementWorkshop
+                    ? `
                 <div class="prereq-alert">
-                  <div class="prereq-title">⚠️ RAPPEL POUR L'ATELIER :</div>
+                  <div class="prereq-title">💻 Atelier Management | Informations pratiques</div>
+                  <p style="margin: 4px 0 8px 0; font-size: 13px;">
+                    L’atelier se déroule sur l’ensemble de la matinée, de <strong>09h00 à 12h30</strong>.
+                  </p>
                   <p style="margin: 4px 0 10px 0; font-size: 13px;">
-                    Nous vous invitons à installer au préalable :
+                    Pour participer aux activités pratiques, prévoir un <strong>ordinateur portable avec chargeur</strong> et installer au préalable :
                   </p>
                   <ul style="margin: 0; padding-left: 20px; font-size: 13px;">
                     <li><strong>Google Chrome</strong></li>
-                    <li><strong>Un utilitaire d'archive Zip</strong> (7-Zip ou WinRAR)</li>
+                    <li><strong>Un utilitaire ZIP / 7-Zip</strong></li>
                   </ul>
                   <div class="btn-group" style="margin-top: 14px;">
                     <a href="https://www.google.com/chrome/" class="btn btn-chrome">📥 Télécharger Google Chrome</a>
                     <a href="https://www.7-zip.org/" class="btn btn-zip">📦 Télécharger 7-Zip</a>
                   </div>
                 </div>
+                `
+                    : ""
+                }
 
                 <p style="font-size: 13px; color: #94a3b8;">
                   Présentez ce mail ou votre pass QR à l'accueil lors de l'émargement.
@@ -233,7 +244,7 @@ export async function POST(req: NextRequest) {
         await transporter.sendMail({
           from: `"HEC Doctoriales | IHEC" <${process.env.GMAIL_USER}>`,
           to: email,
-          subject: `Confirmation d'inscription : HEC Doctoriales — Session ${sessionChoice}`,
+          subject: `Confirmation d'inscription : HEC Doctoriales Series`,
           html: mailHtml,
         });
       } catch (mailErr) {

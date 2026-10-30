@@ -81,7 +81,7 @@ export default function DoctorialesEventSection() {
             </div>
 
             <p className="text-stone-700 dark:text-slate-300 text-sm sm:text-base leading-relaxed max-w-xl mx-auto lg:mx-0 font-normal">
-              Organisées par l&apos;<strong>École Doctorale de l&apos;IHEC Carthage</strong> les <strong>5 &amp; 6 novembre 2026</strong>, les <strong>HEC Doctoriales</strong> réunissent chercheurs, docteurs et étudiants autour de panels transversaux, séminaires et sessions de spécialités (Finance, Comptabilité, Marketing &amp; Management).
+              Organisées par l&apos;<strong>École Doctorale de l&apos;IHEC Carthage</strong> les <strong>5 &amp; 6 novembre 2026</strong>, les <strong>HEC Doctoriales</strong> réunissent enseignants-chercheurs, doctorants et étudiants autour de panels transversaux, séminaires et sessions de spécialités (Économie, Comptabilité, Finance, Marketing &amp; Management).
             </p>
 
             {/* Quick Points */}
@@ -100,7 +100,7 @@ export default function DoctorialesEventSection() {
               </div>
               <div className="flex items-center gap-2 p-2.5 rounded-xl bg-emerald-500/5 dark:bg-emerald-950/20 border border-emerald-500/20">
                 <ShieldCheck className="w-4 h-4 text-emerald-500 shrink-0" />
-                <span>Finance, Comptabilité, Marketing, Management</span>
+                <span>Économie, Comptabilité, Finance, Marketing, Management</span>
               </div>
             </div>
 
@@ -113,10 +113,6 @@ export default function DoctorialesEventSection() {
                 <span>Accéder au formulaire d&apos;inscription</span>
                 <ArrowRight className="w-4 h-4 group-hover:translate-x-1 transition-transform" />
               </Link>
-
-              <span className="text-xs text-slate-500 dark:text-slate-400">
-                * Prérequis : Google Chrome &amp; outil Zip requis
-              </span>
             </div>
           </motion.div>
         </div>

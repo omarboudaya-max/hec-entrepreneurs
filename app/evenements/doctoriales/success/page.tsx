@@ -23,14 +23,15 @@ import {
 
 function SuccessTicketContent() {
   const searchParams = useSearchParams();
-  const id = searchParams.get("id") || `DOC-IA-${Date.now().toString(36).toUpperCase()}`;
+  const id = searchParams.get("id") || `DOC-${Date.now().toString(36).toUpperCase()}`;
   const name = searchParams.get("name") || "Participant";
   const email = searchParams.get("email") || "";
   const status = searchParams.get("status") || "Participant";
   const institution = searchParams.get("institution") || "IHEC Carthage";
-  const session = searchParams.get("session") || "Management";
-  const lang = searchParams.get("lang") || "Français";
+  const session = searchParams.get("session") || "";
   const specialty = searchParams.get("specialty") || "Non spécifié";
+  const isMgmt = searchParams.get("mgmt") === "1" || session.includes("Management | IA & Prise de décision");
+  const sessionList = session ? session.split(" • ") : [];
 
   // Download pass as PNG
   const downloadBadge = () => {
@@ -94,7 +95,7 @@ function SuccessTicketContent() {
           Votre place est réservée !
         </h1>
         <p className="text-slate-400 text-sm sm:text-base mt-2 max-w-lg mx-auto">
-          Félicitations <strong>{name}</strong>, votre inscription aux <strong>HEC Doctoriales</strong> (Session <strong>{session}</strong>) est bien validée.
+          Félicitations <strong>{name}</strong>, votre inscription aux <strong>HEC Doctoriales Series</strong> est bien validée.
         </p>
       </motion.div>
 
@@ -118,7 +119,7 @@ function SuccessTicketContent() {
             </div>
             <div>
               <div className="text-[11px] font-bold uppercase tracking-wider text-purple-300">
-                HEC Doctoriales • 14e Édition
+                HEC Doctoriales Series • 14e Édition
               </div>
               <div className="text-sm sm:text-base font-bold text-white leading-tight mt-0.5">
                 Faire de la recherche doctorale un levier d&apos;excellence
@@ -140,7 +141,7 @@ function SuccessTicketContent() {
             <div className="bg-white p-3 rounded-xl shadow-lg shrink-0">
               <QRCodeCanvas
                 id="doctoriales-qr"
-                value={`HEC-DOCTORIALES|ID:${id}|NAME:${name}|SESSION:${session}|INST:${institution}|STATUS:${status}|LANG:${lang}`}
+                value={`HEC-DOCTORIALES|ID:${id}|NAME:${name}|INST:${institution}|STATUS:${status}`}
                 size={140}
                 level={"H"}
                 includeMargin={true}
@@ -168,20 +169,29 @@ function SuccessTicketContent() {
                   <span className="text-white font-medium truncate block">{institution}</span>
                 </div>
                 <div>
-                  <span className="text-slate-500 block">Session choisie</span>
-                  <span className="text-cyan-300 font-semibold truncate block">{session}</span>
-                </div>
-                <div>
                   <span className="text-slate-500 block">Spécialité</span>
                   <span className="text-white font-medium truncate block">{specialty}</span>
-                </div>
-                <div>
-                  <span className="text-slate-500 block">Langue</span>
-                  <span className="text-white font-medium truncate block">{lang}</span>
                 </div>
               </div>
             </div>
           </div>
+
+          {/* Selected Sessions List */}
+          {sessionList.length > 0 && (
+            <div className="rounded-2xl bg-[#0a0a16] border border-slate-800 p-4 space-y-2">
+              <div className="text-xs font-semibold uppercase tracking-wider text-purple-300">
+                Sessions sélectionnées
+              </div>
+              <ul className="space-y-1.5 text-xs text-slate-200">
+                {sessionList.map((s, idx) => (
+                  <li key={idx} className="flex items-start gap-2">
+                    <CheckCircle2 className="w-3.5 h-3.5 text-cyan-400 shrink-0 mt-0.5" />
+                    <span>{s}</span>
+                  </li>
+                ))}
+              </ul>
+            </div>
+          )}
 
           {/* Logistics Summary */}
           <div className="grid grid-cols-2 gap-3 text-xs">
@@ -215,45 +225,51 @@ function SuccessTicketContent() {
           </div>
         </div>
 
-        {/* PREREQUISITES REMINDER BOX INSIDE PASS */}
-        <div className="bg-amber-500/10 border-t border-amber-500/20 p-5 sm:p-6 space-y-3">
-          <div className="flex items-center gap-2 text-amber-300 text-xs sm:text-sm font-bold uppercase tracking-wider">
-            <Laptop className="w-4 h-4 text-amber-400" />
-            <span>Rappel crucial avant de venir à l&apos;atelier :</span>
+        {/* PREREQUISITES REMINDER BOX INSIDE PASS (Uniquement si Management est sélectionné) */}
+        {isMgmt && (
+          <div className="bg-amber-500/10 border-t border-amber-500/20 p-5 sm:p-6 space-y-3">
+            <div className="flex items-center gap-2 text-amber-300 text-xs sm:text-sm font-bold uppercase tracking-wider">
+              <Laptop className="w-4 h-4 text-amber-400" />
+              <span>Atelier Management | Informations pratiques</span>
+            </div>
+
+            <p className="text-xs text-slate-200 leading-relaxed">
+              L’atelier se déroule sur l’ensemble de la matinée, de <strong>09h00 à 12h30</strong>.
+            </p>
+
+            <p className="text-xs text-slate-300 leading-relaxed">
+              Pour participer aux activités pratiques, prévoir un <strong>ordinateur portable avec chargeur</strong> et installer au préalable :
+            </p>
+
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
+              <a
+                href="https://www.google.com/chrome/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/90 border border-slate-700 hover:border-blue-500 text-xs text-slate-200 transition-all group"
+              >
+                <div className="flex items-center gap-2">
+                  <Chrome className="w-4 h-4 text-yellow-300" />
+                  <span>Google Chrome</span>
+                </div>
+                <Download className="w-3.5 h-3.5 text-blue-400 group-hover:translate-y-0.5 transition-transform" />
+              </a>
+
+              <a
+                href="https://www.7-zip.org/"
+                target="_blank"
+                rel="noopener noreferrer"
+                className="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/90 border border-slate-700 hover:border-emerald-500 text-xs text-slate-200 transition-all group"
+              >
+                <div className="flex items-center gap-2">
+                  <FileArchive className="w-4 h-4 text-emerald-300" />
+                  <span>Un utilitaire ZIP / 7-Zip</span>
+                </div>
+                <Download className="w-3.5 h-3.5 text-emerald-400 group-hover:translate-y-0.5 transition-transform" />
+              </a>
+            </div>
           </div>
-
-          <p className="text-xs text-slate-300 leading-relaxed">
-            Pour assurer le bon déroulement des exercices de décision assistée par IA, veuillez vous munir de votre ordinateur portable chargé et installer ces 2 outils :
-          </p>
-
-          <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5 pt-1">
-            <a
-              href="https://www.google.com/chrome/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/90 border border-slate-700 hover:border-blue-500 text-xs text-slate-200 transition-all group"
-            >
-              <div className="flex items-center gap-2">
-                <Chrome className="w-4 h-4 text-yellow-300" />
-                <span>1. Google Chrome</span>
-              </div>
-              <Download className="w-3.5 h-3.5 text-blue-400 group-hover:translate-y-0.5 transition-transform" />
-            </a>
-
-            <a
-              href="https://www.7-zip.org/"
-              target="_blank"
-              rel="noopener noreferrer"
-              className="flex items-center justify-between p-2.5 rounded-lg bg-slate-900/90 border border-slate-700 hover:border-emerald-500 text-xs text-slate-200 transition-all group"
-            >
-              <div className="flex items-center gap-2">
-                <FileArchive className="w-4 h-4 text-emerald-300" />
-                <span>2. Outil Zip (7-Zip)</span>
-              </div>
-              <Download className="w-3.5 h-3.5 text-emerald-400 group-hover:translate-y-0.5 transition-transform" />
-            </a>
-          </div>
-        </div>
+        )}
       </motion.div>
 
       {/* Return to home link */}

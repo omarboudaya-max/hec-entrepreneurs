@@ -15,14 +15,16 @@ import {
   ArrowRight,
   Clock,
   MapPin,
-  Globe2,
   GraduationCap,
-  Briefcase,
   ShieldCheck,
   ChevronLeft,
   FileArchive,
   Chrome,
+  Calendar,
+  Info,
 } from "lucide-react";
+
+const MANAGEMENT_SESSION_ID = "Management | IA & Prise de décision";
 
 export default function DoctorialesRegistrationPage() {
   const router = useRouter();
@@ -39,31 +41,31 @@ export default function DoctorialesRegistrationPage() {
     educationLevelCustom: "",
     specialty: "",
     specialtyCustom: "",
-    sessionChoice: "",
-    hasLaptopAndCharger: "",
-    canAttendFullSession: "",
-    preferredLanguage: "",
+    sessionsJeudiMatin: [] as string[],
+    sessionsJeudiApresMidi: [] as string[],
+    sessionVendredi09h: "",
+    sessionVendredi11h: "",
     confirmedPrerequisites: false,
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
-  // Status choices
+  // 1. Statut choices
   const statusOptions = [
     "Étudiant(e)",
-    "Docteur",
+    "Doctorant(e)",
     "Enseignant(e)-chercheur(se)",
     "Autre",
   ];
 
-  // Institution choices
+  // Établissement choices
   const institutionOptions = [
     "IHEC Carthage",
     "Autre",
   ];
 
-  // Education Level choices (L1, L2, L3 removed)
+  // Niveau d’études choices
   const educationLevelOptions = [
     "Master M1",
     "Master M2",
@@ -71,34 +73,83 @@ export default function DoctorialesRegistrationPage() {
     "Autre",
   ];
 
-  // Specialty choices
+  // 2. Formation ou spécialité choices
   const specialtyOptions = [
-    "Marketing",
-    "Management",
-    "Entrepreneuriat",
+    "Économie",
     "Comptabilité",
     "Finance",
-    "Informatique et technologies de l’information",
-    "Autre",
-  ];
-
-  // Session choices
-  const sessionOptions = [
-    "Finance",
-    "Comptabilité",
     "Marketing",
     "Management",
+    "Autre (à préciser)",
   ];
 
-  // Attendance choices
-  const attendanceOptions = ["Oui", "Non", "Pas encore sûr(e)"];
-
-  // Language choices
-  const languageOptions = [
-    { label: "Français", flag: "🇫🇷" },
-    { label: "Arabe", flag: "🇹🇳" },
-    { label: "Anglais", flag: "🇬🇧" },
+  // 3. Sessions choices
+  const jeudiMatinOptions = [
+    {
+      id: "Research That Matters",
+      title: "Research That Matters",
+      subtitle:
+        "Quelle recherche face aux transformations de demain ? Regards croisés sur la recherche qui compte",
+    },
+    {
+      id: "Construire une contribution doctorale forte",
+      title: "Construire une contribution doctorale forte",
+    },
   ];
+
+  const jeudiApresMidiOptions = [
+    {
+      id: "Les grandes contributions dans l’histoire de la pensée économique",
+      title: "Les grandes contributions dans l’histoire de la pensée économique",
+    },
+    {
+      id: "Publication et intégrité scientifique à l’ère de l’IA",
+      title: "Publication et intégrité scientifique à l’ère de l’IA",
+    },
+  ];
+
+  const vendredi09hOptions = [
+    {
+      id: "Comptabilité | La Gouvernance 4.0",
+      title: "Comptabilité | La Gouvernance 4.0",
+    },
+    {
+      id: "Finance | Approches IA appliquées à la finance",
+      title: "Finance | Approches IA appliquées à la finance",
+    },
+    {
+      id: "Marketing | IA générative et consommateur augmenté",
+      title: "Marketing | IA générative et consommateur augmenté",
+      subtitle: "État de l’art, pistes de thèse, enjeux et méthodes",
+    },
+    {
+      id: MANAGEMENT_SESSION_ID,
+      title: "Management | IA & Prise de décision",
+      subtitle: "Vivre un protocole expérimental de l’intérieur",
+      badge: "Atelier de 09h00 à 12h30",
+    },
+  ];
+
+  const vendredi11hOptions = [
+    {
+      id: "Comptabilité | Publier dans les revues de premier rang : ce qui fait la différence",
+      title:
+        "Comptabilité | Publier dans les revues de premier rang : ce qui fait la différence",
+    },
+    {
+      id: "Économie Finance | Introduction à Power BI pour les économistes et les financiers",
+      title:
+        "Économie Finance | Introduction à Power BI pour les économistes et les financiers",
+    },
+    {
+      id: "Marketing | Agentic AI Workflows for Scalable Bibliometric Analysis",
+      title:
+        "Marketing | Agentic AI Workflows for Scalable Bibliometric Analysis",
+    },
+  ];
+
+  const isManagementSelected =
+    formData.sessionVendredi09h === MANAGEMENT_SESSION_ID;
 
   const handleInputChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
@@ -108,16 +159,55 @@ export default function DoctorialesRegistrationPage() {
   };
 
   const handleCheckboxChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData((prev) => ({ ...prev, confirmedPrerequisites: e.target.checked }));
+    setFormData((prev) => ({
+      ...prev,
+      confirmedPrerequisites: e.target.checked,
+    }));
+  };
+
+  const toggleMultiSession = (
+    field: "sessionsJeudiMatin" | "sessionsJeudiApresMidi",
+    id: string
+  ) => {
+    setFormData((prev) => {
+      const current = prev[field];
+      const exists = current.includes(id);
+      return {
+        ...prev,
+        [field]: exists ? current.filter((item) => item !== id) : [...current, id],
+      };
+    });
+  };
+
+  const handleSelectVendredi09h = (id: string) => {
+    setFormData((prev) => {
+      const nextVal = prev.sessionVendredi09h === id ? "" : id;
+      const isMgmt = nextVal === MANAGEMENT_SESSION_ID;
+      return {
+        ...prev,
+        sessionVendredi09h: nextVal,
+        // Si Management est sélectionné, il couvre 09h00 à 12h30 donc on vide le créneau 11h00-12h30
+        sessionVendredi11h: isMgmt ? "" : prev.sessionVendredi11h,
+        confirmedPrerequisites: isMgmt ? prev.confirmedPrerequisites : false,
+      };
+    });
+  };
+
+  const handleSelectVendredi11h = (id: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      sessionVendredi11h: prev.sessionVendredi11h === id ? "" : id,
+    }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setErrorMessage(null);
 
-    // Validation
     if (!formData.fullName.trim() || !formData.email.trim()) {
-      setErrorMessage("Veuillez renseigner votre nom complet et votre adresse e-mail.");
+      setErrorMessage(
+        "Veuillez renseigner votre nom complet et votre adresse e-mail."
+      );
       return;
     }
 
@@ -126,7 +216,7 @@ export default function DoctorialesRegistrationPage() {
       return;
     }
     if (formData.status === "Autre" && !formData.statusCustom.trim()) {
-      setErrorMessage("Veuillez préciser votre statut personnalisé.");
+      setErrorMessage("Veuillez préciser votre statut.");
       return;
     }
 
@@ -143,8 +233,11 @@ export default function DoctorialesRegistrationPage() {
       setErrorMessage("Veuillez sélectionner votre niveau d’études.");
       return;
     }
-    if (formData.educationLevel === "Autre" && !formData.educationLevelCustom.trim()) {
-      setErrorMessage("Veuillez préciser votre niveau d’études personnalisé.");
+    if (
+      formData.educationLevel === "Autre" &&
+      !formData.educationLevelCustom.trim()
+    ) {
+      setErrorMessage("Veuillez préciser votre niveau d’études.");
       return;
     }
 
@@ -152,47 +245,72 @@ export default function DoctorialesRegistrationPage() {
       setErrorMessage("Veuillez sélectionner votre formation ou spécialité.");
       return;
     }
-    if (formData.specialty === "Autre" && !formData.specialtyCustom.trim()) {
-      setErrorMessage("Veuillez préciser votre formation ou spécialité.");
+    if (
+      formData.specialty === "Autre (à préciser)" &&
+      !formData.specialtyCustom.trim()
+    ) {
+      setErrorMessage("Merci de préciser votre formation ou spécialité.");
       return;
     }
 
-    if (!formData.sessionChoice) {
-      setErrorMessage("Veuillez choisir la session à laquelle vous souhaitez participer.");
+    // Au moins une session sélectionnée sur l'ensemble du programme
+    const allSelectedSessions = [
+      ...formData.sessionsJeudiMatin.map((s) => `Jeudi Matin : ${s}`),
+      ...formData.sessionsJeudiApresMidi.map((s) => `Jeudi Après-midi : ${s}`),
+      ...(formData.sessionVendredi09h
+        ? [
+            isManagementSelected
+              ? `Vendredi (09h00 – 12h30) : ${formData.sessionVendredi09h}`
+              : `Vendredi (09h00 – 10h30) : ${formData.sessionVendredi09h}`,
+          ]
+        : []),
+      ...(!isManagementSelected && formData.sessionVendredi11h
+        ? [`Vendredi (11h00 – 12h30) : ${formData.sessionVendredi11h}`]
+        : []),
+    ];
+
+    if (allSelectedSessions.length === 0) {
+      setErrorMessage(
+        "Veuillez sélectionner au moins une session à laquelle vous souhaitez participer."
+      );
       return;
     }
 
-    if (!formData.hasLaptopAndCharger) {
-      setErrorMessage("Veuillez indiquer si vous disposez d'un PC portable et d'un chargeur.");
+    if (isManagementSelected && !formData.confirmedPrerequisites) {
+      setErrorMessage(
+        "Veuillez cocher la case de confirmation relative aux prérequis de l'Atelier Management."
+      );
       return;
     }
 
-    if (!formData.canAttendFullSession) {
-      setErrorMessage("Veuillez indiquer si vous pouvez participer pendant les 3 heures.");
-      return;
-    }
-
-    if (!formData.preferredLanguage) {
-      setErrorMessage("Veuillez choisir votre langue préférée pour l'atelier.");
-      return;
-    }
+    const sessionSummary = allSelectedSessions.join(" • ");
 
     setIsSubmitting(true);
 
     try {
+      const payload = {
+        ...formData,
+        specialty:
+          formData.specialty === "Autre (à préciser)" ? "Autre" : formData.specialty,
+        sessionChoice: sessionSummary,
+        selectedSessions: allSelectedSessions,
+        isManagementWorkshop: isManagementSelected,
+      };
+
       const response = await fetch("/api/events/doctoriales", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(formData),
+        body: JSON.stringify(payload),
       });
 
       const result = await response.json();
 
       if (!response.ok || !result.success) {
-        throw new Error(result.message || "Une erreur est survenue lors de l'envoi.");
+        throw new Error(
+          result.message || "Une erreur est survenue lors de l'envoi."
+        );
       }
 
-      // Also send to sheets webhook if configured in client
       const sheetsUrl = process.env.NEXT_PUBLIC_SHEETS_SCRIPT_URL;
       if (sheetsUrl) {
         try {
@@ -203,7 +321,7 @@ export default function DoctorialesRegistrationPage() {
             body: JSON.stringify({
               action: "doctoriales_registration",
               registrationId: result.registrationId,
-              ...formData,
+              ...payload,
               submittedAt: new Date().toISOString(),
             }),
           });
@@ -212,23 +330,30 @@ export default function DoctorialesRegistrationPage() {
         }
       }
 
-      // Redirection vers la page de succès et ticket QR
       const query = new URLSearchParams({
         id: result.registrationId || `DOC-${Date.now()}`,
         name: formData.fullName,
         email: formData.email,
-        status: formData.status === "Autre" ? formData.statusCustom : formData.status,
-        institution: formData.institution === "Autre" ? formData.institutionCustom : formData.institution,
-        session: formData.sessionChoice,
-        lang: formData.preferredLanguage,
-        specialty: formData.specialty === "Autre" ? formData.specialtyCustom : formData.specialty,
+        status:
+          formData.status === "Autre" ? formData.statusCustom : formData.status,
+        institution:
+          formData.institution === "Autre"
+            ? formData.institutionCustom
+            : formData.institution,
+        session: sessionSummary,
+        mgmt: isManagementSelected ? "1" : "0",
+        specialty:
+          formData.specialty === "Autre (à préciser)"
+            ? formData.specialtyCustom
+            : formData.specialty,
       }).toString();
 
       router.push(`/evenements/doctoriales/success?${query}`);
     } catch (err: any) {
       console.error("Submission failed:", err);
       setErrorMessage(
-        err.message || "Erreur de connexion. Veuillez vérifier votre réseau et réessayer."
+        err.message ||
+          "Erreur de connexion. Veuillez vérifier votre réseau et réessayer."
       );
     } finally {
       setIsSubmitting(false);
@@ -310,7 +435,10 @@ export default function DoctorialesRegistrationPage() {
             {/* Title & Slogan */}
             <div className="mb-4">
               <h1 className="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white tracking-tight leading-tight mb-1.5">
-                HEC <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-300">Doctoriales</span>
+                HEC{" "}
+                <span className="text-transparent bg-clip-text bg-gradient-to-r from-purple-400 via-pink-400 to-cyan-300">
+                  Doctoriales
+                </span>
               </h1>
               <p className="text-purple-200/90 italic font-serif text-base sm:text-lg">
                 « Faire de la recherche doctorale un levier d&apos;excellence »
@@ -318,7 +446,11 @@ export default function DoctorialesRegistrationPage() {
             </div>
 
             <p className="text-slate-300 text-sm sm:text-base leading-relaxed mb-6 font-normal max-w-2xl">
-              Rejoignez la 14<sup>e</sup> édition des <strong>HEC Doctoriales</strong> les <strong>5 &amp; 6 novembre 2026</strong> à l&apos;<strong>IHEC Carthage</strong>. Inscrivez-vous aux panels transversaux, séminaires de recherche et sessions de spécialités (Finance, Comptabilité, Marketing &amp; Management).
+              Rejoignez la 14<sup>e</sup> édition des{" "}
+              <strong>HEC Doctoriales</strong> les{" "}
+              <strong>5 &amp; 6 novembre 2026</strong> à l&apos;
+              <strong>IHEC Carthage</strong>. Inscrivez-vous aux panels
+              transversaux, séminaires de recherche et sessions de spécialités.
             </p>
 
             {/* Quick Badges */}
@@ -339,56 +471,11 @@ export default function DoctorialesRegistrationPage() {
           </div>
         </motion.div>
 
-        {/* CRITICAL PREREQUISITES BANNER */}
-        <motion.div
-          initial={{ opacity: 0, y: 20 }}
-          animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.1 }}
-          className="rounded-2xl border-2 border-amber-500/40 bg-gradient-to-br from-amber-500/10 via-purple-900/15 to-slate-900/90 p-5 sm:p-7 mb-8 relative overflow-hidden backdrop-blur-xl shadow-lg"
-        >
-          <div className="flex flex-col md:flex-row md:items-center justify-between gap-6">
-            <div className="space-y-2">
-              <div className="flex items-center gap-2.5 text-amber-300 font-bold text-base sm:text-lg">
-                <AlertTriangle className="w-5 h-5 text-amber-400 shrink-0 animate-bounce" />
-                <span>Consignes & Prérequis indispensables pour chaque participant</span>
-              </div>
-              <p className="text-xs sm:text-sm text-slate-300 leading-relaxed max-w-2xl">
-                Pour participer activement aux ateliers pratiques, chaque participant doit se munir d&apos;un <strong>ordinateur portable avec son chargeur</strong> et s&apos;assurer d&apos;avoir préalablement installé les deux outils suivants :
-              </p>
-            </div>
-
-            {/* Direct Download Badges */}
-            <div className="flex flex-wrap sm:flex-nowrap gap-3 shrink-0">
-              <a
-                href="https://www.google.com/chrome/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-blue-600/90 hover:bg-blue-600 text-white font-medium text-xs sm:text-sm transition-all hover:scale-105 shadow-md shadow-blue-500/20"
-              >
-                <Chrome className="w-4 h-4 text-yellow-300" />
-                <span>Google Chrome</span>
-                <Download className="w-3.5 h-3.5 opacity-80" />
-              </a>
-
-              <a
-                href="https://www.7-zip.org/"
-                target="_blank"
-                rel="noopener noreferrer"
-                className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-emerald-600/90 hover:bg-emerald-600 text-white font-medium text-xs sm:text-sm transition-all hover:scale-105 shadow-md shadow-emerald-500/20"
-              >
-                <FileArchive className="w-4 h-4 text-emerald-200" />
-                <span>Utilitaire Zip (7-Zip)</span>
-                <Download className="w-3.5 h-3.5 opacity-80" />
-              </a>
-            </div>
-          </div>
-        </motion.div>
-
         {/* REGISTRATION FORM */}
         <motion.div
           initial={{ opacity: 0, y: 25 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.5, delay: 0.2 }}
+          transition={{ duration: 0.5, delay: 0.15 }}
           className="rounded-3xl border border-slate-800 bg-[#0c0c1b]/95 p-6 sm:p-10 shadow-2xl backdrop-blur-xl relative overflow-hidden"
         >
           {/* Subtle Header */}
@@ -399,7 +486,8 @@ export default function DoctorialesRegistrationPage() {
                 <span>Formulaire d&apos;inscription</span>
               </h2>
               <p className="text-slate-400 text-xs sm:text-sm mt-1">
-                Tous les champs marqués d&apos;une étoile (<span className="text-pink-400">*</span>) sont obligatoires.
+                Tous les champs marqués d&apos;une étoile (
+                <span className="text-pink-400">*</span>) sont obligatoires.
               </p>
             </div>
 
@@ -435,7 +523,7 @@ export default function DoctorialesRegistrationPage() {
                   2. Adresse e-mail <span className="text-pink-400">*</span>
                 </span>
                 <span className="text-xs text-slate-400 font-normal">
-                  Pour recevoir votre badge & les liens
+                  Pour recevoir votre confirmation d&apos;inscription
                 </span>
               </label>
               <input
@@ -480,7 +568,6 @@ export default function DoctorialesRegistrationPage() {
                 ))}
               </div>
 
-              {/* Champ conditionnel pour 'Autre' */}
               <AnimatePresence>
                 {formData.status === "Autre" && (
                   <motion.div
@@ -495,7 +582,7 @@ export default function DoctorialesRegistrationPage() {
                       required
                       value={formData.statusCustom}
                       onChange={handleInputChange}
-                      placeholder="Précisez votre statut (ex : Consultant, Professionnel, etc.)"
+                      placeholder="Précisez votre statut"
                       className="w-full bg-[#14142e] border border-purple-500/50 focus:border-purple-400 focus:ring-2 focus:ring-purple-500/30 px-4 py-3 rounded-xl text-white placeholder:text-slate-400 text-sm outline-none"
                     />
                   </motion.div>
@@ -517,7 +604,8 @@ export default function DoctorialesRegistrationPage() {
                       setFormData((prev) => ({
                         ...prev,
                         institution: inst,
-                        institutionCustom: inst !== "Autre" ? "" : prev.institutionCustom,
+                        institutionCustom:
+                          inst !== "Autre" ? "" : prev.institutionCustom,
                       }))
                     }
                     className={`flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-medium transition-all text-left ${
@@ -526,7 +614,9 @@ export default function DoctorialesRegistrationPage() {
                         : "bg-[#121226] border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white"
                     }`}
                   >
-                    <span>{inst === "Autre" ? "Autre (à préciser)" : inst}</span>
+                    <span>
+                      {inst === "Autre" ? "Autre (à préciser)" : inst}
+                    </span>
                     {formData.institution === inst && (
                       <CheckCircle2 className="w-4 h-4 text-purple-400 shrink-0" />
                     )}
@@ -534,7 +624,6 @@ export default function DoctorialesRegistrationPage() {
                 ))}
               </div>
 
-              {/* Champ conditionnel pour 'Autre' établissement */}
               <AnimatePresence>
                 {formData.institution === "Autre" && (
                   <motion.div
@@ -589,7 +678,6 @@ export default function DoctorialesRegistrationPage() {
                 ))}
               </div>
 
-              {/* Champ conditionnel pour 'Autre' */}
               <AnimatePresence>
                 {formData.educationLevel === "Autre" && (
                   <motion.div
@@ -627,10 +715,9 @@ export default function DoctorialesRegistrationPage() {
                         ...prev,
                         specialty: spec,
                         specialtyCustom:
-                          spec !== "Autre" ? "" : prev.specialtyCustom,
-                        sessionChoice: sessionOptions.includes(spec)
-                          ? spec
-                          : prev.sessionChoice,
+                          spec !== "Autre (à préciser)"
+                            ? ""
+                            : prev.specialtyCustom,
                       }))
                     }
                     className={`flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-medium transition-all text-left ${
@@ -647,22 +734,24 @@ export default function DoctorialesRegistrationPage() {
                 ))}
               </div>
 
-              {/* Champ conditionnel pour 'Autre' */}
               <AnimatePresence>
-                {formData.specialty === "Autre" && (
+                {formData.specialty === "Autre (à préciser)" && (
                   <motion.div
                     initial={{ opacity: 0, height: 0 }}
                     animate={{ opacity: 1, height: "auto" }}
                     exit={{ opacity: 0, height: 0 }}
-                    className="pt-2 overflow-hidden"
+                    className="pt-2 space-y-1.5 overflow-hidden"
                   >
+                    <label className="text-xs sm:text-sm font-medium text-purple-300 block">
+                      Merci de préciser votre formation ou spécialité :
+                    </label>
                     <input
                       type="text"
                       name="specialtyCustom"
                       required
                       value={formData.specialtyCustom}
                       onChange={handleInputChange}
-                      placeholder="Précisez votre formation ou spécialité"
+                      placeholder="Ex : Systèmes d'information, Méthodes quantitatives..."
                       className="w-full bg-[#14142e] border border-purple-500/50 focus:border-purple-400 focus:ring-2 focus:ring-purple-500/30 px-4 py-3 rounded-xl text-white placeholder:text-slate-400 text-sm outline-none"
                     />
                   </motion.div>
@@ -670,159 +759,322 @@ export default function DoctorialesRegistrationPage() {
               </AnimatePresence>
             </div>
 
-            {/* QUESTION 7: Session souhaitée */}
-            <div className="space-y-3">
-              <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1">
-                <label className="text-sm font-semibold text-slate-200 block">
-                  7. La session à laquelle vous souhaitez participer <span className="text-pink-400">*</span>
-                </label>
-                <span className="text-xs text-slate-400">
-                  5 &amp; 6 Novembre (09h00 – 17h30)
-                </span>
-              </div>
-              <div className="grid grid-cols-1 sm:grid-cols-2 gap-2.5">
-                {sessionOptions.map((sess) => (
-                  <button
-                    key={sess}
-                    type="button"
-                    onClick={() =>
-                      setFormData((prev) => ({
-                        ...prev,
-                        sessionChoice: sess,
-                      }))
-                    }
-                    className={`flex items-center justify-between px-4 py-3 rounded-xl border text-sm font-medium transition-all text-left ${
-                      formData.sessionChoice === sess
-                        ? "bg-cyan-500/20 border-cyan-400 text-cyan-200 shadow-sm ring-1 ring-cyan-400"
-                        : "bg-[#121226] border-slate-800 text-slate-300 hover:border-slate-700 hover:text-white"
-                    }`}
-                  >
-                    <span>{sess}</span>
-                    {formData.sessionChoice === sess && (
-                      <CheckCircle2 className="w-4 h-4 text-cyan-400 shrink-0" />
-                    )}
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* QUESTION 8: Disposez-vous d’un ordinateur portable et de son chargeur ? */}
-            <div className="space-y-3 pt-2">
-              <label className="text-sm font-semibold text-slate-200 block">
-                8. Disposez-vous d’un ordinateur portable et de son chargeur ?{" "}
-                <span className="text-pink-400">*</span>
-              </label>
-              <div className="grid grid-cols-2 gap-3">
-                <button
-                  type="button"
-                  onClick={() =>
-                    setFormData((prev) => ({ ...prev, hasLaptopAndCharger: "Oui" }))
-                  }
-                  className={`flex items-center justify-center gap-2.5 p-4 rounded-xl border font-semibold text-sm transition-all ${
-                    formData.hasLaptopAndCharger === "Oui"
-                      ? "bg-emerald-500/20 border-emerald-500 text-emerald-300 shadow-md ring-1 ring-emerald-500"
-                      : "bg-[#121226] border-slate-800 text-slate-300 hover:border-slate-700"
-                  }`}
-                >
-                  <Laptop className="w-4 h-4" />
-                  <span>Oui</span>
-                </button>
-
-                <button
-                  type="button"
-                  onClick={() =>
-                    setFormData((prev) => ({ ...prev, hasLaptopAndCharger: "Non" }))
-                  }
-                  className={`flex items-center justify-center gap-2.5 p-4 rounded-xl border font-semibold text-sm transition-all ${
-                    formData.hasLaptopAndCharger === "Non"
-                      ? "bg-rose-500/20 border-rose-500 text-rose-300 shadow-md ring-1 ring-rose-500"
-                      : "bg-[#121226] border-slate-800 text-slate-300 hover:border-slate-700"
-                  }`}
-                >
-                  <span>Non</span>
-                </button>
-              </div>
-
-              {formData.hasLaptopAndCharger === "Non" && (
-                <p className="text-xs text-amber-400/90 bg-amber-500/10 border border-amber-500/20 p-2.5 rounded-lg flex items-center gap-2">
-                  <AlertTriangle className="w-4 h-4 shrink-0" />
-                  <span>
-                    Note : Les cas pratiques nécessitent un ordinateur portable. Nous vous invitons vivement à en emprunter un pour la session.
-                  </span>
-                </p>
-              )}
-            </div>
-
-            {/* QUESTION 9: Pouvez-vous participer pendant les trois heures complètes ? */}
-            <div className="space-y-3">
-              <label className="text-sm font-semibold text-slate-200 block">
-                9. Pouvez-vous participer pendant les trois heures complètes ?{" "}
-                <span className="text-pink-400">*</span>
-              </label>
-              <div className="grid grid-cols-1 sm:grid-cols-3 gap-2.5">
-                {attendanceOptions.map((att) => (
-                  <button
-                    key={att}
-                    type="button"
-                    onClick={() =>
-                      setFormData((prev) => ({ ...prev, canAttendFullSession: att }))
-                    }
-                    className={`flex items-center justify-center p-3.5 rounded-xl border text-sm font-medium transition-all ${
-                      formData.canAttendFullSession === att
-                        ? "bg-purple-600/20 border-purple-500 text-white shadow-sm ring-1 ring-purple-500"
-                        : "bg-[#121226] border-slate-800 text-slate-300 hover:border-slate-700"
-                    }`}
-                  >
-                    <span>{att}</span>
-                  </button>
-                ))}
-              </div>
-            </div>
-
-            {/* QUESTION 10: Quelle est votre langue préférée pour l’atelier ? */}
-            <div className="space-y-3">
-              <div className="flex items-center justify-between">
-                <label className="text-sm font-semibold text-slate-200">
-                  10. Quelle est votre langue préférée pour l’atelier ?{" "}
+            {/* QUESTION 7: Sessions auxquelles vous souhaitez participer */}
+            <div className="space-y-6 pt-4 border-t border-slate-800/80">
+              <div>
+                <label className="text-base sm:text-lg font-bold text-white block">
+                  7. Sessions auxquelles vous souhaitez participer{" "}
                   <span className="text-pink-400">*</span>
                 </label>
+                <p className="text-xs sm:text-sm text-slate-400 mt-1">
+                  Merci de sélectionner les sessions auxquelles vous souhaitez
+                  participer.
+                </p>
               </div>
-              <div className="grid grid-cols-3 gap-2.5">
-                {languageOptions.map((lang) => (
-                  <button
-                    key={lang.label}
-                    type="button"
-                    onClick={() =>
-                      setFormData((prev) => ({ ...prev, preferredLanguage: lang.label }))
-                    }
-                    className={`flex flex-col sm:flex-row items-center justify-center gap-2 p-3.5 rounded-xl border text-sm font-medium transition-all ${
-                      formData.preferredLanguage === lang.label
-                        ? "bg-cyan-500/20 border-cyan-400 text-cyan-200 shadow-sm ring-1 ring-cyan-400"
-                        : "bg-[#121226] border-slate-800 text-slate-300 hover:border-slate-700"
-                    }`}
+
+              {/* BLOC 1: Jeudi 5 novembre 2026 | Matin */}
+              <div className="rounded-2xl border border-slate-800 bg-[#101022] p-5 space-y-3.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+                  <h3 className="text-sm sm:text-base font-bold text-purple-200 flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-purple-400 shrink-0" />
+                    <span>Jeudi 5 novembre 2026 | Matin</span>
+                  </h3>
+                  <span className="text-xs font-medium text-purple-300 bg-purple-500/10 border border-purple-500/20 px-2.5 py-1 rounded-full w-fit">
+                    Plusieurs choix possibles
+                  </span>
+                </div>
+
+                <div className="space-y-2.5">
+                  {jeudiMatinOptions.map((item) => {
+                    const selected = formData.sessionsJeudiMatin.includes(
+                      item.id
+                    );
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() =>
+                          toggleMultiSession("sessionsJeudiMatin", item.id)
+                        }
+                        className={`w-full flex items-start justify-between gap-3 p-4 rounded-xl border text-left transition-all ${
+                          selected
+                            ? "bg-purple-600/20 border-purple-500 text-white shadow-sm ring-1 ring-purple-500"
+                            : "bg-[#14142b] border-slate-800/90 text-slate-300 hover:border-slate-700 hover:text-white"
+                        }`}
+                      >
+                        <div className="space-y-1">
+                          <div className="text-sm font-semibold">
+                            {item.title}
+                          </div>
+                          {item.subtitle && (
+                            <div className="text-xs text-slate-400 leading-relaxed">
+                              {item.subtitle}
+                            </div>
+                          )}
+                        </div>
+                        <div
+                          className={`mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-all ${
+                            selected
+                              ? "bg-purple-500 border-purple-400 text-white"
+                              : "border-slate-600 bg-slate-900/60"
+                          }`}
+                        >
+                          {selected && <CheckCircle2 className="w-3.5 h-3.5" />}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* BLOC 2: Jeudi 5 novembre 2026 | Après-midi */}
+              <div className="rounded-2xl border border-slate-800 bg-[#101022] p-5 space-y-3.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+                  <h3 className="text-sm sm:text-base font-bold text-purple-200 flex items-center gap-2">
+                    <Calendar className="w-4 h-4 text-purple-400 shrink-0" />
+                    <span>Jeudi 5 novembre 2026 | Après-midi</span>
+                  </h3>
+                  <span className="text-xs font-medium text-purple-300 bg-purple-500/10 border border-purple-500/20 px-2.5 py-1 rounded-full w-fit">
+                    Plusieurs choix possibles
+                  </span>
+                </div>
+
+                <div className="space-y-2.5">
+                  {jeudiApresMidiOptions.map((item) => {
+                    const selected = formData.sessionsJeudiApresMidi.includes(
+                      item.id
+                    );
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() =>
+                          toggleMultiSession("sessionsJeudiApresMidi", item.id)
+                        }
+                        className={`w-full flex items-start justify-between gap-3 p-4 rounded-xl border text-left transition-all ${
+                          selected
+                            ? "bg-purple-600/20 border-purple-500 text-white shadow-sm ring-1 ring-purple-500"
+                            : "bg-[#14142b] border-slate-800/90 text-slate-300 hover:border-slate-700 hover:text-white"
+                        }`}
+                      >
+                        <div className="text-sm font-semibold">{item.title}</div>
+                        <div
+                          className={`mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-all ${
+                            selected
+                              ? "bg-purple-500 border-purple-400 text-white"
+                              : "border-slate-600 bg-slate-900/60"
+                          }`}
+                        >
+                          {selected && <CheckCircle2 className="w-3.5 h-3.5" />}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* BLOC 3: Vendredi 6 novembre 2026 | 09h00 à 10h30 */}
+              <div className="rounded-2xl border border-slate-800 bg-[#101022] p-5 space-y-3.5">
+                <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+                  <h3 className="text-sm sm:text-base font-bold text-cyan-200 flex items-center gap-2">
+                    <Clock className="w-4 h-4 text-cyan-400 shrink-0" />
+                    <span>Vendredi 6 novembre 2026 | 09h00 à 10h30</span>
+                  </h3>
+                  <span className="text-xs font-medium text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-1 rounded-full w-fit">
+                    Une seule session à sélectionner
+                  </span>
+                </div>
+
+                <div className="space-y-2.5">
+                  {vendredi09hOptions.map((item) => {
+                    const selected = formData.sessionVendredi09h === item.id;
+                    return (
+                      <button
+                        key={item.id}
+                        type="button"
+                        onClick={() => handleSelectVendredi09h(item.id)}
+                        className={`w-full flex items-start justify-between gap-3 p-4 rounded-xl border text-left transition-all ${
+                          selected
+                            ? "bg-cyan-500/20 border-cyan-400 text-white shadow-sm ring-1 ring-cyan-400"
+                            : "bg-[#14142b] border-slate-800/90 text-slate-300 hover:border-slate-700 hover:text-white"
+                        }`}
+                      >
+                        <div className="space-y-1">
+                          <div className="text-sm font-semibold">
+                            {item.title}
+                          </div>
+                          {item.subtitle && (
+                            <div className="text-xs text-slate-300 leading-relaxed">
+                              {item.subtitle}
+                            </div>
+                          )}
+                          {item.badge && (
+                            <div className="inline-block mt-1 text-[11px] font-semibold text-amber-300 bg-amber-500/15 border border-amber-500/30 px-2.5 py-0.5 rounded-md italic">
+                              {item.badge}
+                            </div>
+                          )}
+                        </div>
+                        <div
+                          className={`mt-0.5 w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-all ${
+                            selected
+                              ? "bg-cyan-400 border-cyan-300 text-slate-950"
+                              : "border-slate-600 bg-slate-900/60"
+                          }`}
+                        >
+                          {selected && <CheckCircle2 className="w-3.5 h-3.5" />}
+                        </div>
+                      </button>
+                    );
+                  })}
+                </div>
+              </div>
+
+              {/* BLOC 4: Vendredi 6 novembre 2026 | 11h00 à 12h30 (masqué si Management est sélectionné) */}
+              <AnimatePresence>
+                {!isManagementSelected && (
+                  <motion.div
+                    initial={{ opacity: 0, height: 0 }}
+                    animate={{ opacity: 1, height: "auto" }}
+                    exit={{ opacity: 0, height: 0 }}
+                    className="overflow-hidden"
                   >
-                    <span className="text-base">{lang.flag}</span>
-                    <span>{lang.label}</span>
-                  </button>
-                ))}
+                    <div className="rounded-2xl border border-slate-800 bg-[#101022] p-5 space-y-3.5">
+                      <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2 border-b border-slate-800/80 pb-3">
+                        <h3 className="text-sm sm:text-base font-bold text-cyan-200 flex items-center gap-2">
+                          <Clock className="w-4 h-4 text-cyan-400 shrink-0" />
+                          <span>Vendredi 6 novembre 2026 | 11h00 à 12h30</span>
+                        </h3>
+                        <span className="text-xs font-medium text-cyan-300 bg-cyan-500/10 border border-cyan-500/20 px-2.5 py-1 rounded-full w-fit">
+                          Une seule session à sélectionner
+                        </span>
+                      </div>
+
+                      <div className="space-y-2.5">
+                        {vendredi11hOptions.map((item) => {
+                          const selected =
+                            formData.sessionVendredi11h === item.id;
+                          return (
+                            <button
+                              key={item.id}
+                              type="button"
+                              onClick={() => handleSelectVendredi11h(item.id)}
+                              className={`w-full flex items-start justify-between gap-3 p-4 rounded-xl border text-left transition-all ${
+                                selected
+                                  ? "bg-cyan-500/20 border-cyan-400 text-white shadow-sm ring-1 ring-cyan-400"
+                                  : "bg-[#14142b] border-slate-800/90 text-slate-300 hover:border-slate-700 hover:text-white"
+                              }`}
+                            >
+                              <div className="text-sm font-semibold">
+                                {item.title}
+                              </div>
+                              <div
+                                className={`mt-0.5 w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-all ${
+                                  selected
+                                    ? "bg-cyan-400 border-cyan-300 text-slate-950"
+                                    : "border-slate-600 bg-slate-900/60"
+                                }`}
+                              >
+                                {selected && (
+                                  <CheckCircle2 className="w-3.5 h-3.5" />
+                                )}
+                              </div>
+                            </button>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  </motion.div>
+                )}
+              </AnimatePresence>
+
+              {/* Note sur les ateliers doctoraux d'avancement de thèse */}
+              <div className="flex items-start gap-3 p-4 rounded-xl bg-slate-900/70 border border-slate-800 text-xs sm:text-sm text-slate-300 italic">
+                <Info className="w-4 h-4 text-purple-400 shrink-0 mt-0.5 not-italic" />
+                <span>
+                  La participation aux ateliers doctoraux consacrés aux
+                  présentations d’avancement de thèse est libre et ne nécessite
+                  pas d’inscription préalable.
+                </span>
               </div>
             </div>
 
-            {/* CONFIRMATION CHECKLIST (sans mention du PC) */}
-            <div className="pt-4 border-t border-slate-800/80">
-              <label className="relative flex items-start gap-3.5 p-4 rounded-xl bg-purple-950/20 border border-purple-800/40 hover:border-purple-600/60 transition-all cursor-pointer">
-                <input
-                  type="checkbox"
-                  name="confirmedPrerequisites"
-                  checked={formData.confirmedPrerequisites}
-                  onChange={handleCheckboxChange}
-                  className="mt-1 w-4 h-4 rounded text-purple-600 focus:ring-purple-500 bg-[#121226] border-slate-700"
-                />
-                <span className="text-xs sm:text-sm text-slate-300 leading-snug">
-                  Je confirme avoir bien pris connaissance des consignes de l&apos;atelier et avoir téléchargé <strong>Google Chrome</strong> ainsi qu&apos;un <strong>logiciel Zip</strong>.
-                </span>
-              </label>
-            </div>
+            {/* 4. CAS PARTICULIER DE L'ATELIER MANAGEMENT (Affichage conditionnel) */}
+            <AnimatePresence>
+              {isManagementSelected && (
+                <motion.div
+                  initial={{ opacity: 0, y: 12, height: 0 }}
+                  animate={{ opacity: 1, y: 0, height: "auto" }}
+                  exit={{ opacity: 0, y: -12, height: 0 }}
+                  className="overflow-hidden"
+                >
+                  <div className="rounded-2xl border-2 border-amber-500/40 bg-gradient-to-br from-amber-500/10 via-purple-900/15 to-slate-900/95 p-5 sm:p-7 space-y-5 shadow-lg">
+                    <div className="space-y-2">
+                      <div className="flex items-center gap-2.5 text-amber-300 font-bold text-base sm:text-lg">
+                        <Laptop className="w-5 h-5 text-amber-400 shrink-0" />
+                        <span>Atelier Management | Informations pratiques</span>
+                      </div>
+
+                      <p className="text-xs sm:text-sm text-slate-200 leading-relaxed">
+                        L’atelier se déroule sur l’ensemble de la matinée, de{" "}
+                        <strong>09h00 à 12h30</strong>.
+                      </p>
+
+                      <p className="text-xs sm:text-sm text-slate-300 leading-relaxed">
+                        Pour participer aux activités pratiques, prévoir un{" "}
+                        <strong>ordinateur portable avec chargeur</strong> et
+                        installer au préalable :
+                      </p>
+                    </div>
+
+                    {/* Outils à installer */}
+                    <div className="flex flex-wrap gap-3">
+                      <a
+                        href="https://www.google.com/chrome/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-blue-600/90 hover:bg-blue-600 text-white font-medium text-xs sm:text-sm transition-all hover:scale-105 shadow-md shadow-blue-500/20"
+                      >
+                        <Chrome className="w-4 h-4 text-yellow-300" />
+                        <span>Google Chrome</span>
+                        <Download className="w-3.5 h-3.5 opacity-80" />
+                      </a>
+
+                      <a
+                        href="https://www.7-zip.org/"
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center gap-2.5 px-4 py-2.5 rounded-xl bg-emerald-600/90 hover:bg-emerald-600 text-white font-medium text-xs sm:text-sm transition-all hover:scale-105 shadow-md shadow-emerald-500/20"
+                      >
+                        <FileArchive className="w-4 h-4 text-emerald-200" />
+                        <span>Un utilitaire ZIP / 7-Zip</span>
+                        <Download className="w-3.5 h-3.5 opacity-80" />
+                      </a>
+                    </div>
+
+                    {/* Case de confirmation relative à ces prérequis */}
+                    <div className="pt-2 border-t border-amber-500/20">
+                      <label className="relative flex items-start gap-3.5 p-3.5 rounded-xl bg-slate-950/60 border border-amber-500/30 hover:border-amber-400/60 transition-all cursor-pointer">
+                        <input
+                          type="checkbox"
+                          name="confirmedPrerequisites"
+                          checked={formData.confirmedPrerequisites}
+                          onChange={handleCheckboxChange}
+                          className="mt-0.5 w-4 h-4 rounded text-purple-600 focus:ring-purple-500 bg-[#121226] border-slate-700"
+                        />
+                        <span className="text-xs sm:text-sm text-slate-200 leading-snug">
+                          Je confirme avoir pris connaissance des informations
+                          pratiques de l’atelier Management et des prérequis
+                          (ordinateur portable avec chargeur,{" "}
+                          <strong>Google Chrome</strong> et{" "}
+                          <strong>un utilitaire ZIP / 7-Zip</strong>).{" "}
+                          <span className="text-pink-400">*</span>
+                        </span>
+                      </label>
+                    </div>
+                  </div>
+                </motion.div>
+              )}
+            </AnimatePresence>
 
             {/* Error Message */}
             {errorMessage && (
@@ -836,7 +1088,7 @@ export default function DoctorialesRegistrationPage() {
               </motion.div>
             )}
 
-            {/* Submit Button */}
+            {/* 5. Submit Button */}
             <div className="pt-2">
               <button
                 type="submit"
@@ -850,13 +1102,16 @@ export default function DoctorialesRegistrationPage() {
                   </>
                 ) : (
                   <>
-                    <span>Valider mon inscription à l&apos;Atelier</span>
+                    <span>
+                      Valider mon inscription aux HEC Doctoriales Series
+                    </span>
                     <ArrowRight className="w-5 h-5 group-hover:translate-x-1 transition-transform" />
                   </>
                 )}
               </button>
               <p className="text-center text-xs text-slate-500 mt-3">
-                Un billet digital officiel avec QR Code vous sera délivré instantanément.
+                Un billet digital officiel avec QR Code vous sera délivré
+                instantanément.
               </p>
             </div>
           </form>
