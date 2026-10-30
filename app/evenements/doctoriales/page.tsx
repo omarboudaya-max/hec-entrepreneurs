@@ -104,6 +104,7 @@ export default function DoctorialesRegistrationPage() {
       title: "RESEARCH SEMINAR",
       subtitle:
         "Les grandes contributions dans l'histoire de la pensée économique",
+      description: "Ricardo, Smith, Marx et Keynes.",
     },
   ];
 
