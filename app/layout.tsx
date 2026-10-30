@@ -23,8 +23,12 @@ export const metadata: Metadata = {
   keywords: ["HEC Entrepreneurs", "IHEC Carthage", "Startup", "Entrepreneuriat", "Innovation"],
   authors: [{ name: "HEC Entrepreneurs" }],
   icons: {
-    icon: "/icon.png",
-    apple: "/icon.png",
+    icon: [
+      { url: "/icon.png?v=2", type: "image/png" },
+      { url: "/favicon.ico?v=2", sizes: "any" },
+    ],
+    shortcut: "/icon.png?v=2",
+    apple: "/icon.png?v=2",
   },
   openGraph: {
     title: "HEC Entrepreneurs",
