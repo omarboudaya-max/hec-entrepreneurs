@@ -1002,16 +1002,6 @@ export default function DoctorialesRegistrationPage() {
                   </motion.div>
                 )}
               </AnimatePresence>
-
-              {/* Note sur les ateliers doctoraux d'avancement de thèse */}
-              <div className="flex items-start gap-3 p-4 rounded-xl bg-slate-900/70 border border-slate-800 text-xs sm:text-sm text-slate-300 italic">
-                <Info className="w-4 h-4 text-purple-400 shrink-0 mt-0.5 not-italic" />
-                <span>
-                  La participation aux ateliers doctoraux consacrés aux
-                  présentations d’avancement de thèse est libre et ne nécessite
-                  pas d’inscription préalable.
-                </span>
-              </div>
             </div>
 
             {/* QUESTION 8 + INFORMATIONS PRATIQUES & PRÉREQUIS (Uniquement si IA & Prise de décision est sélectionné) */}
@@ -1169,6 +1159,16 @@ export default function DoctorialesRegistrationPage() {
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/* Note sur les ateliers doctoraux d'avancement de thèse (Vendredi après-midi — en dernier lieu) */}
+            <div className="flex items-start gap-3 p-4 rounded-xl bg-slate-900/70 border border-slate-800 text-xs sm:text-sm text-slate-300 italic">
+              <Info className="w-4 h-4 text-purple-400 shrink-0 mt-0.5 not-italic" />
+              <span>
+                La participation aux ateliers doctoraux consacrés aux
+                présentations d’avancement de thèse est libre et ne nécessite
+                pas d’inscription préalable.
+              </span>
+            </div>
 
             {/* Error Message */}
             {errorMessage && (
