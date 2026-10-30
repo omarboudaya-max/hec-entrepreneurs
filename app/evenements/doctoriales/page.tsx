@@ -24,7 +24,7 @@ import {
   Info,
 } from "lucide-react";
 
-const MANAGEMENT_SESSION_ID = "Management | IA & Prise de décision";
+const MANAGEMENT_SESSION_ID = "IA & Prise de décision";
 
 export default function DoctorialesRegistrationPage() {
   const router = useRouter();
@@ -42,7 +42,7 @@ export default function DoctorialesRegistrationPage() {
     specialty: "",
     specialtyCustom: "",
     sessionsJeudiMatin: [] as string[],
-    sessionsJeudiApresMidi: [] as string[],
+    sessionJeudiApresMidi: "",
     sessionVendredi09h: "",
     sessionVendredi11h: "",
     hasLaptopAndCharger: "",
@@ -54,9 +54,9 @@ export default function DoctorialesRegistrationPage() {
 
   // 1. Statut choices
   const statusOptions = [
-    "Étudiant(e)",
     "Doctorant(e)",
     "Enseignant(e)-chercheur(se)",
+    "Étudiant(e)",
     "Autre",
   ];
 
@@ -68,9 +68,9 @@ export default function DoctorialesRegistrationPage() {
 
   // Niveau d’études choices
   const educationLevelOptions = [
-    "Master M1",
-    "Master M2",
     "Doctorat",
+    "Master M2",
+    "Master M1",
     "Autre",
   ];
 
@@ -100,32 +100,32 @@ export default function DoctorialesRegistrationPage() {
 
   const jeudiApresMidiOptions = [
     {
-      id: "Les grandes contributions dans l’histoire de la pensée économique",
-      title: "Les grandes contributions dans l’histoire de la pensée économique",
+      id: "Ateliers doctoraux en économie",
+      title: "Ateliers doctoraux en économie",
     },
     {
-      id: "Publication et intégrité scientifique à l’ère de l’IA",
-      title: "Publication et intégrité scientifique à l’ère de l’IA",
+      id: "Publication, intégrité scientifique et IA responsable",
+      title: "Publication, intégrité scientifique et IA responsable",
     },
   ];
 
   const vendredi09hOptions = [
     {
-      id: "Comptabilité | La Gouvernance 4.0",
-      title: "Comptabilité | La Gouvernance 4.0",
+      id: "La Gouvernance 4.0",
+      title: "La Gouvernance 4.0",
     },
     {
-      id: "Finance | Approches IA appliquées à la finance",
-      title: "Finance | Approches IA appliquées à la finance",
+      id: "Approches IA appliquées à la finance",
+      title: "Approches IA appliquées à la finance",
     },
     {
-      id: "Marketing | IA générative et consommateur augmenté",
-      title: "Marketing | IA générative et consommateur augmenté",
+      id: "IA générative et consommateur augmenté",
+      title: "IA générative et consommateur augmenté",
       subtitle: "État de l’art, pistes de thèse, enjeux et méthodes",
     },
     {
       id: MANAGEMENT_SESSION_ID,
-      title: "Management | IA & Prise de décision",
+      title: "IA & Prise de décision",
       subtitle: "Vivre un protocole expérimental de l’intérieur",
       badge: "Atelier de 09h00 à 12h30",
     },
@@ -133,19 +133,19 @@ export default function DoctorialesRegistrationPage() {
 
   const vendredi11hOptions = [
     {
-      id: "Comptabilité | Publier dans les revues de premier rang : ce qui fait la différence",
+      id: "Publier dans les revues de premier rang : ce qui fait la différence",
       title:
-        "Comptabilité | Publier dans les revues de premier rang : ce qui fait la différence",
+        "Publier dans les revues de premier rang : ce qui fait la différence",
     },
     {
-      id: "Économie Finance | Introduction à Power BI pour les économistes et les financiers",
+      id: "Introduction à Power BI pour les économistes et les financiers",
       title:
-        "Économie Finance | Introduction à Power BI pour les économistes et les financiers",
+        "Introduction à Power BI pour les économistes et les financiers",
     },
     {
-      id: "Marketing | Agentic AI Workflows for Scalable Bibliometric Analysis",
+      id: "Agentic AI Workflows for Scalable Bibliometric Analysis",
       title:
-        "Marketing | Agentic AI Workflows for Scalable Bibliometric Analysis",
+        "Agentic AI Workflows for Scalable Bibliometric Analysis",
     },
   ];
 
@@ -167,7 +167,7 @@ export default function DoctorialesRegistrationPage() {
   };
 
   const toggleMultiSession = (
-    field: "sessionsJeudiMatin" | "sessionsJeudiApresMidi",
+    field: "sessionsJeudiMatin",
     id: string
   ) => {
     setFormData((prev) => {
@@ -178,6 +178,13 @@ export default function DoctorialesRegistrationPage() {
         [field]: exists ? current.filter((item) => item !== id) : [...current, id],
       };
     });
+  };
+
+  const handleSelectJeudiApresMidi = (id: string) => {
+    setFormData((prev) => ({
+      ...prev,
+      sessionJeudiApresMidi: prev.sessionJeudiApresMidi === id ? "" : id,
+    }));
   };
 
   const handleSelectVendredi09h = (id: string) => {
@@ -256,7 +263,9 @@ export default function DoctorialesRegistrationPage() {
     // Au moins une session sélectionnée sur l'ensemble du programme
     const allSelectedSessions = [
       ...formData.sessionsJeudiMatin.map((s) => `Jeudi Matin : ${s}`),
-      ...formData.sessionsJeudiApresMidi.map((s) => `Jeudi Après-midi : ${s}`),
+      ...(formData.sessionJeudiApresMidi
+        ? [`Jeudi Après-midi : ${formData.sessionJeudiApresMidi}`]
+        : []),
       ...(formData.sessionVendredi09h
         ? [
             isManagementSelected
@@ -823,22 +832,18 @@ export default function DoctorialesRegistrationPage() {
                     <span>Jeudi 5 novembre 2026 | Après-midi</span>
                   </h3>
                   <span className="text-xs font-medium text-purple-300 bg-purple-500/10 border border-purple-500/20 px-2.5 py-1 rounded-full w-fit">
-                    Plusieurs choix possibles
+                    Une seule session à sélectionner
                   </span>
                 </div>
 
                 <div className="space-y-2.5">
                   {jeudiApresMidiOptions.map((item) => {
-                    const selected = formData.sessionsJeudiApresMidi.includes(
-                      item.id
-                    );
+                    const selected = formData.sessionJeudiApresMidi === item.id;
                     return (
                       <button
                         key={item.id}
                         type="button"
-                        onClick={() =>
-                          toggleMultiSession("sessionsJeudiApresMidi", item.id)
-                        }
+                        onClick={() => handleSelectJeudiApresMidi(item.id)}
                         className={`w-full flex items-start justify-between gap-3 p-4 rounded-xl border text-left transition-all ${
                           selected
                             ? "bg-purple-600/20 border-purple-500 text-white shadow-sm ring-1 ring-purple-500"
@@ -847,7 +852,7 @@ export default function DoctorialesRegistrationPage() {
                       >
                         <div className="text-sm font-semibold">{item.title}</div>
                         <div
-                          className={`mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-all ${
+                          className={`mt-0.5 w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-all ${
                             selected
                               ? "bg-purple-500 border-purple-400 text-white"
                               : "border-slate-600 bg-slate-900/60"
