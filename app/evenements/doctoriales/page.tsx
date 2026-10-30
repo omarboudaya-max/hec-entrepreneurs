@@ -87,26 +87,27 @@ export default function DoctorialesRegistrationPage() {
   // 3. Sessions choices
   const jeudiMatinOptions = [
     {
-      id: "Research That Matters",
-      title: "Research That Matters",
+      id: "RESEARCH THAT MATTERS — Quelle recherche face aux transformations de demain ?",
+      title: "RESEARCH THAT MATTERS",
+      subtitle: "Quelle recherche face aux transformations de demain ?",
+      description: "Regards croisés sur la recherche qui compte...",
+    },
+    {
+      id: "DEVELOPMENT WORKSHOP — Construire une contribution doctorale forte",
+      title: "DEVELOPMENT WORKSHOP",
+      subtitle: "Construire une contribution doctorale forte",
+      description:
+        "Sujet, problématique, contribution scientifique, cohérence du design, etc.",
+    },
+    {
+      id: "RESEARCH SEMINAR — Les grandes contributions dans l'histoire de la pensée économique",
+      title: "RESEARCH SEMINAR",
       subtitle:
-        "Quelle recherche face aux transformations de demain ? Regards croisés sur la recherche qui compte",
-    },
-    {
-      id: "Construire une contribution doctorale forte",
-      title: "Construire une contribution doctorale forte",
-    },
-    {
-      id: "Les grandes contributions dans l’histoire de la pensée économique",
-      title: "Les grandes contributions dans l’histoire de la pensée économique",
+        "Les grandes contributions dans l'histoire de la pensée économique",
     },
   ];
 
   const jeudiApresMidiOptions = [
-    {
-      id: "Ateliers doctoraux en économie",
-      title: "Ateliers doctoraux en économie",
-    },
     {
       id: "Publication, intégrité scientifique et IA responsable",
       title: "Publication, intégrité scientifique et IA responsable",
@@ -804,12 +805,17 @@ export default function DoctorialesRegistrationPage() {
                         }`}
                       >
                         <div className="space-y-1">
-                          <div className="text-sm font-semibold">
+                          <div className="text-sm font-bold tracking-wide text-purple-200">
                             {item.title}
                           </div>
                           {item.subtitle && (
-                            <div className="text-xs text-slate-400 leading-relaxed">
+                            <div className="text-sm font-semibold text-white leading-snug">
                               {item.subtitle}
+                            </div>
+                          )}
+                          {item.description && (
+                            <div className="text-xs text-slate-400 leading-relaxed">
+                              {item.description}
                             </div>
                           )}
                         </div>
@@ -856,7 +862,7 @@ export default function DoctorialesRegistrationPage() {
                       >
                         <div className="text-sm font-semibold">{item.title}</div>
                         <div
-                          className={`mt-0.5 w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-all ${
+                          className={`mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-all ${
                             selected
                               ? "bg-purple-500 border-purple-400 text-white"
                               : "border-slate-600 bg-slate-900/60"
@@ -867,6 +873,16 @@ export default function DoctorialesRegistrationPage() {
                       </button>
                     );
                   })}
+                </div>
+
+                {/* Note sur les ateliers doctoraux du jeudi après-midi */}
+                <div className="flex items-start gap-3 p-3.5 rounded-xl bg-slate-900/70 border border-slate-800 text-xs sm:text-sm text-slate-300 italic">
+                  <Info className="w-4 h-4 text-purple-400 shrink-0 mt-0.5 not-italic" />
+                  <span>
+                    La participation aux ateliers doctoraux consacrés aux
+                    présentations d’avancement de thèse est libre et ne
+                    nécessite pas d’inscription préalable.
+                  </span>
                 </div>
               </div>
 
