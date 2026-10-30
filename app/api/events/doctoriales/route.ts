@@ -98,30 +98,27 @@ export async function POST(req: NextRequest) {
       console.warn("Supabase connection exception:", dbErr);
     }
 
-    // 2. Synchronisation optionnelle avec Google Sheets Webhook si configuré
-    const sheetsUrl = process.env.NEXT_PUBLIC_SHEETS_SCRIPT_URL;
-    if (sheetsUrl) {
-      try {
-        await fetch(sheetsUrl, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            event: "HEC Doctoriales Series",
-            registrationId,
-            ...submissionRecord,
-            submittedAt: new Date().toISOString(),
-          }),
-        });
-      } catch (sheetsErr) {
-        console.warn("Sheets webhook sync failed:", sheetsErr);
-      }
-    }
-
     const sessionsListHtml = Array.isArray(selectedSessions) && selectedSessions.length > 0
       ? `<ul style="margin: 6px 0 0 0; padding-left: 18px; color: #38bdf8; font-weight: 600;">${selectedSessions.map((s: string) => `<li style="margin-bottom: 4px;">${s}</li>`).join("")}</ul>`
       : `<span class="info-val" style="color: #38bdf8;">${sessionChoice}</span>`;
 
-    // 3. Envoi de l'e-mail de confirmation officiel au participant
+    const qrPayload = `HEC-DOCTORIALES|ID:${registrationId}|NAME:${fullName.trim()}|INST:${resolvedInstitution}|STATUS:${submissionRecord.status}`;
+    const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=300x300&margin=12&data=${encodeURIComponent(qrPayload)}`;
+
+    const passQueryParams = new URLSearchParams({
+      id: registrationId,
+      name: fullName.trim(),
+      email: email.trim().toLowerCase(),
+      status: submissionRecord.status,
+      institution: resolvedInstitution,
+      session: sessionChoice,
+      specialty: submissionRecord.specialty,
+      lang: preferredLanguage || "Français",
+      mgmt: isManagementWorkshop ? "1" : "0",
+    });
+    const passPageUrl = `https://hec-entrepreneurs.vercel.app/evenements/doctoriales/success?${passQueryParams.toString()}`;
+
+    // 2. Envoi de l'e-mail de confirmation officiel au participant
     if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
       try {
         const mailHtml = `
@@ -137,7 +134,7 @@ export async function POST(req: NextRequest) {
               h1 { margin: 0; color: #ffffff; font-size: 24px; font-weight: 700; letter-spacing: 0.5px; }
               .subtitle { color: #a78bfa; font-size: 14px; margin-top: 6px; font-style: italic; }
               .body-content { padding: 30px 24px; line-height: 1.6; font-size: 14px; color: #cbd5e1; }
-              .ticket-box { background: #1b1933; border: 1px dashed #8b5cf680; border-radius: 12px; padding: 18px; margin: 20px 0; text-align: center; }
+              .ticket-box { background: #1b1933; border: 1px dashed #8b5cf680; border-radius: 12px; padding: 24px 18px; margin: 20px 0; text-align: center; }
               .ticket-id { font-family: monospace; font-size: 18px; font-weight: bold; color: #38bdf8; letter-spacing: 2px; }
               .info-grid { margin: 20px 0; background: #0f0f1b; border-radius: 10px; padding: 16px; }
               .info-row { display: flex; justify-content: space-between; padding: 8px 0; border-bottom: 1px solid #ffffff10; font-size: 13px; }
@@ -165,8 +162,13 @@ export async function POST(req: NextRequest) {
                 <p>Votre inscription aux <strong>HEC Doctoriales Series</strong> a été validée avec succès.</p>
                 
                 <div class="ticket-box">
+                  <div style="font-size: 11px; text-transform: uppercase; color: #c4b5fd; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 14px;">Pass d'Accès Officiel (QR Code)</div>
+                  <img src="${qrImageUrl}" alt="QR Code Pass HEC Doctoriales" width="240" height="240" style="display: block; margin: 0 auto 16px auto; border-radius: 12px; background: #ffffff; padding: 10px; box-shadow: 0 8px 25px rgba(0,0,0,0.4);" />
                   <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8; letter-spacing: 1.5px; margin-bottom: 4px;">Numéro d'enregistrement</div>
                   <div class="ticket-id">${registrationId}</div>
+                  <div style="margin-top: 16px;">
+                    <a href="${passPageUrl}" style="display: inline-block; background: #7c3aed; color: #ffffff; text-decoration: none; padding: 10px 20px; border-radius: 8px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;">🎟️ Ouvrir / Télécharger mon Pass PDF</a>
+                  </div>
                 </div>
 
                 <div class="info-grid">

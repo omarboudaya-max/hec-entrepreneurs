@@ -318,25 +318,6 @@ export default function DoctorialesRegistrationPage() {
         );
       }
 
-      const sheetsUrl = process.env.NEXT_PUBLIC_SHEETS_SCRIPT_URL;
-      if (sheetsUrl) {
-        try {
-          await fetch(sheetsUrl, {
-            method: "POST",
-            mode: "no-cors",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              action: "doctoriales_registration",
-              registrationId: result.registrationId,
-              ...payload,
-              submittedAt: new Date().toISOString(),
-            }),
-          });
-        } catch (sErr) {
-          console.warn("Client-side sheets notification error:", sErr);
-        }
-      }
-
       const query = new URLSearchParams({
         id: result.registrationId || `DOC-${Date.now()}`,
         name: formData.fullName,
