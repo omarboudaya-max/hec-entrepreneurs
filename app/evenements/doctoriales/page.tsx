@@ -96,6 +96,10 @@ export default function DoctorialesRegistrationPage() {
       id: "Construire une contribution doctorale forte",
       title: "Construire une contribution doctorale forte",
     },
+    {
+      id: "Les grandes contributions dans l’histoire de la pensée économique",
+      title: "Les grandes contributions dans l’histoire de la pensée économique",
+    },
   ];
 
   const jeudiApresMidiOptions = [
