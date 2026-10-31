@@ -105,7 +105,8 @@ export async function POST(req: NextRequest) {
     // 2. Synchronisation automatique avec la feuille Google Sheets dédiée aux Doctoriales
     const doctorialesSheetsUrl =
       process.env.DOCTORIALES_SHEETS_SCRIPT_URL ||
-      process.env.NEXT_PUBLIC_DOCTORIALES_SHEETS_URL;
+      process.env.NEXT_PUBLIC_DOCTORIALES_SHEETS_URL ||
+      "https://script.google.com/macros/s/AKfycbzEluUdlC8-STiFZuvZIdIB2VyYujVggVFuwAE2dVMGb960c46nwpbUUG6V20o5FZ1j/exec";
 
     if (doctorialesSheetsUrl) {
       try {
