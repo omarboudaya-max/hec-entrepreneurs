@@ -27,6 +27,10 @@ export async function POST(req: NextRequest) {
       educationLevelCustom,
       specialty,
       specialtyCustom,
+      sessionsJeudiMatin,
+      sessionJeudiApresMidi,
+      sessionVendredi09h,
+      sessionVendredi11h,
       sessionChoice,
       selectedSessions,
       isManagementWorkshop,
@@ -96,6 +100,46 @@ export async function POST(req: NextRequest) {
       }
     } catch (dbErr) {
       console.warn("Supabase connection exception:", dbErr);
+    }
+
+    // 2. Synchronisation automatique avec la feuille Google Sheets dédiée aux Doctoriales
+    const doctorialesSheetsUrl =
+      process.env.DOCTORIALES_SHEETS_SCRIPT_URL ||
+      process.env.NEXT_PUBLIC_DOCTORIALES_SHEETS_URL;
+
+    if (doctorialesSheetsUrl) {
+      try {
+        await fetch(doctorialesSheetsUrl, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            registrationId,
+            submittedAt: new Date().toLocaleString("fr-FR", {
+              timeZone: "Africa/Tunis",
+            }),
+            fullName: fullName.trim(),
+            email: email.trim().toLowerCase(),
+            status: submissionRecord.status,
+            institution: resolvedInstitution,
+            educationLevel: submissionRecord.education_level,
+            specialty: submissionRecord.specialty,
+            sessionsJeudiMatin: Array.isArray(sessionsJeudiMatin)
+              ? sessionsJeudiMatin
+              : [],
+            sessionJeudiApresMidi: sessionJeudiApresMidi || "",
+            sessionVendredi09h: sessionVendredi09h || "",
+            sessionVendredi11h: sessionVendredi11h || "",
+            isManagementWorkshop: Boolean(isManagementWorkshop),
+            hasLaptopAndCharger:
+              hasLaptopAndCharger ||
+              (isManagementWorkshop ? "Oui" : "Non applicable"),
+            confirmedPrerequisites: Boolean(confirmedPrerequisites),
+            sessionChoice,
+          }),
+        });
+      } catch (sheetsErr) {
+        console.warn("Doctoriales Google Sheets sync warning:", sheetsErr);
+      }
     }
 
     const sessionsListHtml = Array.isArray(selectedSessions) && selectedSessions.length > 0
