@@ -1,0 +1,226 @@
+{
+  "name": "HEC Entrepreneurs — Trésorerie & Cotisations (Confirmations + Relances 2e Tranche)",
+  "nodes": [
+    {
+      "parameters": {
+        "httpMethod": "POST",
+        "path": "hec-tresorerie",
+        "responseMode": "onReceived",
+        "options": {}
+      },
+      "id": "b1f2c3d4-0001-4000-8000-000000000001",
+      "name": "Webhook Trésorerie (Site Web)",
+      "type": "n8n-nodes-base.webhook",
+      "typeVersion": 2,
+      "position": [
+        240,
+        240
+      ],
+      "webhookId": "hec-tresorerie-webhook"
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "id": "cond-paye-total",
+              "leftValue": "={{ $json.body ? $json.body.paymentStatus : $json.paymentStatus }}",
+              "rightValue": "paye",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "id": "b1f2c3d4-0002-4000-8000-000000000002",
+      "name": "IF Payé Total vs 1re Tranche",
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2,
+      "position": [
+        500,
+        240
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.body ? $json.body.email : $json.email }}",
+        "subject": "={{ '✅ Confirmation de Paiement Reçu (' + ($json.body ? $json.body.amountPaid : $json.amountPaid) + ' DT) — HEC Entrepreneurs' }}",
+        "emailType": "html",
+        "message": "={{ '<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #12121e; color: #ffffff; padding: 28px; border-radius: 16px;\">' +\n  '<h2 style=\"color: #10b981; margin-top: 0;\">✅ Cotisation Annuelle 100% Réglée</h2>' +\n  '<p>Bonjour <strong>' + ($json.body ? $json.body.fullName : $json.fullName) + '</strong>,</p>' +\n  '<p>La Trésorerie de <strong>HEC Entrepreneurs</strong> vous confirme la bonne réception de l\\'intégralité de votre cotisation annuelle : <strong>' + ($json.body ? $json.body.amountPaid : $json.amountPaid) + ' DT / ' + ($json.body ? $json.body.totalDue : $json.totalDue) + ' DT</strong>.</p>' +\n  '<div style=\"background: #063928; border-left: 4px solid #10b981; padding: 14px; border-radius: 8px; margin: 20px 0; color: #a7f3d0;\">Votre situation financière est entièrement à jour pour ce mandat. Merci pour votre engagement !</div>' +\n  '<p style=\"color: #94a3b8; font-size: 12px;\">Trésorerie HEC Entrepreneurs • IHEC Carthage</p>' +\n'</div>' }}",
+        "options": {}
+      },
+      "id": "b1f2c3d4-0003-4000-8000-000000000003",
+      "name": "Gmail — Reçu Paiement Complet (50 DT / 70 DT)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        780,
+        140
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.body ? $json.body.email : $json.email }}",
+        "subject": "={{ '💳 Confirmation 1re Tranche Reçue (' + ($json.body ? $json.body.amountPaid : $json.amountPaid) + ' DT) & Rappel 2e Tranche — HEC Entrepreneurs' }}",
+        "emailType": "html",
+        "message": "={{ '<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #12121e; color: #ffffff; padding: 28px; border-radius: 16px;\">' +\n  '<h2 style=\"color: #fbbf24; margin-top: 0;\">💳 1re Tranche Bien Reçue (' + ($json.body ? $json.body.amountPaid : $json.amountPaid) + ' DT)</h2>' +\n  '<p>Bonjour <strong>' + ($json.body ? $json.body.fullName : $json.fullName) + '</strong>,</p>' +\n  '<p>La Trésorerie de <strong>HEC Entrepreneurs</strong> vous confirme la bonne réception de votre <strong>1re tranche de cotisation (' + ($json.body ? $json.body.amountPaid : $json.amountPaid) + ' DT sur ' + ($json.body ? $json.body.totalDue : $json.totalDue) + ' DT)</strong>.</p>' +\n  '<div style=\"background: #3b2307; border-left: 4px solid #f59e0b; padding: 14px; border-radius: 8px; margin: 20px 0; color: #fde68a;\">' +\n    '<strong>⏳ Rappel 2e Tranche :</strong> Il vous reste un solde de <strong>' + ($json.body ? $json.body.remainingAmount : $json.remainingAmount) + ' DT</strong> à compléter auprès du Trésorier pour finaliser votre cotisation annuelle.' +\n  '</div>' +\n  '<p style=\"color: #94a3b8; font-size: 12px;\">Trésorerie HEC Entrepreneurs • IHEC Carthage</p>' +\n'</div>' }}",
+        "options": {}
+      },
+      "id": "b1f2c3d4-0004-4000-8000-000000000004",
+      "name": "Gmail — Reçu 1re Tranche + Rappel Solde",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        780,
+        340
+      ]
+    },
+    {
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "weeksInterval": 1,
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 10,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "id": "b1f2c3d4-0005-4000-8000-000000000005",
+      "name": "Rappel Hebdomadaire (Lundi 10h00)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
+      "position": [
+        240,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "method": "GET",
+        "url": "https://hec-entrepreneurs.vercel.app/api/portail/tresorerie/n8n?key=bestevent2026&status=partiel",
+        "options": {}
+      },
+      "id": "b1f2c3d4-0006-4000-8000-000000000006",
+      "name": "Récupérer Membres en Paiement Partiel",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.2,
+      "position": [
+        500,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "fieldToSplitOut": "members",
+        "options": {}
+      },
+      "id": "b1f2c3d4-0007-4000-8000-000000000007",
+      "name": "Séparer Chaque Membre Partiel",
+      "type": "n8n-nodes-base.splitOut",
+      "typeVersion": 1,
+      "position": [
+        740,
+        580
+      ]
+    },
+    {
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "subject": "={{ '🔔 Rappel 2e Tranche de Cotisation (Reste ' + $json.remaining_amount + ' DT) — HEC Entrepreneurs' }}",
+        "emailType": "html",
+        "message": "={{ '<div style=\"font-family: Arial, sans-serif; max-width: 600px; margin: 0 auto; background: #12121e; color: #ffffff; padding: 28px; border-radius: 16px;\">' +\n  '<h2 style=\"color: #fbbf24; margin-top: 0;\">🔔 Rappel : 2e Tranche de Cotisation (' + $json.remaining_amount + ' DT)</h2>' +\n  '<p>Bonjour <strong>' + $json.full_name + '</strong>,</p>' +\n  '<p>Nous vous remercions d\\'avoir réglé votre 1re tranche de cotisation (<strong>' + $json.amount_paid + ' DT / ' + $json.total_due + ' DT</strong>) au sein de <strong>HEC Entrepreneurs</strong>.</p>' +\n  '<div style=\"background: #3b2307; border-left: 4px solid #f59e0b; padding: 14px; border-radius: 8px; margin: 20px 0; color: #fde68a;\">' +\n    'Il vous reste un solde de <strong>' + $json.remaining_amount + ' DT</strong> à compléter pour finaliser votre cotisation annuelle. Merci de vous rapprocher du Trésorier du club.' +\n  '</div>' +\n  '<p style=\"color: #94a3b8; font-size: 12px;\">Trésorerie HEC Entrepreneurs • IHEC Carthage</p>' +\n'</div>' }}",
+        "options": {}
+      },
+      "id": "b1f2c3d4-0008-4000-8000-000000000008",
+      "name": "Gmail — Relance 2e Tranche (20 DT / 30 DT)",
+      "type": "n8n-nodes-base.gmail",
+      "typeVersion": 2.1,
+      "position": [
+        1000,
+        580
+      ]
+    }
+  ],
+  "connections": {
+    "Webhook Trésorerie (Site Web)": {
+      "main": [
+        [
+          {
+            "node": "IF Payé Total vs 1re Tranche",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Payé Total vs 1re Tranche": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Reçu Paiement Complet (50 DT / 70 DT)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gmail — Reçu 1re Tranche + Rappel Solde",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rappel Hebdomadaire (Lundi 10h00)": {
+      "main": [
+        [
+          {
+            "node": "Récupérer Membres en Paiement Partiel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Récupérer Membres en Paiement Partiel": {
+      "main": [
+        [
+          {
+            "node": "Séparer Chaque Membre Partiel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Séparer Chaque Membre Partiel": {
+      "main": [
+        [
+          {
+            "node": "Gmail — Relance 2e Tranche (20 DT / 30 DT)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "settings": {
+    "executionOrder": "v1"
+  }
+}

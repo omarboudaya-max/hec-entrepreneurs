@@ -98,4 +98,28 @@ export interface ClubEventItem {
   pv_updated_at?: string | null;
 }
 
+export type PaymentStatus = "non_paye" | "partiel" | "paye";
+
+export interface MemberTreasuryItem {
+  id: string;
+  email: string;
+  full_name: string;
+  role: ClubRole;
+  poste: string;
+  avatar_url?: string | null;
+  phone?: string | null;
+  is_new_member: boolean;
+  total_due: number; // 70 DT for new member, 50 DT for old member / responsable / bureau
+  first_tranche_amount: number; // 40 DT for new member, 30 DT for old member / responsable / bureau
+  second_tranche_amount: number; // 30 DT for new member, 20 DT for old member / responsable / bureau
+  payment_status: PaymentStatus;
+  amount_paid: number;
+  remaining_amount: number;
+  last_payment_at?: string | null;
+  last_reminder_at?: string | null;
+  updated_by?: string | null;
+  notes?: string | null;
+}
+
+
 

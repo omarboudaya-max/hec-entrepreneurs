@@ -10,6 +10,7 @@ interface PortailAuthContextType {
   profile: ClubProfile | null;
   loading: boolean;
   isDeveloper: boolean;
+  isTreasurer: boolean;
   isBureau: boolean;
   isResponsable: boolean;
   isMember: boolean;
@@ -116,6 +117,16 @@ export function PortailAuthProvider({ children }: { children: React.ReactNode })
   const role = profile?.role || (user?.email?.toLowerCase() === "omarboudaya1@gmail.com" ? "developpeur" : null);
 
   const isDeveloper = role === "developpeur";
+  const posteNormalized = (profile?.poste || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+  const emailLower = (user?.email || profile?.email || "").toLowerCase();
+  const isTreasurer =
+    isDeveloper ||
+    posteNormalized.includes("tresorier") ||
+    emailLower === "kamounmelek40@gmail.com" ||
+    emailLower === "hammemimohamed597@gmail.com";
   const isBureau = isDeveloper || role === "bureau";
   const isResponsable = isBureau || role === "responsable";
   const isMember = !!role;
@@ -127,6 +138,7 @@ export function PortailAuthProvider({ children }: { children: React.ReactNode })
         profile,
         loading,
         isDeveloper,
+        isTreasurer,
         isBureau,
         isResponsable,
         isMember,

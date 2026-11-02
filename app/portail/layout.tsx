@@ -6,7 +6,7 @@ import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   Bell, FileText, User, Users, ShoppingBag, ShieldCheck,
-  LogOut, Menu, X, Sparkles, ChevronRight, Lock, Calendar, CheckSquare
+  LogOut, Menu, X, Sparkles, ChevronRight, Lock, Calendar, CheckSquare, Wallet
 } from "lucide-react";
 import { PortailAuthProvider, usePortailAuth } from "@/contexts/PortailAuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
@@ -52,7 +52,7 @@ function RoleBadge({ role, poste }: { role: string; poste?: string }) {
 function PortailShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, profile, loading, isDeveloper, isBureau, signOut } = usePortailAuth();
+  const { user, profile, loading, isDeveloper, isTreasurer, isBureau, signOut } = usePortailAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -111,6 +111,12 @@ function PortailShell({ children }: { children: React.ReactNode }) {
       href: "/portail/profil",
       icon: User,
       show: true,
+    },
+    {
+      label: "Trésorerie & Cotisations",
+      href: "/portail/tresorerie",
+      icon: Wallet,
+      show: isTreasurer, // Uniquement Trésorier & Développeur
     },
     {
       label: "Gestion Membres",
