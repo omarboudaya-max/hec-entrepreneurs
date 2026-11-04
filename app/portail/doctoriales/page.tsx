@@ -120,6 +120,7 @@ export default function PortailDoctorialesPage() {
   const [cameraError, setCameraError] = useState<string | null>(null);
   const [manualInput, setManualInput] = useState("");
   const [scanning, setScanning] = useState(false);
+  const [scanPaused, setScanPaused] = useState(false);
   const [scanFeedback, setScanFeedback] = useState<ScanFeedback | null>(null);
 
   // List filter state
@@ -128,11 +129,19 @@ export default function PortailDoctorialesPage() {
   const [searchQuery, setSearchQuery] = useState("");
 
   const html5QrCodeRef = useRef<any>(null);
-  const lastScannedRef = useRef<{ code: string; time: number }>({ code: "", time: 0 });
+  const scanLockedRef = useRef<boolean>(false);
+  const resumeTimerRef = useRef<any>(null);
+  const lastScannedRef = useRef<{ code: string; sessionId: string; time: number }>({
+    code: "",
+    sessionId: "",
+    time: 0,
+  });
   const selectedSessionIdRef = useRef<string>(selectedSessionId);
 
   useEffect(() => {
     selectedSessionIdRef.current = selectedSessionId;
+    // Reset last scanned memory when switching session
+    lastScannedRef.current = { code: "", sessionId: selectedSessionId, time: 0 };
   }, [selectedSessionId]);
 
   const fetchDoctorialesData = async () => {
@@ -255,9 +264,27 @@ export default function PortailDoctorialesPage() {
     }
   };
 
+  const resumeCameraAfterScan = () => {
+    if (resumeTimerRef.current) {
+      clearTimeout(resumeTimerRef.current);
+      resumeTimerRef.current = null;
+    }
+    scanLockedRef.current = false;
+    setScanPaused(false);
+    if (html5QrCodeRef.current) {
+      try {
+        html5QrCodeRef.current.resume();
+      } catch {
+        // ignore if already running
+      }
+    }
+  };
+
   const startCameraScanner = async () => {
     setCameraError(null);
     setCameraActive(true);
+    scanLockedRef.current = false;
+    setScanPaused(false);
 
     setTimeout(async () => {
       try {
@@ -272,20 +299,49 @@ export default function PortailDoctorialesPage() {
         await scanner.start(
           { facingMode: "environment" },
           {
-            fps: 10,
+            fps: 8,
             qrbox: { width: 250, height: 250 },
           },
           (decodedText: string) => {
+            if (scanLockedRef.current) return;
+
             const now = Date.now();
-            // Cooldown of 3.5s on the same QR code so holding camera doesn't double-fire immediately
+            const docMatch = decodedText.match(/DOC-[A-Z0-9]+-[A-Z0-9]+/i);
+            const normalizedKey = docMatch
+              ? docMatch[0].toUpperCase()
+              : decodedText.trim();
+            const currentSess = selectedSessionIdRef.current;
+
+            // Block rescanning the exact same QR code while the phone is kept over it (30 seconds protection)
             if (
-              lastScannedRef.current.code === decodedText &&
-              now - lastScannedRef.current.time < 3500
+              lastScannedRef.current.code === normalizedKey &&
+              lastScannedRef.current.sessionId === currentSess &&
+              now - lastScannedRef.current.time < 30000
             ) {
               return;
             }
-            lastScannedRef.current = { code: decodedText, time: now };
+
+            // Lock scanner immediately & pause video feed for 3.5s
+            scanLockedRef.current = true;
+            setScanPaused(true);
+            lastScannedRef.current = {
+              code: normalizedKey,
+              sessionId: currentSess,
+              time: now,
+            };
+
+            try {
+              scanner.pause(true);
+            } catch {
+              // ignore pause error
+            }
+
             performScanCheckIn(decodedText);
+
+            if (resumeTimerRef.current) clearTimeout(resumeTimerRef.current);
+            resumeTimerRef.current = setTimeout(() => {
+              resumeCameraAfterScan();
+            }, 3500);
           },
           () => {
             // frame scan ignore
@@ -302,6 +358,12 @@ export default function PortailDoctorialesPage() {
   };
 
   const stopCameraScanner = async () => {
+    if (resumeTimerRef.current) {
+      clearTimeout(resumeTimerRef.current);
+      resumeTimerRef.current = null;
+    }
+    scanLockedRef.current = false;
+    setScanPaused(false);
     if (html5QrCodeRef.current) {
       try {
         await html5QrCodeRef.current.stop();
@@ -554,8 +616,26 @@ export default function PortailDoctorialesPage() {
 
           {/* Camera Viewport */}
           {cameraActive ? (
-            <div className="overflow-hidden rounded-2xl border-2 border-cyan-500/40 bg-black min-h-[280px] flex items-center justify-center">
+            <div className="relative overflow-hidden rounded-2xl border-2 border-cyan-500/40 bg-black min-h-[280px] flex items-center justify-center">
               <div id="doctoriales-qr-reader" className="w-full max-w-sm mx-auto" />
+              {scanPaused && (
+                <div className="absolute inset-0 bg-black/75 backdrop-blur-xs flex flex-col items-center justify-center p-4 text-center space-y-3 z-10">
+                  <CheckCircle2 className="w-10 h-10 text-cyan-400 animate-bounce" />
+                  <div className="text-sm font-bold text-white">
+                    QR Code lu — Caméra en pause anti-double scan
+                  </div>
+                  <p className="text-xs text-gray-300 max-w-xs">
+                    Vous pouvez retirer le téléphone du QR Code tranquillement.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={resumeCameraAfterScan}
+                    className="px-4 py-2 rounded-xl bg-cyan-500 hover:bg-cyan-400 text-slate-950 font-bold text-xs transition-all"
+                  >
+                    Scanner le participant suivant maintenant
+                  </button>
+                </div>
+              )}
             </div>
           ) : (
             <div
@@ -885,3 +965,4 @@ export default function PortailDoctorialesPage() {
     </div>
   );
 }
+
