@@ -65,7 +65,10 @@ export default function PortailLoginPage() {
       }
 
       if (data.session) {
-        router.push("/portail/annonces");
+        const isGuestLogin =
+          loginEmail === "guest@hecentrepreneurs.tn" ||
+          data.session.user?.user_metadata?.role === "guest";
+        router.push(isGuestLogin ? "/portail/doctoriales" : "/portail/annonces");
       }
     } catch (err: any) {
       setErrorMsg(err.message || "Une erreur est survenue lors de la connexion.");

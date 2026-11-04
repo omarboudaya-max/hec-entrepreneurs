@@ -10,6 +10,8 @@ interface PortailAuthContextType {
   profile: ClubProfile | null;
   loading: boolean;
   isDeveloper: boolean;
+  isGuest: boolean;
+  canScanDoctoriales: boolean;
   isTreasurer: boolean;
   isBureau: boolean;
   isResponsable: boolean;
@@ -27,6 +29,22 @@ export function PortailAuthProvider({ children }: { children: React.ReactNode })
 
   const fetchProfile = async (currentUser: User) => {
     try {
+      const userEmailLower = (currentUser.email || "").toLowerCase();
+      if (
+        userEmailLower === "guest@hecentrepreneurs.tn" ||
+        currentUser.user_metadata?.role === "guest"
+      ) {
+        setProfile({
+          id: currentUser.id,
+          email: currentUser.email || "guest@hecentrepreneurs.tn",
+          full_name: currentUser.user_metadata?.full_name || "Guest Doctoriales",
+          role: "guest",
+          poste: currentUser.user_metadata?.poste || "Guest • Contrôle QR Doctoriales",
+          created_at: new Date().toISOString(),
+        });
+        return;
+      }
+
       const { data, error } = await supabase
         .from("club_profiles")
         .select("*")
@@ -116,20 +134,26 @@ export function PortailAuthProvider({ children }: { children: React.ReactNode })
 
   const role = profile?.role || (user?.email?.toLowerCase() === "omarboudaya1@gmail.com" ? "developpeur" : null);
 
-  const isDeveloper = role === "developpeur";
+  const emailLower = (user?.email || profile?.email || "").toLowerCase();
+  const isGuest =
+    role === "guest" ||
+    emailLower === "guest@hecentrepreneurs.tn" ||
+    user?.user_metadata?.role === "guest";
+  const isDeveloper = !isGuest && role === "developpeur";
+  const canScanDoctoriales = isDeveloper || isGuest;
   const posteNormalized = (profile?.poste || "")
     .toLowerCase()
     .normalize("NFD")
     .replace(/[\u0300-\u036f]/g, "");
-  const emailLower = (user?.email || profile?.email || "").toLowerCase();
   const isTreasurer =
-    isDeveloper ||
-    posteNormalized.includes("tresorier") ||
-    emailLower === "kamounmelek40@gmail.com" ||
-    emailLower === "hammemimohamed597@gmail.com";
-  const isBureau = isDeveloper || role === "bureau";
-  const isResponsable = isBureau || role === "responsable";
-  const isMember = !!role;
+    !isGuest &&
+    (isDeveloper ||
+      posteNormalized.includes("tresorier") ||
+      emailLower === "kamounmelek40@gmail.com" ||
+      emailLower === "hammemimohamed597@gmail.com");
+  const isBureau = !isGuest && (isDeveloper || role === "bureau");
+  const isResponsable = !isGuest && (isBureau || role === "responsable");
+  const isMember = !isGuest && !!role;
 
   return (
     <PortailAuthContext.Provider
@@ -138,6 +162,8 @@ export function PortailAuthProvider({ children }: { children: React.ReactNode })
         profile,
         loading,
         isDeveloper,
+        isGuest,
+        canScanDoctoriales,
         isTreasurer,
         isBureau,
         isResponsable,

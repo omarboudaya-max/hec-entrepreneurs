@@ -1,4 +1,4 @@
-export type ClubRole = 'membre' | 'responsable' | 'bureau' | 'developpeur' | 'nouveau_membre';
+export type ClubRole = 'membre' | 'responsable' | 'bureau' | 'developpeur' | 'nouveau_membre' | 'guest';
 
 export interface ClubProfile {
   id: string;

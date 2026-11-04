@@ -6,12 +6,20 @@ import { usePathname, useRouter } from "next/navigation";
 import Image from "next/image";
 import {
   Bell, FileText, User, Users, ShoppingBag, ShieldCheck,
-  LogOut, Menu, X, Sparkles, ChevronRight, Lock, Calendar, CheckSquare, Wallet
+  LogOut, Menu, X, Sparkles, ChevronRight, Lock, Calendar, CheckSquare, Wallet, QrCode
 } from "lucide-react";
 import { PortailAuthProvider, usePortailAuth } from "@/contexts/PortailAuthContext";
 import ThemeToggle from "@/components/ThemeToggle";
 
 function RoleBadge({ role, poste }: { role: string; poste?: string }) {
+  if (role === "guest") {
+    return (
+      <span className="px-2.5 py-0.5 rounded-full text-[10px] font-bold uppercase tracking-wider bg-cyan-500/20 text-cyan-300 border border-cyan-500/30 flex items-center gap-1">
+        <QrCode size={11} className="text-cyan-300" /> Guest • Scan QR
+      </span>
+    );
+  }
+
   const isNouveauMembre =
     role === "nouveau_membre" ||
     poste?.toLowerCase() === "nouveau membre" ||
@@ -52,14 +60,18 @@ function RoleBadge({ role, poste }: { role: string; poste?: string }) {
 function PortailShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, profile, loading, isDeveloper, isTreasurer, isBureau, signOut } = usePortailAuth();
+  const { user, profile, loading, isDeveloper, isGuest, canScanDoctoriales, isTreasurer, isBureau, signOut } = usePortailAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
     if (!loading && !user && pathname !== "/portail/login") {
       router.push("/portail/login");
+      return;
     }
-  }, [loading, user, pathname, router]);
+    if (!loading && user && isGuest && pathname !== "/portail/doctoriales" && pathname !== "/portail/login") {
+      router.replace("/portail/doctoriales");
+    }
+  }, [loading, user, isGuest, pathname, router]);
 
   // If on login page, render without dashboard shell
   if (pathname === "/portail/login") {
@@ -80,55 +92,61 @@ function PortailShell({ children }: { children: React.ReactNode }) {
       label: "Fil d'Annonces",
       href: "/portail/annonces",
       icon: Bell,
-      show: true,
+      show: !isGuest,
     },
     {
       label: "Calendrier & Réunions",
       href: "/portail/calendrier",
       icon: Calendar,
-      show: true,
+      show: !isGuest,
     },
     {
       label: "Tâches par Pôle",
       href: "/portail/taches",
       icon: CheckSquare,
-      show: true,
+      show: !isGuest,
     },
     {
       label: "Annuaire Membres",
       href: "/portail/membres",
       icon: Users,
-      show: true,
+      show: !isGuest,
     },
     {
       label: "Documents Officiels",
       href: "/portail/documents",
       icon: FileText,
-      show: true,
+      show: !isGuest,
     },
     {
       label: "Mon Profil",
       href: "/portail/profil",
       icon: User,
-      show: true,
+      show: !isGuest,
+    },
+    {
+      label: "HEC Doctoriales (Scan QR)",
+      href: "/portail/doctoriales",
+      icon: QrCode,
+      show: canScanDoctoriales, // Uniquement Développeur (Omar) & Guest Doctoriales
     },
     {
       label: "Trésorerie & Cotisations",
       href: "/portail/tresorerie",
       icon: Wallet,
-      show: isTreasurer, // Uniquement Trésorier & Développeur
+      show: !isGuest && isTreasurer, // Uniquement Trésorier & Développeur
     },
     {
       label: "Gestion Membres",
       href: "/portail/gestion-membres",
       icon: Lock,
-      show: isBureau, // Bureau (RH) + Dev
+      show: !isGuest && isBureau, // Bureau (RH) + Dev
     },
     {
       label: "IHEC Store",
       href: "/portail/store",
       icon: ShoppingBag,
-      show: isBureau, // Bureau + Dev
+      show: !isGuest && isBureau, // Bureau + Dev
     },
   ];
 

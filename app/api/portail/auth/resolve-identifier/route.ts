@@ -13,6 +13,24 @@ export async function POST(req: NextRequest) {
     }
 
     const cleanInput = identifier.trim();
+    const cleanLower = cleanInput.toLowerCase();
+
+    // 0. Guest Doctoriales account shortcut
+    if (
+      cleanLower === "guest" ||
+      cleanLower === "doctoriales" ||
+      cleanLower === "guestdoctoriales" ||
+      cleanLower === "guest@hecentrepreneurs.tn"
+    ) {
+      return NextResponse.json({
+        found: true,
+        email: "guest@hecentrepreneurs.tn",
+        fullName: "Guest Doctoriales",
+        username: "guest",
+        role: "guest",
+        poste: "Guest • Contrôle QR Doctoriales",
+      });
+    }
 
     // 1. If it's an email format
     if (cleanInput.includes("@")) {
