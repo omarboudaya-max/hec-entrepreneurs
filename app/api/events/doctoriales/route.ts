@@ -48,6 +48,32 @@ export async function POST(req: NextRequest) {
       );
     }
 
+    // Blocage des sessions complètes
+    const normalizedChoice = String(sessionChoice).toLowerCase();
+    const hasFullResearchMatters =
+      normalizedChoice.includes("research that matters") ||
+      (Array.isArray(sessionsJeudiMatin) &&
+        sessionsJeudiMatin.some((s: string) =>
+          String(s).toLowerCase().includes("research that matters")
+        ));
+    const hasFullIaDecision =
+      normalizedChoice.includes("ia & prise de décision") ||
+      normalizedChoice.includes("ia et prise de décision") ||
+      String(sessionVendredi09h || "")
+        .toLowerCase()
+        .includes("prise de décision");
+
+    if (hasFullResearchMatters || hasFullIaDecision) {
+      return NextResponse.json(
+        {
+          success: false,
+          message:
+            "Les sessions « RESEARCH THAT MATTERS » et « IA & Prise de décision » sont désormais complètes. Merci de sélectionner une autre session.",
+        },
+        { status: 400 }
+      );
+    }
+
     // Génération d'un identifiant unique de pass
     const randomSuffix = Math.random().toString(36).substring(2, 8).toUpperCase();
     const registrationId = `DOC-${Date.now().toString(36).toUpperCase()}-${randomSuffix}`;

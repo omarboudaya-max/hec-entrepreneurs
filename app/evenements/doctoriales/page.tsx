@@ -91,6 +91,7 @@ export default function DoctorialesRegistrationPage() {
       title: "RESEARCH THAT MATTERS",
       subtitle: "Quelle recherche face aux transformations de demain ?",
       description: "Regards croisés sur la recherche qui compte...",
+      isFull: true,
     },
     {
       id: "DEVELOPMENT WORKSHOP — Construire une contribution doctorale forte",
@@ -98,6 +99,7 @@ export default function DoctorialesRegistrationPage() {
       subtitle: "Construire une contribution doctorale forte",
       description:
         "Sujet, problématique, contribution scientifique, cohérence du design, etc.",
+      isFull: false,
     },
     {
       id: "RESEARCH SEMINAR — Les grandes contributions dans l'histoire de la pensée économique",
@@ -105,6 +107,7 @@ export default function DoctorialesRegistrationPage() {
       subtitle:
         "Les grandes contributions dans l'histoire de la pensée économique",
       description: "Ricardo, Smith, Marx et Keynes.",
+      isFull: false,
     },
   ];
 
@@ -119,21 +122,25 @@ export default function DoctorialesRegistrationPage() {
     {
       id: "La Gouvernance 4.0",
       title: "La Gouvernance 4.0",
+      isFull: false,
     },
     {
       id: "Approches IA appliquées à la finance",
       title: "Approches IA appliquées à la finance",
+      isFull: false,
     },
     {
       id: "IA générative et consommateur augmenté",
       title: "IA générative et consommateur augmenté",
       subtitle: "État de l’art, pistes de thèse, enjeux et méthodes",
+      isFull: false,
     },
     {
       id: MANAGEMENT_SESSION_ID,
       title: "IA & Prise de décision",
       subtitle: "Vivre un protocole expérimental de l’intérieur",
       badge: "Atelier de 09h00 à 12h30",
+      isFull: true,
     },
   ];
 
@@ -794,25 +801,46 @@ export default function DoctorialesRegistrationPage() {
                     const selected = formData.sessionsJeudiMatin.includes(
                       item.id
                     );
+                    const isFull = Boolean(item.isFull);
                     return (
                       <button
                         key={item.id}
                         type="button"
-                        onClick={() =>
-                          toggleMultiSession("sessionsJeudiMatin", item.id)
-                        }
+                        disabled={isFull}
+                        onClick={() => {
+                          if (!isFull) {
+                            toggleMultiSession("sessionsJeudiMatin", item.id);
+                          }
+                        }}
                         className={`w-full flex items-start justify-between gap-3 p-4 rounded-xl border text-left transition-all ${
-                          selected
+                          isFull
+                            ? "bg-slate-900/50 border-rose-500/30 text-slate-500 opacity-65 cursor-not-allowed"
+                            : selected
                             ? "bg-purple-600/20 border-purple-500 text-white shadow-sm ring-1 ring-purple-500"
                             : "bg-[#14142b] border-slate-800/90 text-slate-300 hover:border-slate-700 hover:text-white"
                         }`}
                       >
                         <div className="space-y-1">
-                          <div className="text-sm font-bold tracking-wide text-purple-200">
-                            {item.title}
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span
+                              className={`text-sm font-bold tracking-wide ${
+                                isFull ? "text-slate-400 line-through" : "text-purple-200"
+                              }`}
+                            >
+                              {item.title}
+                            </span>
+                            {isFull && (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-rose-500/20 text-rose-300 border border-rose-500/40">
+                                Complet
+                              </span>
+                            )}
                           </div>
                           {item.subtitle && (
-                            <div className="text-sm font-semibold text-white leading-snug">
+                            <div
+                              className={`text-sm font-semibold leading-snug ${
+                                isFull ? "text-slate-400" : "text-white"
+                              }`}
+                            >
                               {item.subtitle}
                             </div>
                           )}
@@ -822,15 +850,21 @@ export default function DoctorialesRegistrationPage() {
                             </div>
                           )}
                         </div>
-                        <div
-                          className={`mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-all ${
-                            selected
-                              ? "bg-purple-500 border-purple-400 text-white"
-                              : "border-slate-600 bg-slate-900/60"
-                          }`}
-                        >
-                          {selected && <CheckCircle2 className="w-3.5 h-3.5" />}
-                        </div>
+                        {isFull ? (
+                          <span className="mt-0.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-rose-950/80 text-rose-400 border border-rose-500/30 shrink-0">
+                            Fermé
+                          </span>
+                        ) : (
+                          <div
+                            className={`mt-0.5 w-5 h-5 rounded-md border flex items-center justify-center shrink-0 transition-all ${
+                              selected
+                                ? "bg-purple-500 border-purple-400 text-white"
+                                : "border-slate-600 bg-slate-900/60"
+                            }`}
+                          >
+                            {selected && <CheckCircle2 className="w-3.5 h-3.5" />}
+                          </div>
+                        )}
                       </button>
                     );
                   })}
@@ -904,20 +938,39 @@ export default function DoctorialesRegistrationPage() {
                 <div className="space-y-2.5">
                   {vendredi09hOptions.map((item) => {
                     const selected = formData.sessionVendredi09h === item.id;
+                    const isFull = Boolean(item.isFull);
                     return (
                       <button
                         key={item.id}
                         type="button"
-                        onClick={() => handleSelectVendredi09h(item.id)}
+                        disabled={isFull}
+                        onClick={() => {
+                          if (!isFull) {
+                            handleSelectVendredi09h(item.id);
+                          }
+                        }}
                         className={`w-full flex items-start justify-between gap-3 p-4 rounded-xl border text-left transition-all ${
-                          selected
+                          isFull
+                            ? "bg-slate-900/50 border-rose-500/30 text-slate-500 opacity-65 cursor-not-allowed"
+                            : selected
                             ? "bg-cyan-500/20 border-cyan-400 text-white shadow-sm ring-1 ring-cyan-400"
                             : "bg-[#14142b] border-slate-800/90 text-slate-300 hover:border-slate-700 hover:text-white"
                         }`}
                       >
                         <div className="space-y-1">
-                          <div className="text-sm font-semibold">
-                            {item.title}
+                          <div className="flex flex-wrap items-center gap-2">
+                            <span
+                              className={`text-sm font-semibold ${
+                                isFull ? "text-slate-400 line-through" : ""
+                              }`}
+                            >
+                              {item.title}
+                            </span>
+                            {isFull && (
+                              <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-[11px] font-extrabold uppercase tracking-wider bg-rose-500/20 text-rose-300 border border-rose-500/40">
+                                Complet
+                              </span>
+                            )}
                           </div>
                           {item.subtitle && (
                             <div className="text-xs text-slate-300 leading-relaxed">
@@ -930,15 +983,21 @@ export default function DoctorialesRegistrationPage() {
                             </div>
                           )}
                         </div>
-                        <div
-                          className={`mt-0.5 w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-all ${
-                            selected
-                              ? "bg-cyan-400 border-cyan-300 text-slate-950"
-                              : "border-slate-600 bg-slate-900/60"
-                          }`}
-                        >
-                          {selected && <CheckCircle2 className="w-3.5 h-3.5" />}
-                        </div>
+                        {isFull ? (
+                          <span className="mt-0.5 px-2 py-0.5 rounded text-[10px] font-bold uppercase bg-rose-950/80 text-rose-400 border border-rose-500/30 shrink-0">
+                            Fermé
+                          </span>
+                        ) : (
+                          <div
+                            className={`mt-0.5 w-5 h-5 rounded-full border flex items-center justify-center shrink-0 transition-all ${
+                              selected
+                                ? "bg-cyan-400 border-cyan-300 text-slate-950"
+                                : "border-slate-600 bg-slate-900/60"
+                            }`}
+                          >
+                            {selected && <CheckCircle2 className="w-3.5 h-3.5" />}
+                          </div>
+                        )}
                       </button>
                     );
                   })}
