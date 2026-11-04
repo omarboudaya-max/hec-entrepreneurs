@@ -50,3 +50,4 @@ CREATE POLICY "Only Treasurer and Dev can access treasury"
       )
     )
   );
+
