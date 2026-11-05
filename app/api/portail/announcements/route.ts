@@ -116,14 +116,25 @@ export async function POST(req: NextRequest) {
     const isOmar = user.email?.toLowerCase() === "omarboudaya1@gmail.com";
     const { data: profile } = await supabaseAdmin
       .from("club_profiles")
-      .select("role")
+      .select("role, full_name, email")
       .eq("id", user.id)
       .single();
 
-    const allowed = isOmar || profile?.role === "bureau" || profile?.role === "developpeur";
+    const emailLower = (user.email || profile?.email || "").toLowerCase();
+    const fullNameLower = (profile?.full_name || "").toLowerCase();
+    const isAdemGuermazi =
+      emailLower.includes("edamguermazi") ||
+      emailLower.includes("ademguermazi") ||
+      fullNameLower.includes("guermazi");
+
+    const allowed =
+      isOmar ||
+      isAdemGuermazi ||
+      profile?.role === "bureau" ||
+      profile?.role === "developpeur";
     if (!allowed) {
       return NextResponse.json(
-        { error: "Seuls les membres du bureau ou le développeur peuvent publier une annonce." },
+        { error: "Seuls les membres autorisés (Bureau, Développeur ou Responsable Événements) peuvent publier une annonce." },
         { status: 403 }
       );
     }

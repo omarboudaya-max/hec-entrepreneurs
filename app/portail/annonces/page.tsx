@@ -79,6 +79,14 @@ export default function AnnoncesPage() {
   const [announcements, setAnnouncements] = useState<Announcement[]>([]);
   const [loading, setLoading] = useState(true);
 
+  const userEmailLower = (user?.email || profile?.email || "").toLowerCase();
+  const userFullNameLower = (profile?.full_name || "").toLowerCase();
+  const isAdemGuermazi =
+    userEmailLower.includes("edamguermazi") ||
+    userEmailLower.includes("ademguermazi") ||
+    userFullNameLower.includes("guermazi");
+  const canPublishAnnouncement = isBureau || isAdemGuermazi;
+
   // Publisher State
   const [content, setContent] = useState("");
   const [linkUrl, setLinkUrl] = useState("");
@@ -337,8 +345,8 @@ export default function AnnoncesPage() {
         </p>
       </div>
 
-      {/* Publisher Box - Bureau & Développeur Only */}
-      {isBureau && (
+      {/* Publisher Box - Bureau, Développeur & Edam Guermazi */}
+      {canPublishAnnouncement && (
         <div className="mb-8 p-5 sm:p-6 rounded-3xl bg-[#121217] border border-white/10 shadow-xl relative overflow-hidden">
           <div className="flex items-center gap-3 mb-4">
             <div className="w-10 h-10 rounded-full bg-purple-600/20 border border-purple-500/30 flex items-center justify-center text-purple-300 font-bold overflow-hidden relative">
