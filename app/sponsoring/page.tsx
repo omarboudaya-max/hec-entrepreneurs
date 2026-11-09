@@ -1,6 +1,7 @@
 "use client";
 
-import React, { useState, useEffect, useCallback, useRef } from "react";
+import React, { useState, useEffect, useRef, useCallback } from "react";
+import { PageFlip } from "page-flip";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   ChevronLeft,
@@ -19,6 +20,8 @@ import {
 } from "lucide-react";
 
 const TOTAL_PAGES = 26;
+// Aspect ratio exact du PDF (1311 x 1853)
+const PAGE_ASPECT_RATIO = 1311 / 1853;
 
 const PAGES = Array.from({ length: TOTAL_PAGES }, (_, i) => {
   const num = String(i + 1).padStart(2, "0");
@@ -29,12 +32,12 @@ const PAGES = Array.from({ length: TOTAL_PAGES }, (_, i) => {
       i === 0
         ? "Couverture"
         : i === TOTAL_PAGES - 1
-        ? "4e de couverture"
+        ? "Dos du livre"
         : `Page ${i}`,
   };
 });
 
-// Chapitres du sommaire pour accès rapide
+// Chapitres du sommaire pour accès rapide (1-indexés selon l'ordre des pages du PDF)
 const TABLE_OF_CONTENTS = [
   { title: "Couverture", subtitle: "Dossier de Sponsoring SME 2026", pdfPage: 1 },
   { title: "Sommaire", subtitle: "Plan du dossier", pdfPage: 2 },
@@ -115,141 +118,226 @@ const TABLE_OF_CONTENTS = [
   },
 ];
 
-/**
- * En mode "Livre (2 pages)" sur PC :
- * - Spread 0 : Page 1 seule (Couverture fermée)
- * - Spread 1 : Pages 2 & 3 côte à côte
- * - Spread 2 : Pages 4 & 5 côte à côte
- * ...
- * - Spread 12 : Pages 24 & 25 côte à côte
- * - Spread 13 : Page 26 seule (Dos du livre fermé)
- */
-function getDesktopSpreads(): number[][] {
-  const spreads: number[][] = [[1]];
-  for (let p = 2; p < TOTAL_PAGES; p += 2) {
-    if (p + 1 < TOTAL_PAGES) {
-      spreads.push([p, p + 1]);
-    } else {
-      spreads.push([p]);
-    }
-  }
-  spreads.push([TOTAL_PAGES]);
-  return spreads;
-}
-
-const DESKTOP_SPREADS = getDesktopSpreads();
-
 export default function SponsoringBookPage() {
+  const containerRef = useRef<HTMLDivElement | null>(null);
+  const stageRef = useRef<HTMLDivElement | null>(null);
+  const flipMountRef = useRef<HTMLDivElement | null>(null);
+  const pageFlipRef = useRef<PageFlip | null>(null);
+  const currentPageIndexRef = useRef<number>(0);
+
+  // currentPageIndex is 0-indexed (0..25)
+  const [currentPageIndex, setCurrentPageIndex] = useState(0);
   const [isMobile, setIsMobile] = useState(false);
-  const [singlePageModeOnDesktop, setSinglePageModeOnDesktop] = useState(false);
-
-  // currentPage is 1-indexed (1..26)
-  const [currentPage, setCurrentPage] = useState(1);
-  // direction: 1 = forward (next), -1 = backward (prev)
-  const [flipDirection, setFlipDirection] = useState<1 | -1>(1);
-  const [isFlipping, setIsFlipping] = useState(false);
-
-  // Zoom & Fullscreen & Sommaire
+  const [singlePageOnDesktop, setSinglePageOnDesktop] = useState(false);
   const [zoom, setZoom] = useState(1);
   const [isFullscreen, setIsFullscreen] = useState(false);
   const [showToc, setShowToc] = useState(false);
   const [showThumbnails, setShowThumbnails] = useState(false);
 
-  // Touch / Mouse drag swipe tracking
-  const pointerStartX = useRef<number | null>(null);
-  const pointerStartY = useRef<number | null>(null);
-  const containerRef = useRef<HTMLDivElement | null>(null);
+  const isPortraitMode = isMobile || singlePageOnDesktop;
 
-  // Detect screen size
+  // Build or rebuild the StPageFlip real paper-curl instance when viewport or mode changes
+  const initFlipBook = useCallback(() => {
+    const mountRoot = flipMountRef.current;
+    const stageEl = stageRef.current;
+    if (!mountRoot || !stageEl) return;
+
+    // Destroy previous instance cleanly
+    if (pageFlipRef.current) {
+      try {
+        pageFlipRef.current.destroy();
+      } catch {
+        // ignore cleanup error
+      }
+      pageFlipRef.current = null;
+    }
+
+    mountRoot.innerHTML = "";
+
+    const vw = window.innerWidth;
+    const vh = window.innerHeight;
+    const mobile = vw < 900;
+    setIsMobile(mobile);
+
+    const portrait = mobile || singlePageOnDesktop;
+
+    // Calculate ideal single-page width & height to fit the stage
+    const availH = Math.max(300, vh - (mobile ? 132 : 140));
+    const availW = Math.max(260, vw - (mobile ? 20 : 120));
+
+    let pageH = availH;
+    let pageW = Math.round(pageH * PAGE_ASPECT_RATIO);
+
+    if (portrait) {
+      if (pageW > availW) {
+        pageW = availW;
+        pageH = Math.round(pageW / PAGE_ASPECT_RATIO);
+      }
+    } else {
+      // In 2-page spread mode, total book width is 2 * pageW
+      if (pageW * 2 > availW) {
+        pageW = Math.floor(availW / 2);
+        pageH = Math.round(pageW / PAGE_ASPECT_RATIO);
+      }
+    }
+
+    // Create host element inside mountRoot
+    const bookEl = document.createElement("div");
+    bookEl.className = "hec-flipbook-instance";
+    mountRoot.appendChild(bookEl);
+
+    // Create DOM page elements
+    const pageNodes: HTMLElement[] = PAGES.map((p, idx) => {
+      const item = document.createElement("div");
+      item.className = "hec-book-page";
+      // Use soft paper density on all pages so every page bends & curls like real paper
+      item.dataset.density = "soft";
+
+      const isLeftPage = !portrait && idx > 0 && idx % 2 === 1;
+      const spineGradient = portrait
+        ? "linear-gradient(to right, rgba(0,0,0,0.22) 0%, rgba(0,0,0,0.04) 5%, transparent 12%)"
+        : isLeftPage
+        ? "linear-gradient(to left, rgba(0,0,0,0.26) 0%, rgba(0,0,0,0.06) 6%, transparent 15%)"
+        : "linear-gradient(to right, rgba(0,0,0,0.26) 0%, rgba(0,0,0,0.06) 6%, transparent 15%)";
+
+      item.innerHTML = `
+        <div style="position:relative;width:100%;height:100%;background:#ffffff;overflow:hidden;user-select:none;">
+          <img
+            src="${p.src}"
+            alt="${p.label}"
+            draggable="false"
+            style="width:100%;height:100%;object-fit:fill;display:block;pointer-events:none;user-select:none;"
+          />
+          <div style="position:absolute;inset:0;pointer-events:none;background:${spineGradient};"></div>
+        </div>
+      `;
+      bookEl.appendChild(item);
+      return item;
+    });
+
+    const flip = new PageFlip(bookEl, {
+      width: pageW,
+      height: pageH,
+      size: "fixed" as any,
+      minWidth: pageW,
+      maxWidth: pageW,
+      minHeight: pageH,
+      maxHeight: pageH,
+      drawShadow: true,
+      maxShadowOpacity: 0.7,
+      flippingTime: 750,
+      usePortrait: portrait,
+      startPage: currentPageIndexRef.current,
+      startZIndex: 2,
+      autoSize: true,
+      showCover: true,
+      mobileScrollSupport: false,
+      swipeDistance: 15,
+      clickEventForward: false,
+      useMouseEvents: true,
+      showPageCorners: true,
+      disableFlipByClick: false,
+    });
+
+    flip.loadFromHTML(pageNodes);
+
+    // Force all pages (including cover & back cover) to use SOFT paper-curl physics
+    // while keeping Page 1 and Page 26 as single-page covers in the spread!
+    try {
+      const collection = flip.getPageCollection()?.getPages?.() || [];
+      collection.forEach((p: any) => {
+        p.setDensity?.("soft");
+        p.setDrawingDensity?.("soft");
+      });
+    } catch {
+      // ignore if internal API differs
+    }
+
+    // Make mobile finger drag curl the paper immediately on touchstart (without 250ms delay)
+    const distEl = flip.getUI()?.getDistElement?.();
+    if (distEl) {
+      distEl.addEventListener(
+        "touchstart",
+        (e: TouchEvent) => {
+          if (e.changedTouches && e.changedTouches.length > 0) {
+            const t = e.changedTouches[0];
+            const rect = distEl.getBoundingClientRect();
+            flip.startUserTouch({
+              x: t.clientX - rect.left,
+              y: t.clientY - rect.top,
+            });
+          }
+        },
+        { passive: true }
+      );
+    }
+
+    flip.on("flip", (e: any) => {
+      const idx = typeof e.data === "number" ? e.data : 0;
+      currentPageIndexRef.current = idx;
+      setCurrentPageIndex(idx);
+    });
+
+    pageFlipRef.current = flip;
+  }, [singlePageOnDesktop]);
+
   useEffect(() => {
-    const checkViewport = () => {
-      setIsMobile(window.innerWidth < 960);
+    initFlipBook();
+
+    let resizeTimer: ReturnType<typeof setTimeout>;
+    const handleResize = () => {
+      clearTimeout(resizeTimer);
+      resizeTimer = setTimeout(() => {
+        initFlipBook();
+      }, 180);
     };
-    checkViewport();
-    window.addEventListener("resize", checkViewport);
-    return () => window.removeEventListener("resize", checkViewport);
+
+    window.addEventListener("resize", handleResize);
+    return () => {
+      clearTimeout(resizeTimer);
+      window.removeEventListener("resize", handleResize);
+      if (pageFlipRef.current) {
+        try {
+          pageFlipRef.current.destroy();
+        } catch {
+          // ignore
+        }
+        pageFlipRef.current = null;
+      }
+    };
+  }, [initFlipBook]);
+
+  // Preload all 26 images in the background so every page curl is instant
+  useEffect(() => {
+    PAGES.forEach((p) => {
+      const img = new window.Image();
+      img.src = p.src;
+    });
   }, []);
 
-  // Preload adjacent pages for instant flipping
-  useEffect(() => {
-    const pagesToPreload = new Set<number>();
-    for (let d = -3; d <= 4; d++) {
-      const target = currentPage + d;
-      if (target >= 1 && target <= TOTAL_PAGES) {
-        pagesToPreload.add(target);
-      }
-    }
-    pagesToPreload.forEach((p) => {
-      const img = new window.Image();
-      img.src = PAGES[p - 1].src;
-    });
-  }, [currentPage]);
-
-  const isSpreadMode = !isMobile && !singlePageModeOnDesktop;
-
-  // Find current spread index from currentPage
-  const currentSpreadIndex = DESKTOP_SPREADS.findIndex((spread) =>
-    spread.includes(currentPage)
-  );
-  const activeSpread =
-    DESKTOP_SPREADS[currentSpreadIndex >= 0 ? currentSpreadIndex : 0];
-
-  const canGoPrev = isSpreadMode ? currentSpreadIndex > 0 : currentPage > 1;
-  const canGoNext = isSpreadMode
-    ? currentSpreadIndex < DESKTOP_SPREADS.length - 1
-    : currentPage < TOTAL_PAGES;
-
-  const triggerFlipSoundVisual = () => {
-    setIsFlipping(true);
-    setTimeout(() => setIsFlipping(false), 420);
-  };
-
   const goNext = useCallback(() => {
-    if (zoom > 1) setZoom(1);
-    if (isSpreadMode) {
-      if (currentSpreadIndex < DESKTOP_SPREADS.length - 1) {
-        setFlipDirection(1);
-        triggerFlipSoundVisual();
-        setCurrentPage(DESKTOP_SPREADS[currentSpreadIndex + 1][0]);
-      }
-    } else {
-      if (currentPage < TOTAL_PAGES) {
-        setFlipDirection(1);
-        triggerFlipSoundVisual();
-        setCurrentPage((p) => Math.min(TOTAL_PAGES, p + 1));
-      }
-    }
-  }, [isSpreadMode, currentSpreadIndex, currentPage, zoom]);
+    pageFlipRef.current?.flipNext("bottom" as any);
+  }, []);
 
   const goPrev = useCallback(() => {
-    if (zoom > 1) setZoom(1);
-    if (isSpreadMode) {
-      if (currentSpreadIndex > 0) {
-        setFlipDirection(-1);
-        triggerFlipSoundVisual();
-        setCurrentPage(DESKTOP_SPREADS[currentSpreadIndex - 1][0]);
-      }
-    } else {
-      if (currentPage > 1) {
-        setFlipDirection(-1);
-        triggerFlipSoundVisual();
-        setCurrentPage((p) => Math.max(1, p - 1));
-      }
-    }
-  }, [isSpreadMode, currentSpreadIndex, currentPage, zoom]);
+    pageFlipRef.current?.flipPrev("bottom" as any);
+  }, []);
 
-  const jumpToPage = (targetPage: number) => {
-    const clamped = Math.max(1, Math.min(TOTAL_PAGES, targetPage));
-    setFlipDirection(clamped >= currentPage ? 1 : -1);
-    triggerFlipSoundVisual();
-    setCurrentPage(clamped);
+  const jumpToPdfPage = useCallback((pdfPageNumber: number) => {
+    const targetIdx = Math.max(0, Math.min(TOTAL_PAGES - 1, pdfPageNumber - 1));
+    currentPageIndexRef.current = targetIdx;
+    setCurrentPageIndex(targetIdx);
+    try {
+      pageFlipRef.current?.flip(targetIdx, "top" as any);
+    } catch {
+      pageFlipRef.current?.turnToPage(targetIdx);
+    }
     setShowToc(false);
-    setZoom(1);
-  };
+  }, []);
 
   // Keyboard navigation
   useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
+    const onKeyDown = (e: KeyboardEvent) => {
       if (e.key === "ArrowRight" || e.key === " ") {
         e.preventDefault();
         goNext();
@@ -262,8 +350,8 @@ export default function SponsoringBookPage() {
         setZoom(1);
       }
     };
-    window.addEventListener("keydown", handleKeyDown);
-    return () => window.removeEventListener("keydown", handleKeyDown);
+    window.addEventListener("keydown", onKeyDown);
+    return () => window.removeEventListener("keydown", onKeyDown);
   }, [goNext, goPrev]);
 
   // Fullscreen toggle
@@ -285,88 +373,78 @@ export default function SponsoringBookPage() {
     return () => document.removeEventListener("fullscreenchange", onFsChange);
   }, []);
 
-  // Touch & Mouse Swipe handlers
-  const handlePointerDown = (e: React.PointerEvent) => {
-    if (zoom > 1) return;
-    pointerStartX.current = e.clientX;
-    pointerStartY.current = e.clientY;
-  };
+  const currentPdfPage = currentPageIndex + 1;
+  const canGoPrev = currentPageIndex > 0;
+  const canGoNext = isPortraitMode
+    ? currentPageIndex < TOTAL_PAGES - 1
+    : currentPageIndex < TOTAL_PAGES - 1;
 
-  const handlePointerUp = (e: React.PointerEvent) => {
-    if (zoom > 1 || pointerStartX.current === null || pointerStartY.current === null) {
-      return;
-    }
-    const deltaX = e.clientX - pointerStartX.current;
-    const deltaY = e.clientY - pointerStartY.current;
-    pointerStartX.current = null;
-    pointerStartY.current = null;
-
-    // Ensure horizontal swipe dominates vertical scroll
-    if (Math.abs(deltaX) > 45 && Math.abs(deltaX) > Math.abs(deltaY) * 1.2) {
-      if (deltaX < 0) {
-        goNext();
-      } else {
-        goPrev();
-      }
+  const getPageLabel = () => {
+    if (isPortraitMode) {
+      if (currentPdfPage === 1) return `Couverture (1 / ${TOTAL_PAGES})`;
+      if (currentPdfPage === TOTAL_PAGES)
+        return `Dos du livre (${TOTAL_PAGES} / ${TOTAL_PAGES})`;
+      return `Page ${currentPdfPage} / ${TOTAL_PAGES}`;
+    } else {
+      if (currentPdfPage === 1) return `Couverture (1 / ${TOTAL_PAGES})`;
+      if (currentPdfPage >= TOTAL_PAGES)
+        return `Dos du livre (${TOTAL_PAGES} / ${TOTAL_PAGES})`;
+      const left = currentPdfPage % 2 === 0 ? currentPdfPage : currentPdfPage - 1;
+      const right = Math.min(TOTAL_PAGES, left + 1);
+      return `Pages ${left} – ${right} sur ${TOTAL_PAGES}`;
     }
   };
 
-  // Page label display
-  const getPageIndicatorText = () => {
-    if (isSpreadMode) {
-      if (activeSpread.length === 1) {
-        return activeSpread[0] === 1
-          ? "Couverture (1 / 26)"
-          : `Dos du dossier (${TOTAL_PAGES} / ${TOTAL_PAGES})`;
-      }
-      return `Pages ${activeSpread[0]} – ${activeSpread[1]} sur ${TOTAL_PAGES}`;
-    }
-    return currentPage === 1
-      ? `Couverture (1 / ${TOTAL_PAGES})`
-      : `Page ${currentPage} sur ${TOTAL_PAGES}`;
-  };
-
-  // Progress percentage
-  const progressPercent = isSpreadMode
-    ? ((activeSpread[activeSpread.length - 1] - 1) / (TOTAL_PAGES - 1)) * 100
-    : ((currentPage - 1) / (TOTAL_PAGES - 1)) * 100;
-
-  // 3D Book Flip Variants
-  const bookFlipVariants = {
-    enter: (dir: number) => ({
-      rotateY: dir > 0 ? 38 : -38,
-      opacity: 0,
-      scale: 0.96,
-      transformOrigin: dir > 0 ? "left center" : "right center",
-    }),
-    center: {
-      rotateY: 0,
-      opacity: 1,
-      scale: 1,
-      transformOrigin: "center center",
-      transition: {
-        duration: 0.48,
-        ease: [0.22, 1, 0.36, 1] as [number, number, number, number],
-      },
-    },
-    exit: (dir: number) => ({
-      rotateY: dir > 0 ? -38 : 38,
-      opacity: 0,
-      scale: 0.96,
-      transformOrigin: dir > 0 ? "left center" : "right center",
-      transition: {
-        duration: 0.34,
-        ease: [0.4, 0, 1, 1] as [number, number, number, number],
-      },
-    }),
-  };
+  const progressPercent = (currentPageIndex / (TOTAL_PAGES - 1)) * 100;
 
   return (
     <div
       ref={containerRef}
       className="fixed inset-0 z-[100] h-screen w-full bg-[#090612] text-white flex flex-col justify-between overflow-hidden select-none"
     >
-      {/* Ambient luxury glow */}
+      {/* Fix upstream stPageFlip wrapper CSS and add realistic book shadows */}
+      <style jsx global>{`
+        .stf__parent {
+          position: relative !important;
+          display: block !important;
+          box-sizing: border-box !important;
+          margin: 0 auto !important;
+          touch-action: none !important;
+          filter: drop-shadow(0 28px 65px rgba(0, 0, 0, 0.85))
+            drop-shadow(0 0 40px rgba(192, 38, 211, 0.18));
+        }
+        .stf__wrapper {
+          position: relative !important;
+          width: 100% !important;
+          box-sizing: border-box !important;
+        }
+        .stf__block {
+          position: absolute !important;
+          width: 100% !important;
+          height: 100% !important;
+          box-sizing: border-box !important;
+          perspective: 2200px !important;
+        }
+        .stf__item {
+          display: none;
+          position: absolute;
+          transform-style: preserve-3d;
+          backface-visibility: hidden;
+          border-radius: 4px;
+          overflow: hidden;
+        }
+        .stf__outerShadow,
+        .stf__innerShadow,
+        .stf__hardShadow,
+        .stf__hardInnerShadow {
+          position: absolute;
+          left: 0;
+          top: 0;
+          pointer-events: none !important;
+        }
+      `}</style>
+
+      {/* Ambient background glow */}
       <div className="pointer-events-none absolute inset-0 overflow-hidden z-0">
         <div className="absolute -top-32 left-1/4 w-[520px] h-[520px] rounded-full bg-fuchsia-600/15 blur-[150px]" />
         <div className="absolute -bottom-32 right-1/4 w-[520px] h-[520px] rounded-full bg-purple-700/15 blur-[150px]" />
@@ -390,14 +468,13 @@ export default function SponsoringBookPage() {
               </span>
             </div>
             <p className="text-[10px] sm:text-xs text-purple-200/70 truncate">
-              Semaine Mondiale de l&apos;Entrepreneuriat • IHEC Carthage
+              Glissez ou tirez le coin d&apos;une page pour tourner comme un vrai livre
             </p>
           </div>
         </div>
 
-        {/* Action Controls */}
+        {/* Controls */}
         <div className="flex items-center gap-1.5 sm:gap-2">
-          {/* Sommaire button */}
           <button
             type="button"
             onClick={() => {
@@ -409,31 +486,29 @@ export default function SponsoringBookPage() {
                 ? "bg-fuchsia-600 text-white border-fuchsia-400 shadow-lg shadow-fuchsia-600/30"
                 : "bg-white/5 hover:bg-white/10 text-purple-100 border-white/10"
             }`}
-            title="Sommaire interactif"
           >
             <List className="w-4 h-4" />
             <span className="hidden sm:inline">Sommaire</span>
           </button>
 
-          {/* Desktop 1-page / 2-page switch */}
           {!isMobile && (
             <button
               type="button"
               onClick={() => {
-                setSinglePageModeOnDesktop((prev) => !prev);
+                setSinglePageOnDesktop((prev) => !prev);
                 setZoom(1);
               }}
               className="inline-flex items-center gap-1.5 px-3 py-2 rounded-xl text-xs font-medium bg-white/5 hover:bg-white/10 text-purple-100 border border-white/10 transition-all"
               title={
-                singlePageModeOnDesktop
-                  ? "Passer en mode Livre (2 pages)"
-                  : "Passer en mode Page simple"
+                singlePageOnDesktop
+                  ? "Afficher en double page (Livre)"
+                  : "Afficher 1 page à la fois"
               }
             >
-              {singlePageModeOnDesktop ? (
+              {singlePageOnDesktop ? (
                 <>
                   <BookOpen className="w-4 h-4 text-fuchsia-400" />
-                  <span className="hidden lg:inline">Mode Livre</span>
+                  <span className="hidden lg:inline">Double Page</span>
                 </>
               ) : (
                 <>
@@ -444,11 +519,11 @@ export default function SponsoringBookPage() {
             </button>
           )}
 
-          {/* Zoom controls */}
+          {/* Zoom */}
           <div className="hidden sm:flex items-center bg-white/5 border border-white/10 rounded-xl p-0.5">
             <button
               type="button"
-              onClick={() => setZoom((z) => Math.max(1, +(z - 0.25).toFixed(2)))}
+              onClick={() => setZoom((z) => Math.max(1, +(z - 0.2).toFixed(2)))}
               disabled={zoom <= 1}
               className="p-1.5 rounded-lg hover:bg-white/10 disabled:opacity-30 transition"
               title="Zoom arrière"
@@ -460,8 +535,8 @@ export default function SponsoringBookPage() {
             </span>
             <button
               type="button"
-              onClick={() => setZoom((z) => Math.min(2, +(z + 0.25).toFixed(2)))}
-              disabled={zoom >= 2}
+              onClick={() => setZoom((z) => Math.min(1.8, +(z + 0.2).toFixed(2)))}
+              disabled={zoom >= 1.8}
               className="p-1.5 rounded-lg hover:bg-white/10 disabled:opacity-30 transition"
               title="Zoom avant"
             >
@@ -496,14 +571,12 @@ export default function SponsoringBookPage() {
         </div>
       </header>
 
-      {/* MAIN BOOK STAGE */}
+      {/* MAIN REAL PAPER-CURL BOOK STAGE */}
       <div
-        onPointerDown={handlePointerDown}
-        onPointerUp={handlePointerUp}
-        className="relative z-10 flex-1 flex items-center justify-center w-full overflow-auto px-2 sm:px-10 py-2 sm:py-4"
-        style={{ perspective: "2400px" }}
+        ref={stageRef}
+        className="relative z-10 flex-1 flex items-center justify-center w-full overflow-hidden px-2 sm:px-12 py-2"
       >
-        {/* Left Navigation Floating Arrow */}
+        {/* Left Arrow */}
         <button
           type="button"
           onClick={goPrev}
@@ -514,7 +587,7 @@ export default function SponsoringBookPage() {
           <ChevronLeft className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
 
-        {/* Right Navigation Floating Arrow */}
+        {/* Right Arrow */}
         <button
           type="button"
           onClick={goNext}
@@ -525,193 +598,48 @@ export default function SponsoringBookPage() {
           <ChevronRight className="w-5 h-5 sm:w-6 sm:h-6" />
         </button>
 
-        {/* THE 3D BOOK */}
+        {/* PageFlip Mount Container */}
         <div
-          className="relative flex items-center justify-center transition-transform duration-200"
+          className="flex items-center justify-center transition-transform duration-500 ease-out"
           style={{
-            transform: `scale(${zoom})`,
-            transformStyle: "preserve-3d",
+            transform: `scale(${zoom}) translateX(${
+              !isPortraitMode
+                ? currentPageIndex === 0
+                  ? "-25%"
+                  : currentPageIndex === TOTAL_PAGES - 1
+                  ? "25%"
+                  : "0%"
+                : "0%"
+            })`,
+            transformOrigin: "center center",
           }}
         >
-          <AnimatePresence mode="wait" custom={flipDirection}>
-            {isSpreadMode ? (
-              /* DESKTOP SPREAD VIEW (Cover single, Interior 2-pages side-by-side, Back cover single) */
-              <motion.div
-                key={`spread-${activeSpread.join("-")}`}
-                custom={flipDirection}
-                variants={bookFlipVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                className="relative flex items-center justify-center"
-                style={{ transformStyle: "preserve-3d" }}
-              >
-                {activeSpread.length === 1 ? (
-                  /* SINGLE COVER OR BACK COVER */
-                  <div
-                    onClick={() => {
-                      if (activeSpread[0] === 1) goNext();
-                      else goPrev();
-                    }}
-                    className="relative cursor-pointer group rounded-r-xl rounded-l-md overflow-hidden bg-white shadow-[0_28px_80px_rgba(0,0,0,0.85),0_0_45px_rgba(192,38,211,0.22)] border border-white/15 transition-transform duration-300 hover:scale-[1.01]"
-                  >
-                    {/* Realistic Book Spine on Left (for Front Cover) or Right (for Back Cover) */}
-                    {activeSpread[0] === 1 ? (
-                      <>
-                        <div className="pointer-events-none absolute inset-y-0 left-0 w-5 bg-gradient-to-r from-black/55 via-white/20 to-transparent z-20" />
-                        {/* Stacked paper edge effect on the right */}
-                        <div className="pointer-events-none absolute inset-y-1 right-0 w-2 bg-gradient-to-l from-stone-300 via-white to-stone-200 border-l border-stone-300/60 z-20" />
-                      </>
-                    ) : (
-                      <>
-                        <div className="pointer-events-none absolute inset-y-0 right-0 w-5 bg-gradient-to-l from-black/55 via-white/20 to-transparent z-20" />
-                        <div className="pointer-events-none absolute inset-y-1 left-0 w-2 bg-gradient-to-r from-stone-300 via-white to-stone-200 border-r border-stone-300/60 z-20" />
-                      </>
-                    )}
-
-                    <img
-                      src={PAGES[activeSpread[0] - 1].src}
-                      alt={PAGES[activeSpread[0] - 1].label}
-                      draggable={false}
-                      className="h-[calc(100vh-145px)] max-h-[840px] w-auto object-contain block select-none"
-                    />
-
-                    {/* Subtle prompt on Cover */}
-                    {activeSpread[0] === 1 && (
-                      <div className="absolute bottom-4 right-5 z-30 px-3.5 py-1.5 rounded-full bg-black/65 backdrop-blur-md border border-white/20 text-[11px] font-semibold text-white flex items-center gap-1.5 opacity-90 group-hover:opacity-100 group-hover:bg-fuchsia-600 transition-all shadow-lg">
-                        <span>Cliquer ou glisser pour ouvrir le livre</span>
-                        <ChevronRight className="w-3.5 h-3.5" />
-                      </div>
-                    )}
-                  </div>
-                ) : (
-                  /* TWO-PAGE OPEN BOOK SPREAD */
-                  <div className="relative flex items-center justify-center rounded-xl overflow-hidden shadow-[0_30px_90px_rgba(0,0,0,0.9),0_0_50px_rgba(168,85,247,0.18)] border border-white/15 bg-[#f8f5fb]">
-                    {/* Left Page */}
-                    <div
-                      onClick={goPrev}
-                      title="Cliquer pour tourner à la page précédente"
-                      className="relative cursor-pointer group overflow-hidden bg-white"
-                    >
-                      <img
-                        src={PAGES[activeSpread[0] - 1].src}
-                        alt={PAGES[activeSpread[0] - 1].label}
-                        draggable={false}
-                        className="h-[calc(100vh-145px)] max-h-[840px] w-auto object-contain block select-none"
-                      />
-                      {/* Inner spine shadow on right side of left page */}
-                      <div className="pointer-events-none absolute inset-y-0 right-0 w-10 bg-gradient-to-l from-black/28 via-black/8 to-transparent z-20" />
-                      {/* Hover corner curl hint */}
-                      <div className="pointer-events-none absolute bottom-0 left-0 w-10 h-10 bg-gradient-to-tr from-purple-900/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-
-                    {/* Center Book Binding Crease */}
-                    <div className="w-[2px] self-stretch bg-gradient-to-b from-stone-400 via-stone-700 to-stone-400 z-30 shadow-[0_0_12px_rgba(0,0,0,0.6)]" />
-
-                    {/* Right Page */}
-                    <div
-                      onClick={goNext}
-                      title="Cliquer pour tourner à la page suivante"
-                      className="relative cursor-pointer group overflow-hidden bg-white"
-                    >
-                      <img
-                        src={PAGES[activeSpread[1] - 1].src}
-                        alt={PAGES[activeSpread[1] - 1].label}
-                        draggable={false}
-                        className="h-[calc(100vh-145px)] max-h-[840px] w-auto object-contain block select-none"
-                      />
-                      {/* Inner spine shadow on left side of right page */}
-                      <div className="pointer-events-none absolute inset-y-0 left-0 w-10 bg-gradient-to-r from-black/28 via-black/8 to-transparent z-20" />
-                      {/* Hover corner curl hint */}
-                      <div className="pointer-events-none absolute bottom-0 right-0 w-10 h-10 bg-gradient-to-tl from-purple-900/25 to-transparent opacity-0 group-hover:opacity-100 transition-opacity" />
-                    </div>
-                  </div>
-                )}
-              </motion.div>
-            ) : (
-              /* MOBILE OR SINGLE-PAGE DESKTOP VIEW */
-              <motion.div
-                key={`page-${currentPage}`}
-                custom={flipDirection}
-                variants={bookFlipVariants}
-                initial="enter"
-                animate="center"
-                exit="exit"
-                className="relative flex items-center justify-center"
-                style={{ transformStyle: "preserve-3d" }}
-              >
-                <div className="relative rounded-xl overflow-hidden bg-white shadow-[0_25px_70px_rgba(0,0,0,0.85),0_0_35px_rgba(192,38,211,0.2)] border border-white/15">
-                  {/* Left spine subtle shadow */}
-                  <div className="pointer-events-none absolute inset-y-0 left-0 w-4 bg-gradient-to-r from-black/35 via-black/10 to-transparent z-20" />
-                  {/* Right page stack edge */}
-                  <div className="pointer-events-none absolute inset-y-0 right-0 w-1.5 bg-gradient-to-l from-stone-300 to-transparent z-20" />
-
-                  <img
-                    src={PAGES[currentPage - 1].src}
-                    alt={PAGES[currentPage - 1].label}
-                    draggable={false}
-                    className="max-h-[calc(100vh-155px)] max-w-[92vw] w-auto h-auto object-contain block select-none"
-                  />
-
-                  {/* Invisible tap zones on left/right 25% of page for effortless flipping */}
-                  {zoom === 1 && (
-                    <>
-                      <div
-                        onClick={goPrev}
-                        className="absolute inset-y-0 left-0 w-1/4 z-20 cursor-pointer"
-                        title="Page précédente"
-                      />
-                      <div
-                        onClick={goNext}
-                        className="absolute inset-y-0 right-0 w-1/4 z-20 cursor-pointer"
-                        title="Page suivante"
-                      />
-                    </>
-                  )}
-
-                  {/* Swipe hint on Cover (page 1) */}
-                  {currentPage === 1 && (
-                    <div
-                      onClick={goNext}
-                      className="absolute bottom-3 left-1/2 -translate-x-1/2 z-30 px-3.5 py-1.5 rounded-full bg-black/70 backdrop-blur-md border border-white/20 text-[11px] font-semibold text-white flex items-center gap-1.5 whitespace-nowrap shadow-lg cursor-pointer"
-                    >
-                      <span>Glisser ou toucher pour feuilleter</span>
-                      <ChevronRight className="w-3.5 h-3.5 text-fuchsia-400" />
-                    </div>
-                  )}
-                </div>
-              </motion.div>
-            )}
-          </AnimatePresence>
+          <div ref={flipMountRef} className="flex items-center justify-center" />
         </div>
       </div>
 
-      {/* BOTTOM NAVIGATION & PROGRESS BAR */}
+      {/* BOTTOM BAR */}
       <footer className="relative z-30 bg-[#110b22]/90 backdrop-blur-xl border-t border-fuchsia-500/20 px-3 sm:px-6 py-2.5">
-        {/* Progress bar */}
         <div className="max-w-3xl mx-auto mb-2">
           <div className="w-full h-1.5 bg-white/10 rounded-full overflow-hidden">
             <div
               className="h-full bg-gradient-to-r from-fuchsia-500 via-purple-500 to-cyan-400 transition-all duration-300 rounded-full"
-              style={{ width: `${ Math.max(4, progressPercent) }%` }}
+              style={{ width: `${Math.max(4, progressPercent)}%` }}
             />
           </div>
         </div>
 
         <div className="max-w-4xl mx-auto flex items-center justify-between gap-2">
-          {/* Return to Cover button */}
           <button
             type="button"
-            onClick={() => jumpToPage(1)}
-            disabled={currentPage === 1}
+            onClick={() => jumpToPdfPage(1)}
+            disabled={currentPageIndex === 0}
             className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-medium bg-white/5 hover:bg-white/10 text-purple-200 border border-white/10 disabled:opacity-30 transition"
-            title="Retourner à la couverture"
           >
             <RotateCcw className="w-3.5 h-3.5" />
             <span className="hidden sm:inline">Couverture</span>
           </button>
 
-          {/* Center Page status + Thumbnails drawer toggle */}
           <div className="flex items-center gap-2 sm:gap-3">
             <button
               type="button"
@@ -729,9 +657,8 @@ export default function SponsoringBookPage() {
                 setShowToc(false);
               }}
               className="px-3 sm:px-4 py-1 rounded-full bg-fuchsia-500/15 hover:bg-fuchsia-500/25 border border-fuchsia-500/30 text-xs font-semibold text-fuchsia-200 transition"
-              title="Afficher toutes les pages en miniatures"
             >
-              {getPageIndicatorText()}
+              {getPageLabel()}
             </button>
 
             <button
@@ -744,10 +671,9 @@ export default function SponsoringBookPage() {
             </button>
           </div>
 
-          {/* Quick jump to Packs de Sponsoring (Page 20) */}
           <button
             type="button"
-            onClick={() => jumpToPage(20)}
+            onClick={() => jumpToPdfPage(20)}
             className="inline-flex items-center gap-1.5 px-2.5 sm:px-3 py-1.5 rounded-lg text-xs font-semibold bg-amber-500/15 hover:bg-amber-500/25 text-amber-300 border border-amber-500/30 transition"
           >
             <span>Nos Packs</span>
@@ -755,7 +681,7 @@ export default function SponsoringBookPage() {
         </div>
       </footer>
 
-      {/* INTERACTIVE TABLE OF CONTENTS (SOMMAIRE) DRAWER */}
+      {/* SOMMAIRE DRAWER */}
       <AnimatePresence>
         {showToc && (
           <>
@@ -794,14 +720,12 @@ export default function SponsoringBookPage() {
 
               <div className="flex-1 overflow-y-auto p-3 space-y-1.5">
                 {TABLE_OF_CONTENTS.map((item) => {
-                  const isActive =
-                    currentPage === item.pdfPage ||
-                    (isSpreadMode && activeSpread.includes(item.pdfPage));
+                  const isActive = currentPdfPage === item.pdfPage;
                   return (
                     <button
                       key={item.pdfPage}
                       type="button"
-                      onClick={() => jumpToPage(item.pdfPage)}
+                      onClick={() => jumpToPdfPage(item.pdfPage)}
                       className={`w-full text-left p-3 rounded-xl border transition-all flex items-center justify-between gap-3 ${
                         isActive
                           ? "bg-fuchsia-600/20 border-fuchsia-500 text-white"
@@ -832,7 +756,7 @@ export default function SponsoringBookPage() {
         )}
       </AnimatePresence>
 
-      {/* THUMBNAILS FILMSTRIP MODAL */}
+      {/* THUMBNAILS FILMSTRIP */}
       <AnimatePresence>
         {showThumbnails && (
           <motion.div
@@ -856,15 +780,13 @@ export default function SponsoringBookPage() {
               </div>
               <div className="flex items-center gap-3 overflow-x-auto pb-2">
                 {PAGES.map((p) => {
-                  const selected = isSpreadMode
-                    ? activeSpread.includes(p.pageNumber)
-                    : currentPage === p.pageNumber;
+                  const selected = currentPdfPage === p.pageNumber;
                   return (
                     <button
                       key={p.pageNumber}
                       type="button"
                       onClick={() => {
-                        jumpToPage(p.pageNumber);
+                        jumpToPdfPage(p.pageNumber);
                         setShowThumbnails(false);
                       }}
                       className={`group shrink-0 flex flex-col items-center gap-1 p-1.5 rounded-xl border transition-all ${

@@ -14,13 +14,13 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-export function isNewMemberProfile(profile: { role?: string; poste?: string }) {
+function isNewMemberProfile(profile: { role?: string; poste?: string }) {
   const role = (profile.role || "").toLowerCase();
   const poste = (profile.poste || "").toLowerCase();
   return role === "nouveau_membre" || poste === "nouveau membre" || poste.includes("nouveau membre");
 }
 
-export function getMemberTariff(profile: { role?: string; poste?: string }) {
+function getMemberTariff(profile: { role?: string; poste?: string }) {
   const isNew = isNewMemberProfile(profile);
   if (isNew) {
     return {
@@ -39,7 +39,7 @@ export function getMemberTariff(profile: { role?: string; poste?: string }) {
 }
 
 // Verify that requester is STRICTLY Trésorier or Développeur
-export async function verifyTreasurerOrDev(req: NextRequest): Promise<{
+async function verifyTreasurerOrDev(req: NextRequest): Promise<{
   authorized: boolean;
   actorName?: string;
   actorEmail?: string;
@@ -209,7 +209,7 @@ function buildPaymentEmailHtml(params: {
   `;
 }
 
-export async function loadAllTreasuryMembers(): Promise<MemberTreasuryItem[]> {
+async function loadAllTreasuryMembers(): Promise<MemberTreasuryItem[]> {
   // 1. Fetch all club profiles
   const { data: profiles, error } = await supabaseAdmin
     .from("club_profiles")
