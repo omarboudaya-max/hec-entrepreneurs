@@ -14,3 +14,4 @@ declare module "page-flip" {
     destroy(): void;
   }
 }
+
