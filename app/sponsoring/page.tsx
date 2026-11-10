@@ -27,7 +27,7 @@ const PAGES = Array.from({ length: TOTAL_PAGES }, (_, i) => {
   const num = String(i + 1).padStart(2, "0");
   return {
     pageNumber: i + 1,
-    src: `/sponsoring-sme-2026/page-${num}.webp?v=2`,
+    src: `/sponsoring-sme-2026/page-${num}.webp?v=3`,
     label:
       i === 0
         ? "Couverture"
@@ -560,7 +560,7 @@ export default function SponsoringBookPage() {
 
           {/* Download PDF */}
           <a
-            href="/dossier-sponsoring-sme-2026.pdf?v=2"
+            href="/dossier-sponsoring-sme-2026.pdf?v=3"
             download="Dossier-Sponsoring-SME-2026-HEC-Entrepreneurs.pdf"
             className="inline-flex items-center gap-1.5 px-2.5 sm:px-3.5 py-1.5 sm:py-2 rounded-xl text-xs font-semibold bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white shadow-lg shadow-fuchsia-600/25 transition-all"
             title="Télécharger le PDF original"
