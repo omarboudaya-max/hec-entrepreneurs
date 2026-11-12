@@ -31,7 +31,9 @@ interface SmeRegistration {
   qr_code_id: string;
   full_name: string;
   email: string;
+  phone: string;
   status: string;
+  status_detail: string;
   institution: string;
   seat_id: string;
   seat_code: string;
@@ -287,10 +289,11 @@ export default function PortailOuvertureSmeScannerPage() {
       "ID Pass",
       "Nom & Prénom",
       "Email",
+      "Téléphone",
       "Statut",
+      "Classe / Profession",
       "Établissement",
       "Chaise",
-      "Zone Chaise",
       "Mot (Entrepreneuriat)",
       "Présent",
       "Heure d'entrée",
@@ -299,10 +302,11 @@ export default function PortailOuvertureSmeScannerPage() {
       r.qr_code_id,
       `"${(r.full_name || "").replace(/"/g, '""')}"`,
       r.email,
+      `"${(r.phone || "").replace(/"/g, '""')}"`,
       r.status,
+      `"${(r.status_detail || "").replace(/"/g, '""')}"`,
       `"${(r.institution || "").replace(/"/g, '""')}"`,
       r.seat_code,
-      `"${(r.seat_label || "").replace(/"/g, '""')}"`,
       `"${(r.one_word || "").replace(/"/g, '""')}"`,
       r.checkedIn ? "OUI" : "NON",
       r.checkedInAt ? new Date(r.checkedInAt).toLocaleString("fr-FR") : "",
@@ -786,9 +790,15 @@ export default function PortailOuvertureSmeScannerPage() {
                     <td className="py-3 px-3">
                       <div className="font-bold text-white">{r.full_name}</div>
                       <div className="text-gray-400 text-[11px]">{r.email}</div>
+                      {r.phone && (
+                        <div className="text-fuchsia-300/80 text-[11px] font-mono">{r.phone}</div>
+                      )}
                     </td>
                     <td className="py-3 px-3">
-                      <div className="text-purple-300 font-semibold">{r.status}</div>
+                      <div className="text-purple-300 font-semibold">
+                        {r.status}
+                        {r.status_detail ? ` (${r.status_detail})` : ""}
+                      </div>
                       <div className="text-gray-400 text-[11px]">{r.institution}</div>
                     </td>
                     <td className="py-3 px-3">

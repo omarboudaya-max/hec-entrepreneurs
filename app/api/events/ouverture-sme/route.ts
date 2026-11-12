@@ -51,14 +51,16 @@ export async function POST(req: NextRequest) {
     const {
       fullName,
       email,
+      phone,
       status,
+      statusDetail,
       institution,
       institutionCustom,
       oneWord,
       seatId,
     } = body;
 
-    if (!fullName || !email || !status || !institution || !oneWord || !seatId) {
+    if (!fullName || !email || !phone || !status || !statusDetail || !institution || !oneWord || !seatId) {
       return NextResponse.json(
         {
           success: false,
@@ -142,7 +144,7 @@ export async function POST(req: NextRequest) {
       full_name: fullName.trim(),
       email: email.trim().toLowerCase(),
       status: status.trim(),
-      status_custom: null,
+      status_custom: phone.trim(),         // Stores phone number
       institution: resolvedInstitution,
       institution_custom: institutionCustom ? institutionCustom.trim() : null,
       education_level: seat.id,            // Stores internal seatId (e.g. "MG-R3-C2")
@@ -152,7 +154,7 @@ export async function POST(req: NextRequest) {
       session_choice: OUVERTURE_SME_SESSION_KEY,
       has_laptop_and_charger: seat.code,
       can_attend_full_session: "{}",       // Stores check-in JSON for QR scanner
-      preferred_language: "Français",
+      preferred_language: statusDetail.trim(), // Stores student class or professional job title
       confirmed_prerequisites: true,
       qr_code_id: registrationId,
     };
@@ -179,15 +181,18 @@ export async function POST(req: NextRequest) {
       id: registrationId,
       name: fullName.trim(),
       email: email.trim().toLowerCase(),
+      phone: phone.trim(),
       status: status.trim(),
+      statusDetail: statusDetail.trim(),
       institution: resolvedInstitution,
       seatId: seat.id,
       seatCode: seat.code,
     });
 
     const passPageUrl = `https://hec-entrepreneurs.vercel.app/evenements/ouverture-sme/success?${passQueryParams.toString()}`;
+    const passDownloadUrl = `${passPageUrl}&download=1`;
 
-    // Send Thank You + Name + Chair Name (Word + Number) + QR Code email
+    // Send Thank You + Name + Chair Name (Word + Number) + QR Code Badge email
     if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
       try {
         const mailHtml = `
@@ -233,12 +238,16 @@ export async function POST(req: NextRequest) {
                 </div>
 
                 <div class="ticket-box">
-                  <div style="font-size: 11px; text-transform: uppercase; color: #f0abfc; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 14px;">Pass d'Accès Officiel (QR Code)</div>
-                  <img src="${qrImageUrl}" alt="QR Code Pass Ouverture SME" width="230" height="230" style="display: block; margin: 0 auto 16px auto; border-radius: 12px; background: #ffffff; padding: 10px; box-shadow: 0 8px 25px rgba(0,0,0,0.45);" />
-                  <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8; letter-spacing: 1.5px; margin-bottom: 4px;">Référence du Pass</div>
+                  <div style="font-size: 11px; text-transform: uppercase; color: #f0abfc; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 14px;">Badge d'Accès Officiel (QR Code + Place)</div>
+                  <img src="${qrImageUrl}" alt="QR Code Pass Ouverture SME" width="230" height="230" style="display: block; margin: 0 auto 12px auto; border-radius: 12px; background: #ffffff; padding: 10px; box-shadow: 0 8px 25px rgba(0,0,0,0.45);" />
+                  <div style="display: inline-block; background: #2e1065; border: 1px solid #d946ef80; border-radius: 10px; padding: 6px 16px; margin-bottom: 12px;">
+                    <span style="font-size: 11px; color: #f0abfc; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Place : </span>
+                    <span style="font-size: 16px; color: #ffffff; font-family: monospace; font-weight: 900; letter-spacing: 1.5px;">${seat.code}</span>
+                  </div>
+                  <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8; letter-spacing: 1.5px; margin-bottom: 4px;">Référence du Badge</div>
                   <div class="ticket-id">${registrationId}</div>
-                  <div style="margin-top: 16px;">
-                    <a href="${passPageUrl}" style="display: inline-block; background: linear-gradient(90deg, #c026d3, #7c3aed); color: #ffffff; text-decoration: none; padding: 11px 22px; border-radius: 10px; font-size: 12px; font-weight: 700; letter-spacing: 0.5px;">🎟️ Ouvrir / Télécharger mon Billet</a>
+                  <div style="margin-top: 18px;">
+                    <a href="${passDownloadUrl}" style="display: inline-block; background: linear-gradient(90deg, #c026d3, #7c3aed); color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 10px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px;">📥 Télécharger mon Badge (QR Code + Place ${seat.code})</a>
                   </div>
                 </div>
 
@@ -248,12 +257,20 @@ export async function POST(req: NextRequest) {
                     <span class="info-val">${fullName.trim()}</span>
                   </div>
                   <div class="info-row">
+                    <span class="info-label">Statut :</span>
+                    <span class="info-val">${status.trim()} (${statusDetail.trim()})</span>
+                  </div>
+                  <div class="info-row">
+                    <span class="info-label">Téléphone :</span>
+                    <span class="info-val">${phone.trim()}</span>
+                  </div>
+                  <div class="info-row">
                     <span class="info-label">Place réservée :</span>
                     <span class="info-val" style="color: #e879f9; font-family: monospace; font-size: 14px;">${seat.code}</span>
                   </div>
                   <div class="info-row">
-                    <span class="info-label">Date :</span>
-                    <span class="info-val">Mercredi 18 Novembre 2026 • 09h30</span>
+                    <span class="info-label">Date & Horaires :</span>
+                    <span class="info-val">Mercredi 18 Novembre 2026 • Check-in : 08h30 | Début : 09h00</span>
                   </div>
                   <div class="info-row">
                     <span class="info-label">Lieu :</span>
@@ -262,7 +279,7 @@ export async function POST(req: NextRequest) {
                 </div>
 
                 <p style="font-size: 13px; color: #94a3b8; text-align: center; margin-top: 18px;">
-                  Veuillez présenter ce QR Code à l'entrée de La Chapelle pour accéder à votre place <strong>${seat.code}</strong>.
+                  Veuillez présenter ce Badge QR Code dès <strong>08h30</strong> à l'entrée de La Chapelle pour accéder à votre place <strong>${seat.code}</strong>.
                 </p>
               </div>
               <div class="footer">

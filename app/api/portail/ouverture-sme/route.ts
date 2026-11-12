@@ -104,7 +104,9 @@ export async function GET(req: NextRequest) {
         qr_code_id: r.qr_code_id || "",
         full_name: r.full_name,
         email: r.email,
+        phone: r.status_custom || "",
         status: r.status,
+        status_detail: r.preferred_language && r.preferred_language !== "Français" ? r.preferred_language : "",
         institution: r.institution,
         seat_id: r.education_level || "",
         seat_label: r.education_level_custom || "",
@@ -189,7 +191,12 @@ export async function POST(req: NextRequest) {
       qr_code_id: matchedRow.qr_code_id,
       full_name: matchedRow.full_name,
       email: matchedRow.email,
+      phone: matchedRow.status_custom || "",
       status: matchedRow.status,
+      status_detail:
+        matchedRow.preferred_language && matchedRow.preferred_language !== "Français"
+          ? matchedRow.preferred_language
+          : "",
       institution: matchedRow.institution,
       seat_id: matchedRow.education_level || "",
       seat_label: matchedRow.education_level_custom || "",

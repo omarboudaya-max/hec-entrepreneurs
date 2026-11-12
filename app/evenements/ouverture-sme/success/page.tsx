@@ -1,6 +1,6 @@
 "use client";
 
-import React, { Suspense } from "react";
+import React, { Suspense, useCallback, useEffect, useRef } from "react";
 import { useSearchParams } from "next/navigation";
 import { motion } from "framer-motion";
 import Link from "next/link";
@@ -15,6 +15,7 @@ import {
   ArrowLeft,
   User,
   Building2,
+  Phone,
 } from "lucide-react";
 
 function OuvertureSmeTicketContent() {
@@ -22,24 +23,152 @@ function OuvertureSmeTicketContent() {
   const id = searchParams.get("id") || `SME-${Date.now().toString(36).toUpperCase()}`;
   const name = searchParams.get("name") || "Participant";
   const email = searchParams.get("email") || "";
+  const phone = searchParams.get("phone") || "";
   const status = searchParams.get("status") || "Étudiant";
+  const statusDetail = searchParams.get("statusDetail") || "";
   const institution = searchParams.get("institution") || "IHEC Carthage";
   const seatCode = searchParams.get("seatCode") || "IMPACT 1";
+  const autoDownload = searchParams.get("download") === "1";
 
   const qrValue = `HEC-SME-2026|ID:${id}|SEAT:${seatCode}|NAME:${name}`;
+  const hasAutoDownloadedRef = useRef(false);
 
-  const downloadPassQr = () => {
-    const canvas = document.getElementById("sme-qr-canvas") as HTMLCanvasElement;
-    if (canvas) {
-      const pngUrl = canvas.toDataURL("image/png");
-      const downloadLink = document.createElement("a");
-      downloadLink.href = pngUrl;
-      downloadLink.download = `Pass-SME-2026-${seatCode.replace(/\s+/g, "-")}-${name.replace(/\s+/g, "_")}.png`;
-      document.body.appendChild(downloadLink);
-      downloadLink.click();
-      document.body.removeChild(downloadLink);
+  const downloadBadge = useCallback(() => {
+    const qrCanvas = document.getElementById("sme-qr-canvas") as HTMLCanvasElement;
+    if (!qrCanvas) return;
+
+    const badgeCanvas = document.createElement("canvas");
+    const width = 800;
+    const height = 1120;
+    badgeCanvas.width = width;
+    badgeCanvas.height = height;
+
+    const ctx = badgeCanvas.getContext("2d");
+    if (!ctx) return;
+
+    // 1. Background gradient
+    const bgGrad = ctx.createLinearGradient(0, 0, 0, height);
+    bgGrad.addColorStop(0, "#190d33");
+    bgGrad.addColorStop(0.5, "#0f0720");
+    bgGrad.addColorStop(1, "#070310");
+    ctx.fillStyle = bgGrad;
+    ctx.fillRect(0, 0, width, height);
+
+    // Outer border
+    ctx.strokeStyle = "#d946ef";
+    ctx.lineWidth = 6;
+    ctx.strokeRect(20, 20, width - 40, height - 40);
+
+    // 2. Top Header Banner
+    const headerGrad = ctx.createLinearGradient(20, 20, width - 20, 200);
+    headerGrad.addColorStop(0, "#701a75");
+    headerGrad.addColorStop(0.5, "#4c1d95");
+    headerGrad.addColorStop(1, "#1e1b4b");
+    ctx.fillStyle = headerGrad;
+    ctx.fillRect(23, 23, width - 46, 175);
+
+    ctx.fillStyle = "#f5d0fe";
+    ctx.font = "bold 20px sans-serif";
+    ctx.textAlign = "center";
+    ctx.fillText("CLUB HEC ENTREPRENEURS • IHEC CARTHAGE", width / 2, 78);
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "900 40px sans-serif";
+    ctx.fillText("OUVERTURE DE LA SME 2026", width / 2, 132);
+
+    ctx.fillStyle = "#e9d5ff";
+    ctx.font = "600 18px sans-serif";
+    ctx.fillText("BADGE D'ACCÈS OFFICIEL", width / 2, 168);
+
+    // 3. Prominent Seat Box
+    ctx.fillStyle = "#261247";
+    ctx.strokeStyle = "#e879f9";
+    ctx.lineWidth = 3;
+    ctx.beginPath();
+    ctx.roundRect(70, 230, width - 140, 150, 24);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#f0abfc";
+    ctx.font = "bold 20px sans-serif";
+    ctx.fillText("🪑 VOTRE PLACE RÉSERVÉE", width / 2, 275);
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "900 58px monospace";
+    ctx.fillText(seatCode, width / 2, 348);
+
+    // 4. White Frame + QR Code
+    const qrBoxSize = 350;
+    const qrBoxX = (width - qrBoxSize) / 2;
+    const qrBoxY = 415;
+
+    ctx.fillStyle = "#ffffff";
+    ctx.beginPath();
+    ctx.roundRect(qrBoxX, qrBoxY, qrBoxSize, qrBoxSize, 28);
+    ctx.fill();
+
+    ctx.drawImage(qrCanvas, qrBoxX + 25, qrBoxY + 25, qrBoxSize - 50, qrBoxSize - 50);
+
+    // 5. Reference ID
+    ctx.fillStyle = "#38bdf8";
+    ctx.font = "bold 24px monospace";
+    ctx.fillText(id, width / 2, 810);
+
+    // 6. Participant Details Box
+    ctx.fillStyle = "#120924";
+    ctx.strokeStyle = "rgba(255,255,255,0.15)";
+    ctx.lineWidth = 2;
+    ctx.beginPath();
+    ctx.roundRect(70, 840, width - 140, 195, 20);
+    ctx.fill();
+    ctx.stroke();
+
+    ctx.fillStyle = "#ffffff";
+    ctx.font = "bold 28px sans-serif";
+    ctx.fillText(name, width / 2, 888);
+
+    const statusLine = statusDetail
+      ? `${status} (${statusDetail}) • ${institution}`
+      : `${status} • ${institution}`;
+    ctx.fillStyle = "#d8b4fe";
+    ctx.font = "600 20px sans-serif";
+    ctx.fillText(statusLine, width / 2, 926);
+
+    ctx.fillStyle = "#f0abfc";
+    ctx.font = "bold 21px sans-serif";
+    ctx.fillText("Mercredi 18 Novembre 2026 • Check-in : 08h30 | Début : 09h00", width / 2, 968);
+
+    ctx.fillStyle = "#cbd5e1";
+    ctx.font = "600 19px sans-serif";
+    ctx.fillText("📍 La Chapelle — IHEC Carthage", width / 2, 1005);
+
+    // 7. Footer
+    ctx.fillStyle = "#94a3b8";
+    ctx.font = "500 16px sans-serif";
+    ctx.fillText(
+      "Présentez ce badge (QR Code + Place) à l'entrée dès 08h30.",
+      width / 2,
+      1072
+    );
+
+    const pngUrl = badgeCanvas.toDataURL("image/png");
+    const downloadLink = document.createElement("a");
+    downloadLink.href = pngUrl;
+    downloadLink.download = `Badge-SME-2026-${seatCode.replace(/\s+/g, "-")}-${name.replace(/\s+/g, "_")}.png`;
+    document.body.appendChild(downloadLink);
+    downloadLink.click();
+    document.body.removeChild(downloadLink);
+  }, [id, institution, name, seatCode, status, statusDetail]);
+
+  useEffect(() => {
+    if (autoDownload && !hasAutoDownloadedRef.current) {
+      hasAutoDownloadedRef.current = true;
+      const timer = setTimeout(() => {
+        downloadBadge();
+      }, 450);
+      return () => clearTimeout(timer);
     }
-  };
+  }, [autoDownload, downloadBadge]);
 
   return (
     <div className="max-w-xl mx-auto">
@@ -138,16 +267,23 @@ function OuvertureSmeTicketContent() {
                 <div className="flex items-center justify-center sm:justify-start gap-2">
                   <User className="w-3.5 h-3.5 text-fuchsia-400" />
                   <span>
-                    <strong>{name}</strong> ({status})
+                    <strong>{name}</strong> ({status}
+                    {statusDetail ? ` — ${statusDetail}` : ""})
                   </span>
                 </div>
+                {phone && (
+                  <div className="flex items-center justify-center sm:justify-start gap-2">
+                    <Phone className="w-3.5 h-3.5 text-fuchsia-400" />
+                    <span>{phone}</span>
+                  </div>
+                )}
                 <div className="flex items-center justify-center sm:justify-start gap-2">
                   <Building2 className="w-3.5 h-3.5 text-fuchsia-400" />
                   <span>{institution}</span>
                 </div>
                 <div className="flex items-center justify-center sm:justify-start gap-2">
                   <Calendar className="w-3.5 h-3.5 text-fuchsia-400" />
-                  <span>Mercredi 18 Novembre 2026 • 09h30</span>
+                  <span>Mercredi 18 Novembre 2026 • Check-in : 08h30 | Début : 09h00</span>
                 </div>
                 <div className="flex items-center justify-center sm:justify-start gap-2">
                   <MapPin className="w-3.5 h-3.5 text-fuchsia-400" />
@@ -161,11 +297,11 @@ function OuvertureSmeTicketContent() {
           <div className="flex flex-col sm:flex-row items-center justify-between gap-3 pt-2">
             <button
               type="button"
-              onClick={downloadPassQr}
+              onClick={downloadBadge}
               className="w-full sm:w-auto flex-1 py-3.5 px-6 rounded-xl bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-fuchsia-600/30 transition cursor-pointer"
             >
               <Download className="w-4 h-4" />
-              <span>Télécharger mon QR Code (.PNG)</span>
+              <span>Télécharger mon Badge (QR + Place {seatCode})</span>
             </button>
 
             <Link

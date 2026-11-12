@@ -8,6 +8,7 @@ import {
   Sparkles,
   User,
   Mail,
+  Phone,
   Briefcase,
   GraduationCap,
   Building2,
@@ -33,7 +34,9 @@ export default function OuvertureSmeRegistrationPage() {
   const [formData, setFormData] = useState({
     fullName: "",
     email: "",
+    phone: "",
     status: "Étudiant" as "Étudiant" | "Professionnel",
+    statusDetail: "", // Classe (si Étudiant) ou Poste/Travail (si Professionnel)
     institution: "IHEC Carthage",
     institutionCustom: "",
     oneWord: "",
@@ -85,6 +88,7 @@ export default function OuvertureSmeRegistrationPage() {
     setFormData((prev) => ({
       ...prev,
       status: newStatus,
+      statusDetail: "",
       seatId: stillValid ? prev.seatId : "",
     }));
   };
@@ -105,13 +109,22 @@ export default function OuvertureSmeRegistrationPage() {
     e.preventDefault();
     setErrorMessage(null);
 
-    if (!formData.fullName.trim() || !formData.email.trim()) {
-      setErrorMessage("Veuillez renseigner votre nom complet et votre adresse e-mail.");
+    if (!formData.fullName.trim() || !formData.email.trim() || !formData.phone.trim()) {
+      setErrorMessage("Veuillez renseigner votre nom complet, votre e-mail et votre numéro de téléphone.");
+      return;
+    }
+
+    if (!formData.statusDetail.trim()) {
+      setErrorMessage(
+        formData.status === "Étudiant"
+          ? "Veuillez préciser votre classe / niveau d'études."
+          : "Veuillez préciser votre profession / poste actuel."
+      );
       return;
     }
 
     if (formData.institution === "Autre" && !formData.institutionCustom.trim()) {
-      setErrorMessage("Veuillez préciser le nom de votre établissement ou organisme.");
+      setErrorMessage("Veuillez préciser le nom de votre établissement ou entreprise.");
       return;
     }
 
@@ -153,7 +166,9 @@ export default function OuvertureSmeRegistrationPage() {
         id: data.registrationId,
         name: formData.fullName.trim(),
         email: formData.email.trim(),
+        phone: formData.phone.trim(),
         status: formData.status,
+        statusDetail: formData.statusDetail.trim(),
         institution: resolvedInstitution,
         seatId: formData.seatId,
         seatCode: data.seatCode,
@@ -280,14 +295,14 @@ export default function OuvertureSmeRegistrationPage() {
             « La Grande Mosaïque de l&apos;Entrepreneuriat — L&apos;art de bâtir l&apos;impossible »
           </p>
 
-          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-6 mt-6 text-xs sm:text-sm text-purple-200/90">
+          <div className="flex flex-wrap items-center justify-center gap-3 sm:gap-5 mt-6 text-xs sm:text-sm text-purple-200/90">
             <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3.5 py-2 rounded-xl">
               <Calendar className="w-4 h-4 text-fuchsia-400" />
               <span>Mercredi 18 Novembre 2026</span>
             </div>
             <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3.5 py-2 rounded-xl">
               <Clock className="w-4 h-4 text-fuchsia-400" />
-              <span>09h30 – 12h00</span>
+              <span>Check-in : 08h30 • Début : 09h00</span>
             </div>
             <div className="flex items-center gap-2 bg-white/5 border border-white/10 px-3.5 py-2 rounded-xl">
               <MapPin className="w-4 h-4 text-fuchsia-400" />
@@ -354,6 +369,26 @@ export default function OuvertureSmeRegistrationPage() {
                 </div>
               </div>
 
+              {/* Numéro de téléphone */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-purple-200 mb-2">
+                  Numéro de Téléphone <span className="text-fuchsia-400">*</span>
+                </label>
+                <div className="relative">
+                  <Phone className="w-4 h-4 text-purple-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  <input
+                    type="tel"
+                    required
+                    value={formData.phone}
+                    onChange={(e) =>
+                      setFormData((prev) => ({ ...prev, phone: e.target.value }))
+                    }
+                    placeholder="Ex : +216 20 000 000"
+                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/[0.04] border border-white/15 text-white text-sm focus:outline-none focus:border-fuchsia-500 transition"
+                  />
+                </div>
+              </div>
+
               {/* Statut : Étudiant ou Professionnel */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-purple-200 mb-2">
@@ -388,10 +423,44 @@ export default function OuvertureSmeRegistrationPage() {
                 </div>
               </div>
 
+              {/* Classe (si Étudiant) ou Travail/Poste (si Professionnel) */}
+              <div>
+                <label className="block text-xs font-bold uppercase tracking-wider text-purple-200 mb-2">
+                  {formData.status === "Étudiant"
+                    ? "Quelle est votre classe / filière ?"
+                    : "Quelle est votre profession / poste ?"}{" "}
+                  <span className="text-fuchsia-400">*</span>
+                </label>
+                <div className="relative">
+                  {formData.status === "Étudiant" ? (
+                    <GraduationCap className="w-4 h-4 text-purple-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  ) : (
+                    <Briefcase className="w-4 h-4 text-purple-400 absolute left-3.5 top-1/2 -translate-y-1/2" />
+                  )}
+                  <input
+                    type="text"
+                    required
+                    value={formData.statusDetail}
+                    onChange={(e) =>
+                      setFormData((prev) => ({
+                        ...prev,
+                        statusDetail: e.target.value,
+                      }))
+                    }
+                    placeholder={
+                      formData.status === "Étudiant"
+                        ? "Ex : 2ème année Sciences de Gestion, M1 Entrepreneuriat..."
+                        : "Ex : Entrepreneur, Consultant, Directeur Marketing..."
+                    }
+                    className="w-full pl-10 pr-4 py-3 rounded-xl bg-white/[0.04] border border-white/15 text-white text-sm focus:outline-none focus:border-fuchsia-500 transition"
+                  />
+                </div>
+              </div>
+
               {/* Établissement : IHEC Carthage ou Autre */}
               <div>
                 <label className="block text-xs font-bold uppercase tracking-wider text-purple-200 mb-2">
-                  Établissement / Organisme <span className="text-fuchsia-400">*</span>
+                  Établissement / Entreprise <span className="text-fuchsia-400">*</span>
                 </label>
                 <div className="grid grid-cols-2 gap-3">
                   <button
