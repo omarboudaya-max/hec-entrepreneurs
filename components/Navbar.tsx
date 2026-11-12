@@ -10,7 +10,7 @@ import ThemeToggle from "@/components/ThemeToggle";
 
 const links = [
     { href: "/", label: "Accueil" },
-    { href: "/evenements/doctoriales", label: "Doctoriales IA" },
+    { href: "/evenements/ouverture-sme", label: "Ouverture SME" },
     { href: "/about", label: "À Propos" },
     { href: "/entrepreuneuriat", label: "Entrepreuneuriat" },
     { href: "/store", label: "IHEC Store" },

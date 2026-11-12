@@ -3,7 +3,7 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 
 export const dynamic = "force-dynamic";
 
-export interface DoctorialesSessionDef {
+interface DoctorialesSessionDef {
   id: string;
   day: string;
   slot: string;
@@ -12,7 +12,7 @@ export interface DoctorialesSessionDef {
   keywords: string[];
 }
 
-export const DOCTORIALES_SESSIONS: DoctorialesSessionDef[] = [
+const DOCTORIALES_SESSIONS: DoctorialesSessionDef[] = [
   {
     id: "jeudi_matin_rtm",
     day: "Jeudi 5 Nov",
@@ -110,7 +110,7 @@ function normalizeText(str: string): string {
     .replace(/[\u0300-\u036f]/g, "");
 }
 
-export function resolveParticipantSessions(sessionChoice: string): string[] {
+function resolveParticipantSessions(sessionChoice: string): string[] {
   const norm = normalizeText(sessionChoice);
   const matched: string[] = [];
 
@@ -123,7 +123,7 @@ export function resolveParticipantSessions(sessionChoice: string): string[] {
   return matched;
 }
 
-export function parseCheckIns(rawField?: string | null): Record<string, { at: string; by: string }> {
+function parseCheckIns(rawField?: string | null): Record<string, { at: string; by: string }> {
   if (!rawField || typeof rawField !== "string") return {};
   const trimmed = rawField.trim();
   if (!trimmed.startsWith("{")) return {};
@@ -138,7 +138,7 @@ export function parseCheckIns(rawField?: string | null): Record<string, { at: st
   return {};
 }
 
-export function extractDocCode(rawInput: string): string {
+function extractDocCode(rawInput: string): string {
   const text = (rawInput || "").trim();
   // Match DOC-XXXX-XXXX pattern anywhere inside QR payload or URL
   const docMatch = text.match(/DOC-[A-Z0-9]+-[A-Z0-9]+/i);
@@ -209,6 +209,7 @@ export async function GET(req: NextRequest) {
     const { data: rows, error } = await supabaseAdmin
       .from("doctoriales_registrations")
       .select("*")
+      .neq("session_choice", "OUVERTURE_SME_2026")
       .order("created_at", { ascending: false });
 
     if (error) {

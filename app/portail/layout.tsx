@@ -68,8 +68,15 @@ function PortailShell({ children }: { children: React.ReactNode }) {
       router.push("/portail/login");
       return;
     }
-    if (!loading && user && isGuest && pathname !== "/portail/doctoriales" && pathname !== "/portail/login") {
-      router.replace("/portail/doctoriales");
+    if (
+      !loading &&
+      user &&
+      isGuest &&
+      pathname !== "/portail/doctoriales" &&
+      pathname !== "/portail/ouverture-sme" &&
+      pathname !== "/portail/login"
+    ) {
+      router.replace("/portail/ouverture-sme");
     }
   }, [loading, user, isGuest, pathname, router]);
 
@@ -123,6 +130,12 @@ function PortailShell({ children }: { children: React.ReactNode }) {
       href: "/portail/profil",
       icon: User,
       show: !isGuest,
+    },
+    {
+      label: "Ouverture SME (Scan & Places)",
+      href: "/portail/ouverture-sme",
+      icon: Sparkles,
+      show: canScanDoctoriales, // Développeur (Omar) & Guest Scanner
     },
     {
       label: "HEC Doctoriales (Scan QR)",
