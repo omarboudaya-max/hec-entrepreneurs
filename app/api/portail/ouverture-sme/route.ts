@@ -108,7 +108,7 @@ export async function GET(req: NextRequest) {
         status: r.status,
         status_detail: r.preferred_language && r.preferred_language !== "Français" ? r.preferred_language : "",
         institution: r.institution,
-        seat_id: r.education_level || "",
+        seat_id: (r.education_level || "").replace(/^MG-R(\d+)-C5$/, "MG-R$1-C4"),
         seat_label: r.education_level_custom || "",
         seat_code: r.specialty_custom || "",
         one_word: r.specialty || "",
@@ -198,7 +198,7 @@ export async function POST(req: NextRequest) {
           ? matchedRow.preferred_language
           : "",
       institution: matchedRow.institution,
-      seat_id: matchedRow.education_level || "",
+      seat_id: (matchedRow.education_level || "").replace(/^MG-R(\d+)-C5$/, "MG-R$1-C4"),
       seat_label: matchedRow.education_level_custom || "",
       seat_code: matchedRow.specialty_custom || "",
       one_word: matchedRow.specialty || "",

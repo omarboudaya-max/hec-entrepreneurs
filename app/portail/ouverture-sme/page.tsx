@@ -369,7 +369,7 @@ export default function PortailOuvertureSmeScannerPage() {
   const topRightRows = [1, 2, 3, 4].map((c) =>
     CHAPELLE_SEATS.filter((s) => s.wing === "top-right" && s.col === c)
   );
-  const middleRows = [1, 2, 3, 4, 5, 6, 7, 8].map((r) => ({
+  const middleRows = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((r) => ({
     row: r,
     left: CHAPELLE_SEATS.filter((s) => s.wing === "middle-left" && s.row === r),
     right: CHAPELLE_SEATS.filter((s) => s.wing === "middle-right" && s.row === r),
@@ -417,7 +417,7 @@ export default function PortailOuvertureSmeScannerPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         <div className="p-4 rounded-2xl bg-[#121217] border border-white/10">
           <div className="text-xs text-gray-400">Chaises Réservées</div>
-          <div className="text-2xl font-black text-white mt-1">{totalCount} / 87</div>
+          <div className="text-2xl font-black text-white mt-1">{totalCount} / 104</div>
         </div>
         <div className="p-4 rounded-2xl bg-[#121217] border border-emerald-500/30">
           <div className="text-xs text-emerald-400">Présents (Scannés)</div>

@@ -32,6 +32,7 @@ export async function GET() {
         (rows || [])
           .map((r) => r.education_level)
           .filter((v): v is string => Boolean(v))
+          .map((id) => id.replace(/^MG-R(\d+)-C5$/, "MG-R$1-C4"))
       )
     );
 
@@ -104,7 +105,12 @@ export async function POST(req: NextRequest) {
     }
 
     const isPro = String(status).toLowerCase().includes("professionnel");
-    if ((isPro && seat.category !== "professional") || (!isPro && seat.category !== "student")) {
+    const isAllowedForStatus =
+      seat.category === "both" ||
+      (isPro && seat.category === "professional") ||
+      (!isPro && seat.category === "student");
+
+    if (!isAllowedForStatus) {
       return NextResponse.json(
         {
           success: false,

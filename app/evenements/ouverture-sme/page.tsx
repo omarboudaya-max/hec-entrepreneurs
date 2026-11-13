@@ -74,6 +74,7 @@ export default function OuvertureSmeRegistrationPage() {
 
   const isSeatSelectable = (seat: SmeSeat, currentStatus: "Étudiant" | "Professionnel") => {
     if (seat.preReserved || bookedSeatIds.has(seat.id)) return false;
+    if (seat.category === "both") return true;
     if (currentStatus === "Professionnel") {
       return seat.category === "professional";
     }
@@ -230,7 +231,7 @@ export default function OuvertureSmeRegistrationPage() {
   const topRightCols = [1, 2, 3, 4].map((col) =>
     CHAPELLE_SEATS.filter((s) => s.wing === "top-right" && s.col === col)
   );
-  const middleRows = [1, 2, 3, 4, 5, 6, 7, 8].map((row) => ({
+  const middleRows = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((row) => ({
     row,
     left: CHAPELLE_SEATS.filter((s) => s.wing === "middle-left" && s.row === row),
     right: CHAPELLE_SEATS.filter((s) => s.wing === "middle-right" && s.row === row),
