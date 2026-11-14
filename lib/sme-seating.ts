@@ -78,11 +78,11 @@ export function generateChapelleSeats(): SmeSeat[] {
     }
   }
 
-  // 2. MIDDLE LEFT (À gauche de la Piste) : 4 colonnes x 10 lignes (Ligne 0 réservée + Lignes 1 à 9)
+  // 2. MIDDLE LEFT (À gauche de la Piste) : 4 colonnes x 9 lignes (Ligne 0 réservée + Lignes 1 à 8)
   // Ligne 0 : "<MOT> 0" — réservée
   // Lignes 1 & 2 : choisissables par les Professionnels (toutes disponibles)
-  // Lignes 3 à 9 : choisissables par les Étudiants
-  for (let row = 0; row <= 9; row++) {
+  // Lignes 3 à 8 : choisissables par les Étudiants
+  for (let row = 0; row <= 8; row++) {
     const isRowZero = row === 0;
     const isProRow = row === 1 || row === 2;
     for (let col = 1; col <= 4; col++) {
@@ -105,11 +105,11 @@ export function generateChapelleSeats(): SmeSeat[] {
     }
   }
 
-  // 3. MIDDLE RIGHT (À droite de la Piste) : 4 colonnes x 10 lignes (Ligne 0 réservée + Lignes 1 à 9)
+  // 3. MIDDLE RIGHT (À droite de la Piste) : 4 colonnes x 9 lignes (Ligne 0 réservée + Lignes 1 à 8)
   // Ligne 0 : "<MOT> 0" — réservée
   // Lignes 1 & 2 : choisissables par les Professionnels (toutes disponibles)
-  // Lignes 3 à 9 : choisissables par les Étudiants
-  for (let row = 0; row <= 9; row++) {
+  // Lignes 3 à 8 : choisissables par les Étudiants
+  for (let row = 0; row <= 8; row++) {
     const isRowZero = row === 0;
     const isProRow = row === 1 || row === 2;
     for (let col = 1; col <= 4; col++) {

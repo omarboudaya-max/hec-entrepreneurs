@@ -231,7 +231,7 @@ export default function OuvertureSmeRegistrationPage() {
   const topRightCols = [1, 2, 3, 4].map((col) =>
     CHAPELLE_SEATS.filter((s) => s.wing === "top-right" && s.col === col)
   );
-  const middleRows = [0, 1, 2, 3, 4, 5, 6, 7, 8, 9].map((row) => ({
+  const middleRows = [0, 1, 2, 3, 4, 5, 6, 7, 8].map((row) => ({
     row,
     left: CHAPELLE_SEATS.filter((s) => s.wing === "middle-left" && s.row === row),
     right: CHAPELLE_SEATS.filter((s) => s.wing === "middle-right" && s.row === row),
