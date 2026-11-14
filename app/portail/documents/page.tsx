@@ -21,13 +21,21 @@ const DEFAULT_DOCS: ClubDocument[] = [
   {
     id: "2",
     doc_key: "protocole",
-    title: "Protocole Officiel du Club",
+    title: "Protocole Interne du Club",
     file_url: "",
-    description: "Directives opérationnelles, organisation logistique des événements et relations extérieures.",
+    description: "Directives opérationnelles, tenue, ponctualité et discipline interne des membres.",
     updated_at: new Date().toISOString(),
   },
   {
     id: "3",
+    doc_key: "protocole_externe",
+    title: "Protocole Externe du Club",
+    file_url: "https://wefuloohzyjgrcecixra.supabase.co/storage/v1/object/public/portail-documents/protocole-externe-hec-entrepreneurs.pdf",
+    description: "Standards d'accueil, de représentation et de relations avec les invités, partenaires et intervenants.",
+    updated_at: new Date().toISOString(),
+  },
+  {
+    id: "4",
     doc_key: "book",
     title: "Book de Bienvenue",
     file_url: "",
@@ -39,7 +47,7 @@ const DEFAULT_DOCS: ClubDocument[] = [
 export default function DocumentsPage() {
   const { isBureau } = usePortailAuth();
   const [documents, setDocuments] = useState<ClubDocument[]>(DEFAULT_DOCS);
-  const [selectedKey, setSelectedKey] = useState<"reglement" | "protocole" | "book">("reglement");
+  const [selectedKey, setSelectedKey] = useState<"reglement" | "protocole" | "protocole_externe" | "book">("reglement");
   const [loading, setLoading] = useState(true);
 
   // Upload modal / state
@@ -142,6 +150,8 @@ export default function DocumentsPage() {
         return <ScrollText size={20} className="text-purple-400" />;
       case "protocole":
         return <Award size={20} className="text-indigo-400" />;
+      case "protocole_externe":
+        return <ShieldCheck size={20} className="text-fuchsia-400" />;
       default:
         return <BookOpen size={20} className="text-pink-400" />;
     }
@@ -173,7 +183,7 @@ export default function DocumentsPage() {
       )}
 
       {/* Tabs */}
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3 mb-8">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-3 mb-8">
         {documents.map((doc) => {
           const isSelected = doc.doc_key === selectedKey;
           return (

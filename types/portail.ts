@@ -50,7 +50,7 @@ export interface Announcement {
 
 export interface ClubDocument {
   id: string;
-  doc_key: 'reglement' | 'protocole' | 'book';
+  doc_key: 'reglement' | 'protocole' | 'protocole_externe' | 'book';
   title: string;
   file_url: string;
   description?: string | null;
