@@ -6,7 +6,7 @@ import nodemailer from "nodemailer";
 export const dynamic = "force-dynamic";
 
 const OUVERTURE_SME_SESSION_KEY = "OUVERTURE_SME_2026";
-const EXTRA_UNSEATED_CAPACITY = 40;
+const EXTRA_UNSEATED_CAPACITY = 50;
 
 const transporter = nodemailer.createTransport({
   service: "gmail",

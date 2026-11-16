@@ -417,7 +417,7 @@ export default function PortailOuvertureSmeScannerPage() {
       <div className="grid grid-cols-2 sm:grid-cols-4 gap-3 sm:gap-4">
         <div className="p-4 rounded-2xl bg-[#121217] border border-white/10">
           <div className="text-xs text-gray-400">Inscrits Confirmés</div>
-          <div className="text-2xl font-black text-white mt-1">{totalCount} / 136</div>
+          <div className="text-2xl font-black text-white mt-1">{totalCount} / 146</div>
         </div>
         <div className="p-4 rounded-2xl bg-[#121217] border border-emerald-500/30">
           <div className="text-xs text-emerald-400">Présents (Scannés)</div>
