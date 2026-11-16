@@ -27,7 +27,8 @@ function OuvertureSmeTicketContent() {
   const status = searchParams.get("status") || "Étudiant";
   const statusDetail = searchParams.get("statusDetail") || "";
   const institution = searchParams.get("institution") || "IHEC Carthage";
-  const seatCode = searchParams.get("seatCode") || "IMPACT 1";
+  const seatCode = searchParams.get("seatCode") || "PASS OFFICIEL";
+  const hasSpecificChair = seatCode !== "PASS OFFICIEL";
   const autoDownload = searchParams.get("download") === "1";
 
   const qrValue = `HEC-SME-2026|ID:${id}|SEAT:${seatCode}|NAME:${name}`;
@@ -80,7 +81,7 @@ function OuvertureSmeTicketContent() {
     ctx.font = "600 18px sans-serif";
     ctx.fillText("BADGE D'ACCÈS OFFICIEL", width / 2, 168);
 
-    // 3. Prominent Seat Box
+    // 3. Prominent Pass / Seat Box
     ctx.fillStyle = "#261247";
     ctx.strokeStyle = "#e879f9";
     ctx.lineWidth = 3;
@@ -91,11 +92,19 @@ function OuvertureSmeTicketContent() {
 
     ctx.fillStyle = "#f0abfc";
     ctx.font = "bold 20px sans-serif";
-    ctx.fillText("🪑 VOTRE PLACE RÉSERVÉE", width / 2, 275);
+    ctx.fillText(
+      hasSpecificChair ? "🪑 VOTRE PLACE RÉSERVÉE" : "🎟️ STATUT DE L'INSCRIPTION",
+      width / 2,
+      275
+    );
 
     ctx.fillStyle = "#ffffff";
-    ctx.font = "900 58px monospace";
-    ctx.fillText(seatCode, width / 2, 348);
+    ctx.font = hasSpecificChair ? "900 58px monospace" : "900 42px sans-serif";
+    ctx.fillText(
+      hasSpecificChair ? seatCode : "ACCÈS OFFICIEL CONFIRMÉ",
+      width / 2,
+      344
+    );
 
     // 4. White Frame + QR Code
     const qrBoxSize = 350;
@@ -146,7 +155,7 @@ function OuvertureSmeTicketContent() {
     ctx.fillStyle = "#94a3b8";
     ctx.font = "500 16px sans-serif";
     ctx.fillText(
-      "Présentez ce badge (QR Code + Place) à l'entrée dès 08h30.",
+      "Présentez ce badge officiel à l'entrée de La Chapelle dès 08h30.",
       width / 2,
       1072
     );
@@ -154,11 +163,11 @@ function OuvertureSmeTicketContent() {
     const pngUrl = badgeCanvas.toDataURL("image/png");
     const downloadLink = document.createElement("a");
     downloadLink.href = pngUrl;
-    downloadLink.download = `Badge-SME-2026-${seatCode.replace(/\s+/g, "-")}-${name.replace(/\s+/g, "_")}.png`;
+    downloadLink.download = `Badge-SME-2026-${name.replace(/\s+/g, "_")}.png`;
     document.body.appendChild(downloadLink);
     downloadLink.click();
     document.body.removeChild(downloadLink);
-  }, [id, institution, name, seatCode, status, statusDetail]);
+  }, [hasSpecificChair, id, institution, name, seatCode, status, statusDetail]);
 
   useEffect(() => {
     if (autoDownload && !hasAutoDownloadedRef.current) {
@@ -183,14 +192,23 @@ function OuvertureSmeTicketContent() {
         </div>
         <div className="inline-flex items-center gap-1.5 px-3.5 py-1 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-300 text-xs font-bold mb-2">
           <Sparkles className="w-3.5 h-3.5 text-fuchsia-400" />
-          Place & Billet Confirmés
+          Inscription & Billet Confirmés
         </div>
         <h1 className="text-3xl sm:text-4xl font-black text-white tracking-tight">
           Merci {name} !
         </h1>
         <p className="text-purple-200/80 text-sm sm:text-base mt-2 max-w-lg mx-auto">
-          Votre place <strong className="text-fuchsia-300 font-mono">{seatCode}</strong> est réservée pour l&apos;
-          <strong>Ouverture de la SME 2026</strong>. Un e-mail de confirmation contenant votre billet vous a été envoyé{email ? ` à ${email}` : ""}.
+          {hasSpecificChair ? (
+            <>
+              Votre place <strong className="text-fuchsia-300 font-mono">{seatCode}</strong> est réservée pour l&apos;
+              <strong>Ouverture de la SME 2026</strong>.
+            </>
+          ) : (
+            <>
+              Votre inscription pour l&apos;<strong>Ouverture de la SME 2026</strong> est confirmée.
+            </>
+          )}{" "}
+          Un e-mail de confirmation contenant votre billet vous a été envoyé{email ? ` à ${email}` : ""}.
         </p>
       </motion.div>
 
@@ -228,20 +246,22 @@ function OuvertureSmeTicketContent() {
 
         {/* Body */}
         <div className="p-6 sm:p-8 space-y-6">
-          {/* Chair Number Highlight */}
-          <div className="p-5 rounded-2xl bg-fuchsia-500/10 border border-fuchsia-500/30 flex items-center justify-center gap-4 text-center">
-            <div className="w-12 h-12 rounded-xl bg-fuchsia-500/20 border border-fuchsia-400/40 flex items-center justify-center text-fuchsia-300 shrink-0">
-              <Armchair className="w-6 h-6" />
-            </div>
-            <div className="text-left">
-              <div className="text-[10px] font-bold uppercase tracking-widest text-fuchsia-300">
-                Votre Place Réservée
+          {/* Chair Number Highlight (only when a specific chair was chosen) */}
+          {hasSpecificChair && (
+            <div className="p-5 rounded-2xl bg-fuchsia-500/10 border border-fuchsia-500/30 flex items-center justify-center gap-4 text-center">
+              <div className="w-12 h-12 rounded-xl bg-fuchsia-500/20 border border-fuchsia-400/40 flex items-center justify-center text-fuchsia-300 shrink-0">
+                <Armchair className="w-6 h-6" />
               </div>
-              <div className="text-2xl sm:text-3xl font-black font-mono text-white tracking-wider">
-                {seatCode}
+              <div className="text-left">
+                <div className="text-[10px] font-bold uppercase tracking-widest text-fuchsia-300">
+                  Votre Place Réservée
+                </div>
+                <div className="text-2xl sm:text-3xl font-black font-mono text-white tracking-wider">
+                  {seatCode}
+                </div>
               </div>
             </div>
-          </div>
+          )}
 
           {/* QR Code & Details */}
           <div className="flex flex-col sm:flex-row items-center gap-6 bg-[#080411] p-5 rounded-2xl border border-white/10">
@@ -301,7 +321,11 @@ function OuvertureSmeTicketContent() {
               className="w-full sm:w-auto flex-1 py-3.5 px-6 rounded-xl bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-bold text-xs sm:text-sm flex items-center justify-center gap-2 shadow-lg shadow-fuchsia-600/30 transition cursor-pointer"
             >
               <Download className="w-4 h-4" />
-              <span>Télécharger mon Badge (QR + Place {seatCode})</span>
+              <span>
+                {hasSpecificChair
+                  ? `Télécharger mon Badge (QR + Place ${seatCode})`
+                  : "Télécharger mon Badge Officiel (.PNG)"}
+              </span>
             </button>
 
             <Link
