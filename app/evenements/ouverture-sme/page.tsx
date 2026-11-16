@@ -44,6 +44,7 @@ export default function OuvertureSmeRegistrationPage() {
   });
 
   const [bookedSeatIds, setBookedSeatIds] = useState<Set<string>>(new Set());
+  const [isEventFull, setIsEventFull] = useState(false);
   const [loadingSeats, setLoadingSeats] = useState(true);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [errorMessage, setErrorMessage] = useState<string | null>(null);
@@ -55,6 +56,9 @@ export default function OuvertureSmeRegistrationPage() {
       const data = await res.json();
       if (Array.isArray(data.bookedSeatIds)) {
         setBookedSeatIds(new Set(data.bookedSeatIds));
+      }
+      if (typeof data.isFull === "boolean") {
+        setIsEventFull(data.isFull);
       }
     } catch (err) {
       console.warn("Erreur lors du chargement des places:", err);
@@ -134,11 +138,6 @@ export default function OuvertureSmeRegistrationPage() {
       return;
     }
 
-    if (!formData.seatId) {
-      setErrorMessage("Veuillez sélectionner une place disponible sur le plan.");
-      return;
-    }
-
     setIsSubmitting(true);
 
     try {
@@ -151,9 +150,8 @@ export default function OuvertureSmeRegistrationPage() {
       const data = await response.json();
 
       if (!response.ok || !data.success) {
-        if (data.seatTaken) {
-          await fetchBookedSeats();
-          setFormData((prev) => ({ ...prev, seatId: "" }));
+        if (data.isFull) {
+          setIsEventFull(true);
         }
         throw new Error(data.message || "Une erreur est survenue lors de l'inscription.");
       }
@@ -171,8 +169,7 @@ export default function OuvertureSmeRegistrationPage() {
         status: formData.status,
         statusDetail: formData.statusDetail.trim(),
         institution: resolvedInstitution,
-        seatId: formData.seatId,
-        seatCode: data.seatCode,
+        seatCode: data.seatCode || "PASS OFFICIEL",
       });
 
       router.push(`/evenements/ouverture-sme/success?${queryParams.toString()}`);
@@ -317,14 +314,14 @@ export default function OuvertureSmeRegistrationPage() {
           <div className="rounded-3xl bg-[#110a22]/90 border border-fuchsia-500/25 p-5 sm:p-8 shadow-2xl">
             <div className="flex items-center gap-3 mb-6 pb-4 border-b border-white/10">
               <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-fuchsia-600 to-purple-700 flex items-center justify-center text-white font-black text-sm shadow-lg shadow-fuchsia-600/25">
-                1
+                <Sparkles className="w-4 h-4" />
               </div>
               <div>
                 <h2 className="text-lg sm:text-xl font-bold text-white">
-                  Vos Informations
+                  Formulaire d&apos;Inscription
                 </h2>
                 <p className="text-xs text-purple-200/70">
-                  Complétez vos coordonnées avant de choisir votre place
+                  Complétez vos coordonnées pour recevoir votre Badge d&apos;Accès QR Code
                 </p>
               </div>
             </div>
@@ -541,152 +538,6 @@ export default function OuvertureSmeRegistrationPage() {
             </div>
           </div>
 
-          {/* STEP 2 : SYMMETRIC CINEMA SEAT SELECTION */}
-          <div className="rounded-3xl bg-[#0b0616] border-2 border-fuchsia-500/30 p-4 sm:p-8 shadow-2xl">
-            <div className="flex items-center justify-between gap-4 mb-6 pb-4 border-b border-white/10">
-              <div className="flex items-center gap-3">
-                <div className="w-9 h-9 rounded-xl bg-gradient-to-br from-fuchsia-600 to-purple-700 flex items-center justify-center text-white font-black text-sm shadow-lg shadow-fuchsia-600/25 shrink-0">
-                  2
-                </div>
-                <div>
-                  <h2 className="text-lg sm:text-xl font-bold text-white flex items-center gap-2">
-                    <Armchair className="w-5 h-5 text-fuchsia-400" />
-                    <span>Choisissez votre Place</span>
-                  </h2>
-                  <p className="text-xs text-purple-200/70">
-                    Cliquez sur une chaise disponible pour sélectionner votre place
-                  </p>
-                </div>
-              </div>
-
-              <button
-                type="button"
-                onClick={fetchBookedSeats}
-                className="inline-flex items-center gap-1.5 px-3 py-1.5 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs text-purple-200 transition"
-              >
-                <RefreshCw className={`w-3.5 h-3.5 ${loadingSeats ? "animate-spin" : ""}`} />
-                <span className="hidden sm:inline">Actualiser</span>
-              </button>
-            </div>
-
-            {/* Minimal 3-state Legend: Disponible (Blanc cassé), Réservé (Rouge), Sélectionné */}
-            <div className="flex items-center justify-center gap-6 sm:gap-10 mb-6 py-3 px-4 rounded-2xl bg-black/50 border border-white/10 text-xs">
-              <div className="flex items-center gap-2">
-                <span className="w-4 h-4 rounded-t-md rounded-b-[2px] bg-[#f5f0e6] border border-[#d6cfc2] inline-block" />
-                <span className="text-slate-200 font-medium">Disponible</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-4 h-4 rounded-t-md rounded-b-[2px] bg-red-600/85 border border-red-400/50 inline-block" />
-                <span className="text-red-300 font-medium">Réservé</span>
-              </div>
-              <div className="flex items-center gap-2">
-                <span className="w-4 h-4 rounded-t-md rounded-b-[2px] bg-fuchsia-500 border-2 border-white inline-block" />
-                <span className="text-fuchsia-300 font-semibold">Votre place</span>
-              </div>
-            </div>
-
-            {/* PERFECTLY SYMMETRIC ARCHITECTURAL PLAN OF LA CHAPELLE */}
-            <div className="w-full overflow-x-auto pb-2">
-              <div className="w-[560px] sm:w-[640px] mx-auto py-4 px-2 select-none">
-                {/* TOP SECTION : Left Wing + Center Gap + Right Wing */}
-                <div className="grid grid-cols-[176px_1fr_176px] sm:grid-cols-[200px_1fr_200px] items-stretch">
-                  {/* Top-Left Curved Alcove (4 cols x 5 chairs) */}
-                  <div className="rounded-l-[80px] border-t-[3px] border-l-[3px] border-b-[3px] border-red-500 bg-[#080510] py-4 pl-6 pr-3 flex items-center justify-center gap-2 sm:gap-2.5">
-                    {topLeftCols.map((colSeats, cIdx) => (
-                      <div key={`tl-c-${cIdx}`} className="flex flex-col gap-1.5">
-                        {colSeats.map((seat) => renderChair(seat))}
-                      </div>
-                    ))}
-                  </div>
-
-                  {/* Center Top Space */}
-                  <div className="flex flex-col items-center justify-end pb-2">
-                    <div className="text-[10px] font-mono uppercase tracking-[0.25em] text-purple-300/50">
-                      SCÈNE
-                    </div>
-                  </div>
-
-                  {/* Top-Right Curved Alcove (4 cols x 5 chairs) */}
-                  <div className="rounded-r-[80px] border-t-[3px] border-r-[3px] border-b-[3px] border-red-500 bg-[#080510] py-4 pr-6 pl-3 flex items-center justify-center gap-2 sm:gap-2.5">
-                    {topRightCols.map((colSeats, cIdx) => (
-                      <div key={`tr-c-${cIdx}`} className="flex flex-col gap-1.5">
-                        {colSeats.map((seat) => renderChair(seat))}
-                      </div>
-                    ))}
-                  </div>
-                </div>
-
-                {/* MIDDLE NAVE SECTION : Directly connected to the inner walls */}
-                <div className="w-[376px] sm:w-[424px] mx-auto -mt-[3px] border-x-[3px] border-b-[3px] border-red-500 bg-[#080510] pt-5 pb-6 px-4 sm:px-5">
-                  <div className="grid grid-cols-[1fr_54px_1fr] sm:grid-cols-[1fr_64px_1fr] gap-3 sm:gap-4 items-stretch">
-                    {/* Middle-Left (8 rows x 5 chairs) */}
-                    <div className="flex flex-col justify-between gap-2">
-                      {middleRows.map(({ row, left }) => (
-                        <div
-                          key={`ml-r-${row}`}
-                          className="flex items-center justify-between gap-1 sm:gap-1.5"
-                        >
-                          {left.map((seat) => renderChair(seat))}
-                        </div>
-                      ))}
-                    </div>
-
-                    {/* Central Piste */}
-                    <div className="rounded-sm bg-[#b9b2d8] text-slate-950 flex items-center justify-center shadow-inner">
-                      <span
-                        className="font-bold text-sm sm:text-base tracking-[0.2em] lowercase"
-                        style={{
-                          writingMode: "vertical-rl",
-                          transform: "rotate(180deg)",
-                        }}
-                      >
-                        piste
-                      </span>
-                    </div>
-
-                    {/* Middle-Right (8 rows x 5 chairs) */}
-                    <div className="flex flex-col justify-between gap-2">
-                      {middleRows.map(({ row, right }) => (
-                        <div
-                          key={`mr-r-${row}`}
-                          className="flex items-center justify-between gap-1 sm:gap-1.5"
-                        >
-                          {right.map((seat) => renderChair(seat))}
-                        </div>
-                      ))}
-                    </div>
-                  </div>
-                </div>
-              </div>
-            </div>
-
-            {/* Selected Seat Reveal Box (Only shows the Word + Line Number AFTER selection) */}
-            <div className="mt-6 p-4 sm:p-5 rounded-2xl bg-[#160d2e] border border-fuchsia-500/30 flex flex-col sm:flex-row items-center justify-between gap-4">
-              <div className="flex items-center gap-3.5">
-                <div className="w-12 h-12 rounded-2xl bg-fuchsia-500/20 border border-fuchsia-400/40 flex items-center justify-center text-fuchsia-300 shrink-0">
-                  <Armchair className="w-6 h-6" />
-                </div>
-                <div>
-                  <div className="text-xs text-purple-300 uppercase tracking-wider font-bold">
-                    Votre Place Sélectionnée
-                  </div>
-                  {selectedSeat ? (
-                    <div className="text-lg sm:text-xl font-black text-white flex items-center gap-2 mt-0.5">
-                      <span className="text-fuchsia-400 font-mono tracking-wide">
-                        {selectedSeat.code}
-                      </span>
-                      <CheckCircle2 className="w-5 h-5 text-emerald-400" />
-                    </div>
-                  ) : (
-                    <div className="text-xs sm:text-sm text-purple-200/60 font-medium mt-0.5">
-                      Cliquez sur une chaise disponible (blanc cassé) pour découvrir le numéro de votre place
-                    </div>
-                  )}
-                </div>
-              </div>
-            </div>
-          </div>
-
           {/* Error Banner */}
           {errorMessage && (
             <div className="p-4 rounded-2xl bg-red-500/15 border border-red-500/40 text-red-200 text-sm flex items-center gap-3">
@@ -697,25 +548,29 @@ export default function OuvertureSmeRegistrationPage() {
 
           {/* Submit Button */}
           <div className="flex justify-center">
-            <button
-              type="submit"
-              disabled={isSubmitting}
-              className="w-full sm:w-auto min-w-[320px] py-4 px-8 rounded-2xl font-extrabold text-sm sm:text-base text-white bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600 hover:from-fuchsia-500 hover:to-indigo-500 shadow-[0_12px_35px_rgba(192,38,211,0.4)] transition-all flex items-center justify-center gap-3 disabled:opacity-50 cursor-pointer"
-            >
-              {isSubmitting ? (
-                <>
-                  <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
-                  <span>Confirmation en cours...</span>
-                </>
-              ) : (
-                <>
-                  <span>
-                    Confirmer ma place {selectedSeat ? `(${selectedSeat.code})` : ""}
-                  </span>
-                  <ArrowRight className="w-5 h-5" />
-                </>
-              )}
-            </button>
+            {isEventFull ? (
+              <div className="w-full p-5 rounded-2xl bg-fuchsia-950/50 border border-fuchsia-500/30 text-center text-purple-200 text-sm font-semibold">
+                Les inscriptions pour l&apos;Ouverture de la SME 2026 sont désormais complètes.
+              </div>
+            ) : (
+              <button
+                type="submit"
+                disabled={isSubmitting}
+                className="w-full sm:w-auto min-w-[320px] py-4 px-8 rounded-2xl font-extrabold text-sm sm:text-base text-white bg-gradient-to-r from-fuchsia-600 via-purple-600 to-indigo-600 hover:from-fuchsia-500 hover:to-indigo-500 shadow-[0_12px_35px_rgba(192,38,211,0.4)] transition-all flex items-center justify-center gap-3 disabled:opacity-50 cursor-pointer"
+              >
+                {isSubmitting ? (
+                  <>
+                    <div className="w-5 h-5 border-2 border-white/30 border-t-white rounded-full animate-spin" />
+                    <span>Confirmation en cours...</span>
+                  </>
+                ) : (
+                  <>
+                    <span>Confirmer mon inscription</span>
+                    <ArrowRight className="w-5 h-5" />
+                  </>
+                )}
+              </button>
+            )}
           </div>
         </form>
       </main>

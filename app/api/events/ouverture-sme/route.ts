@@ -6,6 +6,7 @@ import nodemailer from "nodemailer";
 export const dynamic = "force-dynamic";
 
 const OUVERTURE_SME_SESSION_KEY = "OUVERTURE_SME_2026";
+const EXTRA_UNSEATED_CAPACITY = 40;
 
 const transporter = nodemailer.createTransport({
   service: "gmail",
@@ -15,7 +16,7 @@ const transporter = nodemailer.createTransport({
   },
 });
 
-// GET /api/events/ouverture-sme - Return list of already booked seat IDs
+// GET /api/events/ouverture-sme - Return list of already booked seat IDs + remaining unseated capacity
 export async function GET() {
   try {
     const { data: rows, error } = await supabaseAdmin
@@ -24,24 +25,43 @@ export async function GET() {
       .eq("session_choice", OUVERTURE_SME_SESSION_KEY);
 
     if (error) {
-      return NextResponse.json({ bookedSeatIds: [] });
+      return NextResponse.json({
+        bookedSeatIds: [],
+        unseatedCount: 0,
+        unseatedRemaining: EXTRA_UNSEATED_CAPACITY,
+        isFull: false,
+      });
     }
+
+    const allLevels = (rows || [])
+      .map((r) => r.education_level)
+      .filter((v): v is string => Boolean(v));
+
+    const unseatedCount = allLevels.filter((id) => id.startsWith("EXTRA-")).length;
 
     const bookedSeatIds = Array.from(
       new Set(
-        (rows || [])
-          .map((r) => r.education_level)
-          .filter((v): v is string => Boolean(v))
+        allLevels
+          .filter((id) => !id.startsWith("EXTRA-"))
           .map((id) => id.replace(/^MG-R(\d+)-C5$/, "MG-R$1-C4"))
       )
     );
 
     return NextResponse.json({
       bookedSeatIds,
-      totalRegistered: bookedSeatIds.length,
+      totalRegistered: allLevels.length,
+      unseatedCount,
+      unseatedRemaining: Math.max(0, EXTRA_UNSEATED_CAPACITY - unseatedCount),
+      isFull: unseatedCount >= EXTRA_UNSEATED_CAPACITY,
     });
   } catch (err: any) {
-    return NextResponse.json({ bookedSeatIds: [], error: err.message });
+    return NextResponse.json({
+      bookedSeatIds: [],
+      unseatedCount: 0,
+      unseatedRemaining: EXTRA_UNSEATED_CAPACITY,
+      isFull: false,
+      error: err.message,
+    });
   }
 }
 
@@ -61,12 +81,11 @@ export async function POST(req: NextRequest) {
       seatId,
     } = body;
 
-    if (!fullName || !email || !phone || !status || !statusDetail || !institution || !oneWord || !seatId) {
+    if (!fullName || !email || !phone || !status || !statusDetail || !institution || !oneWord) {
       return NextResponse.json(
         {
           success: false,
-          message:
-            "Veuillez remplir tous les champs obligatoires et sélectionner votre place sur le plan.",
+          message: "Veuillez remplir tous les champs obligatoires.",
         },
         { status: 400 }
       );
@@ -93,49 +112,82 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const seat = CHAPELLE_SEATS_BY_ID[String(seatId)];
-    if (!seat || seat.preReserved) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Cette place est réservée. Veuillez sélectionner une place disponible.",
-        },
-        { status: 400 }
-      );
-    }
+    let resolvedSeatId = "";
+    let resolvedSeatCode = "PASS OFFICIEL";
+    let hasSpecificChair = false;
 
-    const isPro = String(status).toLowerCase().includes("professionnel");
-    const isAllowedForStatus =
-      seat.category === "both" ||
-      (isPro && seat.category === "professional") ||
-      (!isPro && seat.category === "student");
+    if (seatId && String(seatId).trim()) {
+      const seat = CHAPELLE_SEATS_BY_ID[String(seatId)];
+      if (!seat || seat.preReserved) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Cette place est réservée. Veuillez sélectionner une place disponible.",
+          },
+          { status: 400 }
+        );
+      }
 
-    if (!isAllowedForStatus) {
-      return NextResponse.json(
-        {
-          success: false,
-          message: "Cette place n'est pas disponible. Veuillez sélectionner une place libre sur le plan.",
-        },
-        { status: 400 }
-      );
-    }
+      const isPro = String(status).toLowerCase().includes("professionnel");
+      const isAllowedForStatus =
+        seat.category === "both" ||
+        (isPro && seat.category === "professional") ||
+        (!isPro && seat.category === "student");
 
-    // Check if seat is already booked in database
-    const { data: existingSeats } = await supabaseAdmin
-      .from("doctoriales_registrations")
-      .select("id")
-      .eq("session_choice", OUVERTURE_SME_SESSION_KEY)
-      .eq("education_level", seat.id);
+      if (!isAllowedForStatus) {
+        return NextResponse.json(
+          {
+            success: false,
+            message: "Cette place n'est pas disponible. Veuillez sélectionner une place libre sur le plan.",
+          },
+          { status: 400 }
+        );
+      }
 
-    if (existingSeats && existingSeats.length > 0) {
-      return NextResponse.json(
-        {
-          success: false,
-          seatTaken: true,
-          message: `La place ${seat.code} vient tout juste d'être réservée. Merci d'en choisir une autre sur le plan.`,
-        },
-        { status: 409 }
-      );
+      // Check if seat is already booked in database
+      const { data: existingSeats } = await supabaseAdmin
+        .from("doctoriales_registrations")
+        .select("id")
+        .eq("session_choice", OUVERTURE_SME_SESSION_KEY)
+        .eq("education_level", seat.id);
+
+      if (existingSeats && existingSeats.length > 0) {
+        return NextResponse.json(
+          {
+            success: false,
+            seatTaken: true,
+            message: `La place ${seat.code} vient tout juste d'être réservée. Merci d'en choisir une autre sur le plan.`,
+          },
+          { status: 409 }
+        );
+      }
+
+      resolvedSeatId = seat.id;
+      resolvedSeatCode = seat.code;
+      hasSpecificChair = true;
+    } else {
+      // Registration without choosing a chair (capped at 40 participants)
+      const { data: extraRows } = await supabaseAdmin
+        .from("doctoriales_registrations")
+        .select("education_level")
+        .eq("session_choice", OUVERTURE_SME_SESSION_KEY)
+        .like("education_level", "EXTRA-%");
+
+      const currentExtraCount = (extraRows || []).length;
+      if (currentExtraCount >= EXTRA_UNSEATED_CAPACITY) {
+        return NextResponse.json(
+          {
+            success: false,
+            isFull: true,
+            message: "Les inscriptions pour l'Ouverture de la SME 2026 sont désormais complètes.",
+          },
+          { status: 409 }
+        );
+      }
+
+      resolvedSeatId = `EXTRA-${currentExtraCount + 1}`;
+      resolvedSeatCode = "PASS OFFICIEL";
+      hasSpecificChair = false;
     }
 
     const randomSuffix = Math.random().toString(36).substring(2, 7).toUpperCase();
@@ -153,12 +205,12 @@ export async function POST(req: NextRequest) {
       status_custom: phone.trim(),         // Stores phone number
       institution: resolvedInstitution,
       institution_custom: institutionCustom ? institutionCustom.trim() : null,
-      education_level: seat.id,            // Stores internal seatId (e.g. "MG-R3-C2")
-      education_level_custom: seat.code,   // Stores chair name (Word + Line number, e.g. "IMPACT 3")
+      education_level: resolvedSeatId,     // Stores internal seatId or EXTRA-N
+      education_level_custom: resolvedSeatCode,
       specialty: cleanWord,                // Stores the 1-word entrepreneurship answer for admin tracking
-      specialty_custom: seat.code,         // Stores chair name (Word + Line number, e.g. "IMPACT 3")
+      specialty_custom: resolvedSeatCode,
       session_choice: OUVERTURE_SME_SESSION_KEY,
-      has_laptop_and_charger: seat.code,
+      has_laptop_and_charger: resolvedSeatCode,
       can_attend_full_session: "{}",       // Stores check-in JSON for QR scanner
       preferred_language: statusDetail.trim(), // Stores student class or professional job title
       confirmed_prerequisites: true,
@@ -180,7 +232,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const qrPayload = `HEC-SME-2026|ID:${registrationId}|SEAT:${seat.code}|NAME:${fullName.trim()}`;
+    const qrPayload = `HEC-SME-2026|ID:${registrationId}|SEAT:${resolvedSeatCode}|NAME:${fullName.trim()}`;
     const qrImageUrl = `https://api.qrserver.com/v1/create-qr-code/?size=320x320&margin=12&data=${encodeURIComponent(qrPayload)}`;
 
     const passQueryParams = new URLSearchParams({
@@ -191,14 +243,49 @@ export async function POST(req: NextRequest) {
       status: status.trim(),
       statusDetail: statusDetail.trim(),
       institution: resolvedInstitution,
-      seatId: seat.id,
-      seatCode: seat.code,
+      seatId: resolvedSeatId,
+      seatCode: resolvedSeatCode,
     });
 
     const passPageUrl = `https://hec-entrepreneurs.vercel.app/evenements/ouverture-sme/success?${passQueryParams.toString()}`;
     const passDownloadUrl = `${passPageUrl}&download=1`;
 
-    // Send Thank You + Name + Chair Name (Word + Number) + QR Code Badge email
+    const seatBannerHtml = hasSpecificChair
+      ? `
+                <div class="seat-banner">
+                  <div class="seat-label">🪑 Votre Place Réservée</div>
+                  <div class="seat-code">${resolvedSeatCode}</div>
+                </div>
+      `
+      : "";
+
+    const ticketSeatBadgeHtml = hasSpecificChair
+      ? `
+                  <div style="display: inline-block; background: #2e1065; border: 1px solid #d946ef80; border-radius: 10px; padding: 6px 16px; margin-bottom: 12px;">
+                    <span style="font-size: 11px; color: #f0abfc; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Place : </span>
+                    <span style="font-size: 16px; color: #ffffff; font-family: monospace; font-weight: 900; letter-spacing: 1.5px;">${resolvedSeatCode}</span>
+                  </div>
+      `
+      : "";
+
+    const seatInfoRowHtml = hasSpecificChair
+      ? `
+                  <div class="info-row">
+                    <span class="info-label">Place réservée :</span>
+                    <span class="info-val" style="color: #e879f9; font-family: monospace; font-size: 14px;">${resolvedSeatCode}</span>
+                  </div>
+      `
+      : "";
+
+    const ctaButtonLabel = hasSpecificChair
+      ? `📥 Télécharger mon Badge (QR Code + Place ${resolvedSeatCode})`
+      : `📥 Télécharger mon Badge Officiel (QR Code)`;
+
+    const emailSubject = hasSpecificChair
+      ? `🎟️ Confirmation & Place ${resolvedSeatCode} — Ouverture de la SME 2026`
+      : `🎟️ Confirmation & Badge d'Accès — Ouverture de la SME 2026`;
+
+    // Send Thank You + Name + QR Code Badge email
     if (process.env.GMAIL_USER && process.env.GMAIL_APP_PASSWORD) {
       try {
         const mailHtml = `
@@ -236,24 +323,18 @@ export async function POST(req: NextRequest) {
               </div>
               <div class="body-content">
                 <p>Bonjour <strong>${fullName.trim()}</strong>,</p>
-                <p>Merci pour votre inscription ! Nous avons le plaisir de vous confirmer la réservation de votre place pour la <strong>Cérémonie d'Ouverture de la Semaine Mondiale de l'Entrepreneuriat (SME 2026)</strong>.</p>
+                <p>Merci pour votre inscription ! Nous avons le plaisir de vous confirmer votre participation à la <strong>Cérémonie d'Ouverture de la Semaine Mondiale de l'Entrepreneuriat (SME 2026)</strong>.</p>
 
-                <div class="seat-banner">
-                  <div class="seat-label">🪑 Votre Place Réservée</div>
-                  <div class="seat-code">${seat.code}</div>
-                </div>
+                ${seatBannerHtml}
 
                 <div class="ticket-box">
-                  <div style="font-size: 11px; text-transform: uppercase; color: #f0abfc; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 14px;">Badge d'Accès Officiel (QR Code + Place)</div>
+                  <div style="font-size: 11px; text-transform: uppercase; color: #f0abfc; letter-spacing: 1.5px; font-weight: 700; margin-bottom: 14px;">Badge d'Accès Officiel (QR Code)</div>
                   <img src="${qrImageUrl}" alt="QR Code Pass Ouverture SME" width="230" height="230" style="display: block; margin: 0 auto 12px auto; border-radius: 12px; background: #ffffff; padding: 10px; box-shadow: 0 8px 25px rgba(0,0,0,0.45);" />
-                  <div style="display: inline-block; background: #2e1065; border: 1px solid #d946ef80; border-radius: 10px; padding: 6px 16px; margin-bottom: 12px;">
-                    <span style="font-size: 11px; color: #f0abfc; text-transform: uppercase; letter-spacing: 1px; font-weight: 700;">Place : </span>
-                    <span style="font-size: 16px; color: #ffffff; font-family: monospace; font-weight: 900; letter-spacing: 1.5px;">${seat.code}</span>
-                  </div>
+                  ${ticketSeatBadgeHtml}
                   <div style="font-size: 11px; text-transform: uppercase; color: #94a3b8; letter-spacing: 1.5px; margin-bottom: 4px;">Référence du Badge</div>
                   <div class="ticket-id">${registrationId}</div>
                   <div style="margin-top: 18px;">
-                    <a href="${passDownloadUrl}" style="display: inline-block; background: linear-gradient(90deg, #c026d3, #7c3aed); color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 10px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px;">📥 Télécharger mon Badge (QR Code + Place ${seat.code})</a>
+                    <a href="${passDownloadUrl}" style="display: inline-block; background: linear-gradient(90deg, #c026d3, #7c3aed); color: #ffffff; text-decoration: none; padding: 12px 24px; border-radius: 10px; font-size: 13px; font-weight: 700; letter-spacing: 0.5px;">${ctaButtonLabel}</a>
                   </div>
                 </div>
 
@@ -270,10 +351,7 @@ export async function POST(req: NextRequest) {
                     <span class="info-label">Téléphone :</span>
                     <span class="info-val">${phone.trim()}</span>
                   </div>
-                  <div class="info-row">
-                    <span class="info-label">Place réservée :</span>
-                    <span class="info-val" style="color: #e879f9; font-family: monospace; font-size: 14px;">${seat.code}</span>
-                  </div>
+                  ${seatInfoRowHtml}
                   <div class="info-row">
                     <span class="info-label">Date & Horaires :</span>
                     <span class="info-val">Mercredi 18 Novembre 2026 • Check-in : 08h30 | Début : 09h00</span>
@@ -285,7 +363,7 @@ export async function POST(req: NextRequest) {
                 </div>
 
                 <p style="font-size: 13px; color: #94a3b8; text-align: center; margin-top: 18px;">
-                  Veuillez présenter ce Badge QR Code dès <strong>08h30</strong> à l'entrée de La Chapelle pour accéder à votre place <strong>${seat.code}</strong>.
+                  Veuillez présenter ce Badge QR Code dès <strong>08h30</strong> à l'entrée de La Chapelle.
                 </p>
               </div>
               <div class="footer">
@@ -299,7 +377,7 @@ export async function POST(req: NextRequest) {
         await transporter.sendMail({
           from: `"HEC Entrepreneurs — SME 2026" <${process.env.GMAIL_USER}>`,
           to: email.trim(),
-          subject: `🎟️ Confirmation & Place ${seat.code} — Ouverture de la SME 2026`,
+          subject: emailSubject,
           html: mailHtml,
         });
       } catch (mailErr) {
@@ -310,7 +388,7 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({
       success: true,
       registrationId,
-      seatCode: seat.code,
+      seatCode: resolvedSeatCode,
     });
   } catch (err: any) {
     console.error("SME registration error:", err);
