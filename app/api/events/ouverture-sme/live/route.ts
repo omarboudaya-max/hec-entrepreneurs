@@ -142,19 +142,14 @@ async function resolveParticipant(codeInput: string | null) {
     };
   }
 
-  const { data: rows } = await supabaseAdmin
+  const { data: matched } = await supabaseAdmin
     .from("doctoriales_registrations")
-    .select("*")
-    .eq("session_choice", OUVERTURE_SME_SESSION_KEY);
-
-  if (!rows) return null;
-
-  const cleanUpper = code.toUpperCase();
-  const matched = rows.find(
-    (r) =>
-      (r.qr_code_id && r.qr_code_id.toUpperCase() === cleanUpper) ||
-      r.id === code
-  );
+    .select(
+      "id, qr_code_id, full_name, status, preferred_language, institution, specialty_custom, can_attend_full_session"
+    )
+    .eq("session_choice", OUVERTURE_SME_SESSION_KEY)
+    .ilike("qr_code_id", code)
+    .maybeSingle();
 
   if (!matched) return null;
 

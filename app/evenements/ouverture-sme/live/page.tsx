@@ -205,19 +205,81 @@ function SmeLiveHubContent() {
     setFeedbacks(state.feedbacks || []);
   };
 
+  // Compress smartphone camera photo (e.g. 8MB -> ~120KB) for instant upload
+  const compressImageFile = (file: File): Promise<Blob> => {
+    return new Promise((resolve) => {
+      const img = new Image();
+      const objectUrl = URL.createObjectURL(file);
+      img.onload = () => {
+        URL.revokeObjectURL(objectUrl);
+        const MAX_DIM = 1200;
+        let { width, height } = img;
+        if (width > MAX_DIM || height > MAX_DIM) {
+          if (width > height) {
+            height = Math.round((height * MAX_DIM) / width);
+            width = MAX_DIM;
+          } else {
+            width = Math.round((width * MAX_DIM) / height);
+            height = MAX_DIM;
+          }
+        }
+        const canvas = document.createElement("canvas");
+        canvas.width = width;
+        canvas.height = height;
+        const ctx = canvas.getContext("2d");
+        if (!ctx) {
+          resolve(file);
+          return;
+        }
+        ctx.drawImage(img, 0, 0, width, height);
+        canvas.toBlob(
+          (blob) => {
+            resolve(blob || file);
+          },
+          "image/jpeg",
+          0.78
+        );
+      };
+      img.onerror = () => {
+        URL.revokeObjectURL(objectUrl);
+        resolve(file);
+      };
+      img.src = objectUrl;
+    });
+  };
+
   // Handle Story file selection
-  const handleSelectStoryFile = (e: React.ChangeEvent<HTMLInputElement>) => {
+  const handleSelectStoryFile = async (e: React.ChangeEvent<HTMLInputElement>) => {
     const f = e.target.files?.[0];
     if (!f) return;
-    setStoryFile(f);
     setStoryPreview(URL.createObjectURL(f));
     setStoryModalOpen(true);
+    const compressedBlob = await compressImageFile(f);
+    const compressedFile = new File([compressedBlob], "story.jpg", {
+      type: "image/jpeg",
+    });
+    setStoryFile(compressedFile);
   };
 
   const handleUploadStory = async (e: React.FormEvent) => {
     e.preventDefault();
     if (!storyFile || !participant) return;
     setUploadingStory(true);
+
+    // Optimistic Story insertion for instant feedback
+    const tempStory: SmeLiveStory = {
+      id: `temp-${Date.now()}`,
+      authorCode: participant.code,
+      authorName: participant.fullName,
+      authorSeat: participant.seatCode,
+      imageUrl: storyPreview || "",
+      caption: storyCaption,
+      likes: [],
+      createdAt: new Date().toISOString(),
+    };
+    setStories((prev) => [tempStory, ...prev]);
+    setStoryModalOpen(false);
+
     try {
       const fd = new FormData();
       fd.append("code", participant.code);
@@ -231,7 +293,6 @@ function SmeLiveHubContent() {
       const data = await res.json();
       if (data.success) {
         applyServerState(data.state);
-        setStoryModalOpen(false);
         setStoryFile(null);
         setStoryPreview(null);
         setStoryCaption("");
