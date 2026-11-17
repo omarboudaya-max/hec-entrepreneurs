@@ -391,6 +391,14 @@ export default function PortailOuvertureSmeScannerPage() {
 
         <div className="flex flex-wrap items-center gap-2">
           <Link
+            href="/evenements/ouverture-sme/live?code=ADMIN-HEC"
+            target="_blank"
+            className="px-3.5 py-2 rounded-xl bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-xs font-bold text-white flex items-center gap-1.5 shadow-lg shadow-fuchsia-600/25 transition"
+          >
+            <Sparkles className="w-3.5 h-3.5" />
+            <span>🚀 Ouvrir l&apos;Espace Live (Admin)</span>
+          </Link>
+          <Link
             href="/portail/doctoriales"
             className="px-3.5 py-2 rounded-xl bg-white/5 hover:bg-white/10 border border-white/10 text-xs font-semibold text-gray-300 transition"
           >
