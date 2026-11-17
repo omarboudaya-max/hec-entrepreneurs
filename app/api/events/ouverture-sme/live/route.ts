@@ -4,7 +4,8 @@ import { supabaseAdmin } from "@/lib/supabase-admin";
 export const dynamic = "force-dynamic";
 
 const OUVERTURE_SME_SESSION_KEY = "OUVERTURE_SME_2026";
-const LIVE_HUB_DOC_KEY = "sme_live_hub_data";
+const LIVE_HUB_STORAGE_BUCKET = "portail-media";
+const LIVE_HUB_STATE_PATH = "sme-live/hub-state.json";
 
 interface SmeLiveStory {
   id: string;
@@ -82,14 +83,13 @@ const EMPTY_STATE: SmeLiveHubState = {
 
 async function getLiveHubState(): Promise<SmeLiveHubState> {
   try {
-    const { data } = await supabaseAdmin
-      .from("club_documents")
-      .select("description")
-      .eq("doc_key", LIVE_HUB_DOC_KEY)
-      .maybeSingle();
+    const { data, error } = await supabaseAdmin.storage
+      .from(LIVE_HUB_STORAGE_BUCKET)
+      .download(LIVE_HUB_STATE_PATH);
 
-    if (!data?.description) return { ...EMPTY_STATE };
-    const parsed = JSON.parse(data.description);
+    if (error || !data) return { ...EMPTY_STATE };
+    const text = await data.text();
+    const parsed = JSON.parse(text);
     return {
       stories: Array.isArray(parsed.stories) ? parsed.stories : [],
       messages: Array.isArray(parsed.messages) ? parsed.messages : [],
@@ -103,16 +103,13 @@ async function getLiveHubState(): Promise<SmeLiveHubState> {
 }
 
 async function saveLiveHubState(state: SmeLiveHubState): Promise<void> {
-  await supabaseAdmin.from("club_documents").upsert(
-    {
-      doc_key: LIVE_HUB_DOC_KEY,
-      title: "SME 2026 Live Hub State",
-      file_url: "internal://sme-live-hub",
-      description: JSON.stringify(state),
-      updated_at: new Date().toISOString(),
-    },
-    { onConflict: "doc_key" }
-  );
+  const payload = Buffer.from(JSON.stringify(state), "utf-8");
+  await supabaseAdmin.storage
+    .from(LIVE_HUB_STORAGE_BUCKET)
+    .upload(LIVE_HUB_STATE_PATH, payload, {
+      contentType: "application/json",
+      upsert: true,
+    });
 }
 
 function isCheckedIn(rawField?: string | null): boolean {
