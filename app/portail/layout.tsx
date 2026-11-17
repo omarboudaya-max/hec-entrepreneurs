@@ -60,7 +60,7 @@ function RoleBadge({ role, poste }: { role: string; poste?: string }) {
 function PortailShell({ children }: { children: React.ReactNode }) {
   const pathname = usePathname();
   const router = useRouter();
-  const { user, profile, loading, isDeveloper, isGuest, canScanDoctoriales, isTreasurer, isBureau, signOut } = usePortailAuth();
+  const { user, profile, loading, isDeveloper, isGuest, canScanDoctoriales, canScanOuvertureSme, isTreasurer, isBureau, signOut } = usePortailAuth();
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
 
   useEffect(() => {
@@ -135,7 +135,7 @@ function PortailShell({ children }: { children: React.ReactNode }) {
       label: "Ouverture SME (Scan & Places)",
       href: "/portail/ouverture-sme",
       icon: Sparkles,
-      show: canScanDoctoriales, // Développeur (Omar) & Guest Scanner
+      show: canScanOuvertureSme, // Développeur, Guest Scanner & Équipe Check-in SME
     },
     {
       label: "HEC Doctoriales (Scan QR)",

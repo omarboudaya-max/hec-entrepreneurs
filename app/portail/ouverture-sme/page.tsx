@@ -54,7 +54,7 @@ interface ScanFeedback {
 }
 
 export default function PortailOuvertureSmeScannerPage() {
-  const { user, canScanDoctoriales, loading: authLoading } = usePortailAuth();
+  const { user, canScanOuvertureSme, loading: authLoading } = usePortailAuth();
 
   const [registrations, setRegistrations] = useState<SmeRegistration[]>([]);
   const [loadingData, setLoadingData] = useState(true);
@@ -102,10 +102,10 @@ export default function PortailOuvertureSmeScannerPage() {
   }, []);
 
   useEffect(() => {
-    if (!authLoading && user && canScanDoctoriales) {
+    if (!authLoading && user && canScanOuvertureSme) {
       fetchSmeData();
     }
-  }, [authLoading, user, canScanDoctoriales, fetchSmeData]);
+  }, [authLoading, user, canScanOuvertureSme, fetchSmeData]);
 
   // Cooldown timer for camera rescan protection
   useEffect(() => {
@@ -353,11 +353,11 @@ export default function PortailOuvertureSmeScannerPage() {
     );
   };
 
-  if (!authLoading && !canScanDoctoriales) {
+  if (!authLoading && !canScanOuvertureSme) {
     return (
       <div className="max-w-xl mx-auto p-8 text-center">
         <div className="p-6 rounded-3xl bg-red-500/10 border border-red-500/20 text-red-300">
-          Accès réservé au Développeur et au compte Scanner.
+          Accès réservé au Développeur, au compte Scanner et à l&apos;équipe Check-in SME.
         </div>
       </div>
     );

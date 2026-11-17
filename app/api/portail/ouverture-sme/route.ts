@@ -33,6 +33,27 @@ function extractSmeCode(rawInput: string): string {
   return text.toUpperCase();
 }
 
+const SME_CHECKIN_TEAM_EMAILS = new Set([
+  "romdhani2005@gmail.com",
+  "hammemimohamed597@gmail.com",
+  "amounaamiri1210@gmail.com",
+  "darinebouzid515@gmail.com",
+]);
+
+function isCheckInTeamName(rawName?: string | null): boolean {
+  const n = (rawName || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+  return (
+    (n.includes("imen") && n.includes("romdhani")) ||
+    (n.includes("mohamed") &&
+      (n.includes("hamemi") || n.includes("hammemi") || n.includes("hammami"))) ||
+    (n.includes("ameni") && n.includes("amiri")) ||
+    (n.includes("darine") && n.includes("bouzid"))
+  );
+}
+
 async function verifyDevOrGuest(req: NextRequest): Promise<{
   authorized: boolean;
   actorName?: string;
@@ -48,14 +69,16 @@ async function verifyDevOrGuest(req: NextRequest): Promise<{
   if (
     emailLower === "omarboudaya1@gmail.com" ||
     emailLower === "guest@hecentrepreneurs.tn" ||
+    SME_CHECKIN_TEAM_EMAILS.has(emailLower) ||
     user.user_metadata?.role === "guest" ||
-    user.user_metadata?.role === "developpeur"
+    user.user_metadata?.role === "developpeur" ||
+    isCheckInTeamName(user.user_metadata?.full_name)
   ) {
     return {
       authorized: true,
       actorName:
         user.user_metadata?.full_name ||
-        (emailLower === "guest@hecentrepreneurs.tn" ? "Guest Scanner" : "Omar Boudaya"),
+        (emailLower === "guest@hecentrepreneurs.tn" ? "Guest Scanner" : emailLower),
     };
   }
 
@@ -65,10 +88,14 @@ async function verifyDevOrGuest(req: NextRequest): Promise<{
     .eq("id", user.id)
     .maybeSingle();
 
-  if (profile?.role === "developpeur" || profile?.role === "bureau") {
+  if (
+    profile?.role === "developpeur" ||
+    profile?.role === "bureau" ||
+    isCheckInTeamName(profile?.full_name)
+  ) {
     return {
       authorized: true,
-      actorName: profile.full_name || "Développeur",
+      actorName: profile?.full_name || "Équipe Check-in",
     };
   }
 

@@ -12,6 +12,7 @@ interface PortailAuthContextType {
   isDeveloper: boolean;
   isGuest: boolean;
   canScanDoctoriales: boolean;
+  canScanOuvertureSme: boolean;
   isTreasurer: boolean;
   isBureau: boolean;
   isResponsable: boolean;
@@ -135,12 +136,32 @@ export function PortailAuthProvider({ children }: { children: React.ReactNode })
   const role = profile?.role || (user?.email?.toLowerCase() === "omarboudaya1@gmail.com" ? "developpeur" : null);
 
   const emailLower = (user?.email || profile?.email || "").toLowerCase();
+  const fullNameLower = (profile?.full_name || user?.user_metadata?.full_name || "")
+    .toLowerCase()
+    .normalize("NFD")
+    .replace(/[\u0300-\u036f]/g, "");
+
   const isGuest =
     role === "guest" ||
     emailLower === "guest@hecentrepreneurs.tn" ||
     user?.user_metadata?.role === "guest";
   const isDeveloper = !isGuest && role === "developpeur";
   const canScanDoctoriales = isDeveloper || isGuest;
+
+  const isSmeCheckInTeam =
+    emailLower === "romdhani2005@gmail.com" ||
+    emailLower === "hammemimohamed597@gmail.com" ||
+    emailLower === "amounaamiri1210@gmail.com" ||
+    emailLower === "darinebouzid515@gmail.com" ||
+    (fullNameLower.includes("imen") && fullNameLower.includes("romdhani")) ||
+    (fullNameLower.includes("mohamed") &&
+      (fullNameLower.includes("hamemi") ||
+        fullNameLower.includes("hammemi") ||
+        fullNameLower.includes("hammami"))) ||
+    (fullNameLower.includes("ameni") && fullNameLower.includes("amiri")) ||
+    (fullNameLower.includes("darine") && fullNameLower.includes("bouzid"));
+
+  const canScanOuvertureSme = canScanDoctoriales || isSmeCheckInTeam;
   const posteNormalized = (profile?.poste || "")
     .toLowerCase()
     .normalize("NFD")
@@ -164,6 +185,7 @@ export function PortailAuthProvider({ children }: { children: React.ReactNode })
         isDeveloper,
         isGuest,
         canScanDoctoriales,
+        canScanOuvertureSme,
         isTreasurer,
         isBureau,
         isResponsable,
