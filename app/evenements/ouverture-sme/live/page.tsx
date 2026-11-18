@@ -97,9 +97,12 @@ interface SmeLiveParticipant {
 
 function SmeLiveHubContent() {
   const searchParams = useSearchParams();
-  const code = searchParams.get("code") || "";
+  const urlCode = searchParams.get("code") || "";
 
   const [participant, setParticipant] = useState<SmeLiveParticipant | null>(null);
+  const [guestNameInput, setGuestNameInput] = useState("");
+  const [savedCode, setSavedCode] = useState<string>("");
+  const [savedName, setSavedName] = useState<string>("");
   const [stories, setStories] = useState<SmeLiveStory[]>([]);
   const [messages, setMessages] = useState<SmeLiveMessage[]>([]);
   const [questions, setQuestions] = useState<SmeLiveQuestion[]>([]);
@@ -107,6 +110,21 @@ function SmeLiveHubContent() {
   const [feedbacks, setFeedbacks] = useState<SmeLiveFeedback[]>([]);
   const [loading, setLoading] = useState(true);
   const [refreshing, setRefreshing] = useState(false);
+
+  // Restore saved name/code from localStorage for people opening /live directly
+  useEffect(() => {
+    try {
+      const localCode = localStorage.getItem("sme_live_code") || "";
+      const localName = localStorage.getItem("sme_live_name") || "";
+      if (localCode) setSavedCode(localCode);
+      if (localName) setSavedName(localName);
+    } catch {
+      // ignore storage error
+    }
+  }, []);
+
+  const activeCode = urlCode || savedCode;
+  const activeName = savedName;
 
   // Active Tab
   const [activeTab, setActiveTab] = useState<
@@ -146,14 +164,14 @@ function SmeLiveHubContent() {
 
   const fetchLiveHub = useCallback(
     async (silent = false) => {
-      if (!code) {
-        setLoading(false);
-        return;
-      }
       if (!silent) setRefreshing(true);
       try {
+        const params = new URLSearchParams();
+        if (activeCode) params.set("code", activeCode);
+        if (activeName) params.set("name", activeName);
+
         const res = await fetch(
-          `/api/events/ouverture-sme/live?code=${encodeURIComponent(code)}`,
+          `/api/events/ouverture-sme/live?${params.toString()}`,
           { cache: "no-store" }
         );
         const data = await res.json();
@@ -185,8 +203,37 @@ function SmeLiveHubContent() {
         setRefreshing(false);
       }
     },
-    [code]
+    [activeCode, activeName]
   );
+
+  const handleEnterWithCustomName = (e: React.FormEvent) => {
+    e.preventDefault();
+    const trimmed = guestNameInput.trim();
+    if (!trimmed) return;
+    const generatedCode = `GUEST-${trimmed
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")}-${Date.now().toString(36).slice(-4)}`;
+    try {
+      localStorage.setItem("sme_live_code", generatedCode);
+      localStorage.setItem("sme_live_name", trimmed);
+    } catch {
+      // ignore
+    }
+    setSavedCode(generatedCode);
+    setSavedName(trimmed);
+    setParticipant({
+      code: generatedCode,
+      fullName: trimmed,
+      seatCode: "PASS OFFICIEL",
+      status: "Participant",
+      statusDetail: "",
+      institution: "SME 2026",
+      checkedIn: true,
+      isAdmin: false,
+    });
+  };
 
   useEffect(() => {
     fetchLiveHub(false);
@@ -283,6 +330,7 @@ function SmeLiveHubContent() {
     try {
       const fd = new FormData();
       fd.append("code", participant.code);
+      fd.append("authorName", participant.fullName);
       fd.append("caption", storyCaption);
       fd.append("file", storyFile);
 
@@ -311,6 +359,7 @@ function SmeLiveHubContent() {
       body: JSON.stringify({
         action: "like_story",
         code: participant.code,
+        authorName: participant.fullName,
         storyId,
       }),
     });
@@ -329,6 +378,7 @@ function SmeLiveHubContent() {
         body: JSON.stringify({
           action: "add_message",
           code: participant.code,
+          authorName: participant.fullName,
           text: chatText.trim(),
         }),
       });
@@ -350,6 +400,7 @@ function SmeLiveHubContent() {
       body: JSON.stringify({
         action: "like_message",
         code: participant.code,
+        authorName: participant.fullName,
         messageId,
       }),
     });
@@ -368,6 +419,7 @@ function SmeLiveHubContent() {
         body: JSON.stringify({
           action: "add_question",
           code: participant.code,
+          authorName: participant.fullName,
           targetSpeaker: qaSpeaker,
           question: qaQuestion.trim(),
         }),
@@ -390,6 +442,7 @@ function SmeLiveHubContent() {
       body: JSON.stringify({
         action: "upvote_question",
         code: participant.code,
+        authorName: participant.fullName,
         questionId,
       }),
     });
@@ -409,6 +462,7 @@ function SmeLiveHubContent() {
         body: JSON.stringify({
           action: "save_network",
           code: participant.code,
+          authorName: participant.fullName,
           linkedin: netLinkedin,
           instagram: netInstagram,
           bio: netBio,
@@ -435,6 +489,7 @@ function SmeLiveHubContent() {
         body: JSON.stringify({
           action: "submit_feedback",
           code: participant.code,
+          authorName: participant.fullName,
           rating,
           comment: feedbackComment,
         }),
@@ -479,21 +534,46 @@ function SmeLiveHubContent() {
     );
   }
 
-  // Gate: Only accessible via the personal link received by email after QR check-in
-  if (!participant || (!participant.checkedIn && !participant.isAdmin)) {
+  // If opened without an email link (?code=...), allow typing Name directly to enter the Live Space!
+  if (!participant) {
     return (
       <div className="min-h-screen bg-[#07040e] text-white flex items-center justify-center p-4">
-        <div className="max-w-md w-full rounded-3xl bg-[#120b24] border border-fuchsia-500/30 p-7 text-center space-y-4 shadow-2xl">
-          <div className="w-16 h-16 rounded-2xl bg-fuchsia-500/15 border border-fuchsia-500/30 flex items-center justify-center mx-auto text-fuchsia-400">
-            <Lock className="w-8 h-8" />
+        <div className="max-w-md w-full rounded-3xl bg-[#120b24] border border-fuchsia-500/35 p-7 text-center space-y-5 shadow-2xl">
+          <div className="w-16 h-16 rounded-2xl bg-fuchsia-500/15 border border-fuchsia-500/30 flex items-center justify-center mx-auto">
+            <img
+              src="/logo-club.png"
+              alt="HEC Entrepreneurs"
+              className="w-10 h-10 object-contain"
+            />
           </div>
-          <h1 className="text-xl font-black text-white">
-            Espace Live — Ouverture SME 2026
-          </h1>
-          <p className="text-xs sm:text-sm text-purple-200/80 leading-relaxed">
-            Cet espace commun interactif s&apos;active automatiquement dès que votre{" "}
-            <strong>QR Code est scanné à l&apos;entrée de La Chapelle</strong>. Vous recevez alors instantanément votre lien d&apos;accès personnel par e-mail !
-          </p>
+          <div className="space-y-1.5">
+            <div className="inline-flex items-center gap-1.5 px-3 py-1 rounded-full bg-fuchsia-500/15 border border-fuchsia-500/30 text-fuchsia-300 text-[11px] font-bold">
+              <Sparkles className="w-3.5 h-3.5" /> Bienvenue à La Chapelle
+            </div>
+            <h1 className="text-xl sm:text-2xl font-black text-white">
+              Espace Live — Ouverture SME 2026
+            </h1>
+            <p className="text-xs sm:text-sm text-purple-200/80 leading-relaxed">
+              Entrez votre <strong>Nom &amp; Prénom</strong> pour rejoindre l&apos;espace interactif (Photos en direct, Chat, Questions aux intervenants &amp; Networking) :
+            </p>
+          </div>
+
+          <form onSubmit={handleEnterWithCustomName} className="space-y-3 text-left">
+            <input
+              type="text"
+              required
+              value={guestNameInput}
+              onChange={(e) => setGuestNameInput(e.target.value)}
+              placeholder="Votre Nom & Prénom..."
+              className="w-full px-4 py-3.5 rounded-2xl bg-white/[0.05] border border-white/15 text-sm text-white focus:outline-none focus:border-fuchsia-400"
+            />
+            <button
+              type="submit"
+              className="w-full py-3.5 px-6 rounded-2xl bg-gradient-to-r from-fuchsia-600 to-purple-600 hover:from-fuchsia-500 hover:to-purple-500 text-white font-extrabold text-sm shadow-lg shadow-fuchsia-600/30 transition cursor-pointer"
+            >
+              🚀 Accéder à mon Espace Live
+            </button>
+          </form>
         </div>
       </div>
     );

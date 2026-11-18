@@ -122,9 +122,9 @@ function isCheckedIn(rawField?: string | null): boolean {
   }
 }
 
-async function resolveParticipant(codeInput: string | null) {
+async function resolveParticipant(codeInput: string | null, nameInput?: string | null) {
   const code = (codeInput || "").trim();
-  if (!code) return null;
+  const customName = (nameInput || "").trim();
 
   if (code.toUpperCase() === "ADMIN-HEC" || code.toUpperCase() === "OMAR-ADMIN") {
     return {
@@ -139,39 +139,63 @@ async function resolveParticipant(codeInput: string | null) {
     };
   }
 
-  const { data: matched } = await supabaseAdmin
-    .from("doctoriales_registrations")
-    .select(
-      "id, qr_code_id, full_name, status, preferred_language, institution, specialty_custom, can_attend_full_session"
-    )
-    .eq("session_choice", OUVERTURE_SME_SESSION_KEY)
-    .ilike("qr_code_id", code)
-    .maybeSingle();
+  if (code && !code.startsWith("GUEST-")) {
+    const { data: matched } = await supabaseAdmin
+      .from("doctoriales_registrations")
+      .select(
+        "id, qr_code_id, full_name, status, preferred_language, institution, specialty_custom, can_attend_full_session"
+      )
+      .eq("session_choice", OUVERTURE_SME_SESSION_KEY)
+      .ilike("qr_code_id", code)
+      .maybeSingle();
 
-  if (!matched) return null;
+    if (matched) {
+      return {
+        code: matched.qr_code_id || matched.id,
+        fullName: matched.full_name,
+        seatCode: matched.specialty_custom || "PASS OFFICIEL",
+        status: matched.status || "Participant",
+        statusDetail:
+          matched.preferred_language && matched.preferred_language !== "Français"
+            ? matched.preferred_language
+            : "",
+        institution: matched.institution || "IHEC Carthage",
+        checkedIn: true,
+        isAdmin: false,
+      };
+    }
+  }
 
-  return {
-    code: matched.qr_code_id || matched.id,
-    fullName: matched.full_name,
-    seatCode: matched.specialty_custom || "PASS OFFICIEL",
-    status: matched.status || "Participant",
-    statusDetail:
-      matched.preferred_language && matched.preferred_language !== "Français"
-        ? matched.preferred_language
-        : "",
-    institution: matched.institution || "IHEC Carthage",
-    checkedIn: isCheckedIn(matched.can_attend_full_session),
-    isAdmin: false,
-  };
+  if (customName) {
+    const safeSlug = customName
+      .toLowerCase()
+      .normalize("NFD")
+      .replace(/[\u0300-\u036f]/g, "")
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/^-|-$/g, "");
+    return {
+      code: code || `GUEST-${safeSlug || Date.now()}`,
+      fullName: customName,
+      seatCode: "PASS OFFICIEL",
+      status: "Participant",
+      statusDetail: "",
+      institution: "SME 2026",
+      checkedIn: true,
+      isAdmin: false,
+    };
+  }
+
+  return null;
 }
 
-// GET /api/events/ouverture-sme/live?code=SME-...
+// GET /api/events/ouverture-sme/live?code=SME-...&name=...
 export async function GET(req: NextRequest) {
   try {
     const { searchParams } = new URL(req.url);
     const code = searchParams.get("code");
+    const name = searchParams.get("name");
 
-    const participant = await resolveParticipant(code);
+    const participant = await resolveParticipant(code, name);
     const state = await getLiveHubState();
 
     return NextResponse.json({
@@ -192,14 +216,15 @@ export async function POST(req: NextRequest) {
     if (contentType.includes("multipart/form-data")) {
       const formData = await req.formData();
       const code = String(formData.get("code") || "").trim();
+      const authorName = String(formData.get("authorName") || "").trim();
       const caption = String(formData.get("caption") || "").trim();
       const file = formData.get("file") as File | null;
 
-      const participant = await resolveParticipant(code);
-      if (!participant || (!participant.checkedIn && !participant.isAdmin)) {
+      const participant = await resolveParticipant(code, authorName);
+      if (!participant) {
         return NextResponse.json(
-          { error: "Accès réservé aux participants dont le QR Code a été scanné à l'entrée." },
-          { status: 403 }
+          { error: "Veuillez indiquer votre nom pour partager une photo." },
+          { status: 400 }
         );
       }
 
@@ -250,13 +275,13 @@ export async function POST(req: NextRequest) {
 
     // 2. Handle JSON actions
     const body = await req.json();
-    const { action, code } = body;
+    const { action, code, authorName } = body;
 
-    const participant = await resolveParticipant(code);
-    if (!participant || (!participant.checkedIn && !participant.isAdmin)) {
+    const participant = await resolveParticipant(code, authorName);
+    if (!participant) {
       return NextResponse.json(
-        { error: "Accès réservé aux participants présents (QR Code scanné à l'entrée)." },
-        { status: 403 }
+        { error: "Veuillez indiquer votre nom pour participer." },
+        { status: 400 }
       );
     }
 
